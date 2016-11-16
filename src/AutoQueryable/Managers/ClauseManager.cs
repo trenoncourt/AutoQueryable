@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using AutoQueryable.Aliases;
 using AutoQueryable.Extensions;
 
@@ -25,7 +26,7 @@ namespace AutoQueryable.Managers
 
         private Clause GetClause(string q, string clauseAlias, ClauseType clauseType)
         {
-            string[] operands = q.Split(new[] { clauseAlias }, StringSplitOptions.None);
+            string[] operands = Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase);
             var criteria = new Clause
             {
                 Value = operands[1],

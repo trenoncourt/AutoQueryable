@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AutoQueryable.Aliases;
 using AutoQueryable.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +68,7 @@ namespace AutoQueryable.Managers
 
         private Criteria GetCriteria(string q, string conditionAlias, ConditionType conditionType, IEntityType entityType)
         {
-            string[] operands = q.Split(new[] { conditionAlias }, StringSplitOptions.None);
+            string[] operands = Regex.Split(q, conditionAlias, RegexOptions.IgnoreCase);
             var criteria = new Criteria
             {
                 Column = operands[0],
