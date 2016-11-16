@@ -1,4 +1,4 @@
-﻿namespace AutoQueryable
+﻿namespace AutoQueryable.Aliases
 {
     public static class ConditionAlias
     {

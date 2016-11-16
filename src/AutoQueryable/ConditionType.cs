@@ -1,6 +1,6 @@
 ﻿namespace AutoQueryable
 {
-    public enum Condition
+    public enum ConditionType
     {
         Equal = 1,
         NotEqual = 2,

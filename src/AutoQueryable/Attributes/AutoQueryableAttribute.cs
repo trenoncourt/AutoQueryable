@@ -51,13 +51,14 @@ namespace AutoQueryable.Attributes
 
 
             _useFallbackValue = _useFallbackValue ?? false;
-            
-            return new AutoQueryableFilter(new AutoQueryableProfile
+            Type profileType = typeof(AutoQueryableFilter<>).MakeGenericType(EntityType);
+            var o = Activator.CreateInstance(profileType, new AutoQueryableProfile
             {
                 DbContextType = DbContextType,
                 EntityType = EntityType,
                 UseFallbackValue = _useFallbackValue.Value
-            }, serviceProvider);
+            }, serviceProvider) as IAsyncActionFilter;
+            return o;
         }
     }
 }

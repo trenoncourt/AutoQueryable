@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoQueryable.Extensions;
+using AutoQueryable.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -70,7 +71,7 @@ namespace AutoQueryable.Filters
                     return;
                 }
 
-                string whereClause = string.Join(" AND ", criterias.Select((c, index) => c.Condition.ToSqlCondition(c.Column, c.DbParameters)));
+                string whereClause = string.Join(" AND ", criterias.Select((c, index) => c.ConditionType.ToSqlCondition(c.Column, c.DbParameters)));
 
                 string sqlRequest = "SELECT * FROM " + table.Schema + "." + table.TableName + " WHERE " + whereClause;
 
