@@ -43,4 +43,5 @@ Roadmap :
 - ~~Add capability to select properties (columns in table)~~
 - Add capability to choose which property (column in table) can be filtered
 - Add capability to make projection on entities
+- Add capability to get single element
 - Add unselectable columns
