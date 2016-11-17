@@ -30,8 +30,9 @@ public class ProductsController : Controller
 {
     [HttpGet]
     [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(Product), UseFallbackValue = true)]
-    public void Get()
+    public IActionResult Get()
     {
+        return Ok(_dbContext.Products);
     }
 }
 ```
