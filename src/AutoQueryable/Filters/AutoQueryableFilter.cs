@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoQueryable.Extensions;
@@ -11,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System.Reflection;
 using AutoQueryable.Managers;
 using System.Linq.Expressions;
-using System.Dynamic;
 using System.Reflection.Emit;
+using AutoQueryable.Models;
 
 namespace AutoQueryable.Filters
 {
@@ -32,28 +31,17 @@ namespace AutoQueryable.Filters
             try
             {
                 DbContext dbContext = _sp.GetService(_autoQueryableProfile.DbContextType) as DbContext;
+                if (dbContext == null) throw new Exception($"Unable to find DbContext of type {_autoQueryableProfile.DbContextType.Name}.");
 
-                if (dbContext == null)
-                {
-                    throw new Exception($"Unable to find DbContext of type {_autoQueryableProfile.DbContextType.Name}.");
-                }
 
                 IEntityType entityType = dbContext.Model.FindEntityType(_autoQueryableProfile.EntityType);
                 IRelationalEntityTypeAnnotations table = entityType.Relational();
 
                 var dbSetProperty = dbContext.GetType().GetProperties().FirstOrDefault(p => p.PropertyType.GenericTypeArguments.Contains(_autoQueryableProfile.EntityType));
-
-                if (dbSetProperty == null)
-                {
-                    throw new Exception($"Unable to find DbSet of type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
-                }
+                if (dbSetProperty == null) throw new Exception($"Unable to find DbSet of type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
 
                 var dbSet = dbSetProperty.GetValue(dbContext, null) as IQueryable<TEntity>;
-                
-                if (dbSet == null)
-                {
-                    throw new Exception($"Unable to retreive value of DbSet with type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
-                }
+                if (dbSet == null) throw new Exception($"Unable to retreive value of DbSet with type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
 
                 string[] queryStringParts = context.HttpContext.Request.QueryString.HasValue
                     ? context.HttpContext.Request.QueryString.Value.Replace("?", "").Split('&')
@@ -67,48 +55,29 @@ namespace AutoQueryable.Filters
 
                 var criteriaManager = new CriteriaManager();
                 IEnumerable<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();
-
                 var clauseManager = new ClauseManager();
                 IEnumerable<Clause> clauses = clauseManager.GetClauses(queryStringParts).ToList();
 
                 Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
 
-                string selectClauseValue = "*";
+                IEnumerable<Column> columns = GetSelectClause(selectClause, entityType);
+                string selectClauseValue = string.Join(",", columns.Select(c => c.ColumnName));
 
-                if (selectClause != null)
+                var query = dbSet;
+                string whereClauseString = "";
+                if (criterias.Any())
                 {
-                    selectClauseValue = string.Join(",", selectClause.Value.Split(',').Where(v =>
-                    {
-                        PropertyInfo property = _autoQueryableProfile.EntityType.GetProperty(v,
-                            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                        return property != null;
-                    }));
+                    whereClauseString = " WHERE " + string.Join(" AND ", criterias.Select((c, index) => c.ConditionType.ToSqlCondition(c.Column, c.DbParameters)));
                 }
-
-                if (!criterias.Any())
-                {
-                    if (selectClause != null)
-                    {
-                        context.Result = new OkObjectResult(dbSet.Select(GetSelector(selectClauseValue)));
-                        return;
-                    }
-                    context.Result = new OkObjectResult(dbSet);
-                    return;
-                }
-
-                string whereClauseString = " WHERE " + string.Join(" AND ",
-                        criterias.Select((c, index) => c.ConditionType.ToSqlCondition(c.Column, c.DbParameters)));
-
-                string selectClauseString =
-                    $"SELECT {selectClauseValue} FROM {table.Schema + "."}[{table.TableName}]";
+                string selectClauseString = $"SELECT {selectClauseValue} FROM {table.Schema + "."}[{table.TableName}]";
 
                 string sqlRequest = selectClauseString + whereClauseString;
 
-                var query = dbSet.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
+                query = query.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
 
                 if (selectClause != null)
                 {
-                    context.Result = new OkObjectResult(query.Select(GetSelector(selectClauseValue)));
+                    context.Result = new OkObjectResult(query.Select(GetSelector(string.Join(",", columns.Select(c => c.PropertyName)))));
                 }
                 else
                 {
@@ -134,6 +103,10 @@ namespace AutoQueryable.Filters
             foreach (string column in columns.Split(','))
             {
                 PropertyInfo property = _autoQueryableProfile.EntityType.GetProperty(column, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property == null)
+                {
+                    continue;
+                }
                 dynamicTypeBuilder.AddProperty(property.Name, property.PropertyType);
             }
 
@@ -151,6 +124,17 @@ namespace AutoQueryable.Filters
             });
             var memberInit = Expression.MemberInit(ctor, memberAssignments);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
+        }
+
+        private IEnumerable<Column> GetSelectClause(Clause selectClause, IEntityType entityType)
+        {
+            return selectClause?.Value.Split(',')
+                .Select(v => entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(v, StringComparison.OrdinalIgnoreCase)))
+                .Where(v => v != null)
+                .Select(v => new Column {
+                    PropertyName = v.Name,
+                    ColumnName = v.Relational().ColumnName                })
+                .ToList();
         }
 
     }

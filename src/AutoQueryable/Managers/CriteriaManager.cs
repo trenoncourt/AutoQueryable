@@ -83,13 +83,14 @@ namespace AutoQueryable.Managers
                     operandValues[i] = $"%{operandValues[i]}%";
                 }
             }
+            
             criteria.DbParameters = operandValues.Select(v => new SqlParameter(criteria.Column + _criteriaIndex++, v)).ToList();
             IProperty property = entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(criteria.Column, StringComparison.OrdinalIgnoreCase));
             if (property == null)
             {
                 return null;
             }
-            criteria.Column = property.SqlServer().ColumnName;
+            criteria.Column = property.Relational().ColumnName;
             return criteria;
         }
     }

@@ -1,10 +1,6 @@
 ﻿using System;
 using AutoQueryable.Filters;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoQueryable.Attributes
 {
@@ -37,10 +33,10 @@ namespace AutoQueryable.Attributes
         public Type EntityType { get; set; }
 
         /// <inheritdoc />
-        public bool IsReusable { get; }
+        public bool IsReusable { get; set; }
 
         /// <inheritdoc />
-        public int Order { get; }
+        public int Order { get; set; }
 
         public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
         {
@@ -48,8 +44,6 @@ namespace AutoQueryable.Attributes
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
-
-
             _useFallbackValue = _useFallbackValue ?? false;
             Type profileType = typeof(AutoQueryableFilter<>).MakeGenericType(EntityType);
             var o = Activator.CreateInstance(profileType, new AutoQueryableProfile
