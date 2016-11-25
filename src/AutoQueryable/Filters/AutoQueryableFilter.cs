@@ -61,7 +61,9 @@ namespace AutoQueryable.Filters
                 Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
 
                 IEnumerable<Column> columns = GetSelectClause(selectClause, entityType);
-                string selectClauseValue = string.Join(",", columns.Select(c => c.ColumnName));
+                string selectClauseValue = "*";
+                if (columns != null)
+                    selectClauseValue = string.Join(",", columns.Select(c => c.ColumnName));
 
                 var query = dbSet;
                 string whereClauseString = "";
