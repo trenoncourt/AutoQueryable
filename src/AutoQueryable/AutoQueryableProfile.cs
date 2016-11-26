@@ -9,5 +9,7 @@ namespace AutoQueryable
         public Type DbContextType { get; set; }
 
         public Type EntityType { get; set; }
+
+        public string[] UnselectableProperties { get; set; }
     }
 }

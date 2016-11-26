@@ -32,6 +32,8 @@ namespace AutoQueryable.Attributes
 
         public Type EntityType { get; set; }
 
+        public string[] UnselectableProperties { get; set; }
+
         /// <inheritdoc />
         public bool IsReusable { get; set; }
 
@@ -50,7 +52,8 @@ namespace AutoQueryable.Attributes
             {
                 DbContextType = DbContextType,
                 EntityType = EntityType,
-                UseFallbackValue = _useFallbackValue.Value
+                UseFallbackValue = _useFallbackValue.Value,
+                UnselectableProperties = UnselectableProperties
             }, serviceProvider) as IAsyncActionFilter;
             return o;
         }

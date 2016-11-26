@@ -17,6 +17,18 @@ namespace AutoQueryable.Managers
                 {
                     clause = GetClause(q, ClauseAlias.Select, ClauseType.Select);
                 }
+                else if (q.Contains(ClauseAlias.Top, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.Top, ClauseType.Top);
+                }
+                else if (q.Contains(ClauseAlias.Take, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.Take, ClauseType.Top);
+                }
+                else if (q.Contains(ClauseAlias.Skip, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.Skip, ClauseType.Skip);
+                }
                 if (clause != null)
                 {
                     yield return clause;

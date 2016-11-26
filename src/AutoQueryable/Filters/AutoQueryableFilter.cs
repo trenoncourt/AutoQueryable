@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoQueryable.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Reflection;
 using AutoQueryable.Managers;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
-using AutoQueryable.Models;
+using AutoQueryable.Helpers;
 
 namespace AutoQueryable.Filters
 {
@@ -54,37 +51,12 @@ namespace AutoQueryable.Filters
                 }
 
                 var criteriaManager = new CriteriaManager();
-                IEnumerable<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();
+                IList<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();
                 var clauseManager = new ClauseManager();
-                IEnumerable<Clause> clauses = clauseManager.GetClauses(queryStringParts).ToList();
-
-                Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
-
-                IEnumerable<Column> columns = GetSelectClause(selectClause, entityType);
-                string selectClauseValue = "*";
-                if (columns != null)
-                    selectClauseValue = string.Join(",", columns.Select(c => c.ColumnName));
-
-                var query = dbSet;
-                string whereClauseString = "";
-                if (criterias.Any())
-                {
-                    whereClauseString = " WHERE " + string.Join(" AND ", criterias.Select((c, index) => c.ConditionType.ToSqlCondition(c.Column, c.DbParameters)));
-                }
-                string selectClauseString = $"SELECT {selectClauseValue} FROM {table.Schema + "."}[{table.TableName}]";
-
-                string sqlRequest = selectClauseString + whereClauseString;
-
-                query = query.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
-
-                if (selectClause != null)
-                {
-                    context.Result = new OkObjectResult(query.Select(GetSelector(string.Join(",", columns.Select(c => c.PropertyName)))));
-                }
-                else
-                {
-                    context.Result = new OkObjectResult(query);
-                }
+                IList<Clause> clauses = clauseManager.GetClauses(queryStringParts).ToList();
+                
+                 var result = QueryBuilder.Build(dbSet, entityType, table, clauses, criterias, _autoQueryableProfile.UnselectableProperties);
+                context.Result = new OkObjectResult(result);
             }
             catch (Exception e)
             {
@@ -96,48 +68,5 @@ namespace AutoQueryable.Filters
                 throw;
             }
         }
-
-        private Expression<Func<TEntity, object>> GetSelector(string columns)
-        {
-            AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
-            ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
-            TypeBuilder dynamicTypeBuilder = dynamicModule.DefineType("AutoQueryableDynamicType", TypeAttributes.Public);
-            foreach (string column in columns.Split(','))
-            {
-                PropertyInfo property = _autoQueryableProfile.EntityType.GetProperty(column, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (property == null)
-                {
-                    continue;
-                }
-                dynamicTypeBuilder.AddProperty(property.Name, property.PropertyType);
-            }
-
-            Type dynamicType = dynamicTypeBuilder.CreateTypeInfo().AsType();
-
-            var ctor = Expression.New(dynamicType);
-
-            ParameterExpression parameter = Expression.Parameter(_autoQueryableProfile.EntityType, "p");
-
-            var memberAssignments = dynamicType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p =>
-            {
-                PropertyInfo propertyInfo = _autoQueryableProfile.EntityType.GetProperty(p.Name, BindingFlags.Public | BindingFlags.Instance);
-                MemberExpression memberExpression = Expression.Property(parameter, propertyInfo);
-                return Expression.Bind(p, memberExpression);
-            });
-            var memberInit = Expression.MemberInit(ctor, memberAssignments);
-            return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
-        }
-
-        private IEnumerable<Column> GetSelectClause(Clause selectClause, IEntityType entityType)
-        {
-            return selectClause?.Value.Split(',')
-                .Select(v => entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(v, StringComparison.OrdinalIgnoreCase)))
-                .Where(v => v != null)
-                .Select(v => new Column {
-                    PropertyName = v.Name,
-                    ColumnName = v.Relational().ColumnName                })
-                .ToList();
-        }
-
     }
 }
