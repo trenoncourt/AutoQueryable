@@ -62,3 +62,4 @@ Roadmap :
 - ~~Add capability to make projection on entities~~
 - Add capability to get single element
 - Add unselectable columns
+- Add capability to use Dto projection
