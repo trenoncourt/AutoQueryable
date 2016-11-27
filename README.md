@@ -58,7 +58,6 @@ Roadmap :
 - Add ~~**Top**, **Skip**, **Take**~~, **OrderBy** keywords
 - Add capability to include navidation properties (aka expand in OData)
 - ~~Add capability to select properties (columns in table)~~
-- Add capability to choose which property (column in table) can be filtered
 - ~~Add capability to make projection on entities~~
 - Add capability to get single element
 - ~~Add unselectable columns~~
