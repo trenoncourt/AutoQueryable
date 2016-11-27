@@ -30,6 +30,14 @@ namespace AutoQueryable.Managers
                 {
                     clause = GetClause(q, ClauseAlias.Skip, ClauseType.Skip);
                 }
+                else if (q.Contains(ClauseAlias.First, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = new Clause {ClauseType = ClauseType.First};
+                }
+                else if (q.Contains(ClauseAlias.Last, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = new Clause {ClauseType = ClauseType.Last};
+                }
                 if (clause != null)
                 {
                     yield return clause;

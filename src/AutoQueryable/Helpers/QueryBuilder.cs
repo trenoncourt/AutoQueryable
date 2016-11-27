@@ -14,6 +14,8 @@ namespace AutoQueryable.Helpers
             Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
             Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
             Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
+            Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
+            Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
 
             List<Column> columns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
             //columns.RemoveAll(c => unselectableProperties.Contains(c.PropertyName));
@@ -45,8 +47,17 @@ namespace AutoQueryable.Helpers
                 query = query.Take(take);
             }
 
-            return query.Select(SelectHelper.GetSelector<T>(string.Join(",", columns.Select(c => c.PropertyName))));
-        
+            var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", columns.Select(c => c.PropertyName))));
+
+            if (firstClause != null)
+            {
+                return queryProjection.FirstOrDefault();
+            }
+            if (lastClause != null)
+            {
+                return queryProjection.LastOrDefault();
+            }
+            return queryProjection;
         }
     }
 }

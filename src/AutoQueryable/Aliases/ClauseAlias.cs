@@ -9,5 +9,7 @@
         public const string OrderBy = "OrderBy=";
         public const string Include = "Include=";
         public const string GroupBy = "GroupBy=";
+        public const string First = "First=True";
+        public const string Last = "Last=True";
     }
 }

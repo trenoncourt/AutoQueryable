@@ -8,6 +8,8 @@
         Skip = 4,
         OrderBy = 5,
         Include = 6,
-        GroupBy = 7
+        GroupBy = 7,
+        First = 8,
+        Last = 9
     }
 }
