@@ -10,7 +10,7 @@ AutoQueryable helps you to make requests like [http://baseurl/api/products?nameC
 
 From version 0.2.0 you can use selectable columns eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto)
 
-Basic usage:
+**Basic usage**
 ```c#
 [Route("api/[controller]")]
 public class ProductsController : Controller
@@ -23,6 +23,21 @@ public class ProductsController : Controller
 }
 ```
 
+**Unselectable properties** 
+If you want some properties to be unselectable (eg: Id, Password, ...)
+```c#
+[Route("api/[controller]")]
+public class UsersController : Controller
+{
+    [HttpGet]
+    [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(User), UnselectableProperties = new []{ "Password", "Id" })]
+    public void Get()
+    {
+    }
+}
+```
+
+**Fallback value** 
 Sometimes filters can cause exceptions, you can specify you want to use a fallback value to hide exception eg:
 ```c#
 [Route("api/[controller]")]
@@ -38,10 +53,10 @@ public class ProductsController : Controller
 ```
 
 Roadmap :
-- Add **Top**, **Skip**, **Take**, **OrderBy** keywords
+- Add ~~**Top**, **Skip**, **Take**~~, **OrderBy** keywords
 - Add capability to include navidation properties (aka expand in OData)
 - ~~Add capability to select properties (columns in table)~~
 - Add capability to choose which property (column in table) can be filtered
-- Add capability to make projection on entities
+- ~~Add capability to make projection on entities~~
 - Add capability to get single element
 - Add unselectable columns
