@@ -10,6 +10,8 @@ AutoQueryable helps you to make requests like [http://baseurl/api/products?nameC
 
 From version 0.2.0 you can use selectable columns eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto)
 
+From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5)
+
 **Basic usage**
 ```c#
 [Route("api/[controller]")]
