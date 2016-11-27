@@ -15,7 +15,7 @@ namespace AutoQueryable.Helpers
             Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
             Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
 
-            List<Column> columns = SelectHelper.GetSelectClause(selectClause, unselectableProperties, entityType).ToList();
+            List<Column> columns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
             //columns.RemoveAll(c => unselectableProperties.Contains(c.PropertyName));
             string selectClauseValue = "*";
             if (columns != null && columns.Any())
@@ -30,7 +30,7 @@ namespace AutoQueryable.Helpers
 
             string sqlRequest = selectClauseString + whereClauseString;
 
-            //query = query.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
+            query = query.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
 
             if (skipClause != null)
             {
@@ -44,8 +44,8 @@ namespace AutoQueryable.Helpers
                 int.TryParse(topClause.Value, out take);
                 query = query.Take(take);
             }
-            //return query;
-                return query.Select(SelectHelper.GetSelector<T>(string.Join(",", columns.Select(c => c.PropertyName)))).ToList();
+
+            return query.Select(SelectHelper.GetSelector<T>(string.Join(",", columns.Select(c => c.PropertyName))));
         
         }
     }

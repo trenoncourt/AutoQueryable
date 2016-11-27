@@ -47,7 +47,7 @@ namespace AutoQueryable.Helpers
 
         }
 
-        public static IEnumerable<Column> GetSelectClause(Clause selectClause, string[] unselectableProperties, IEntityType entityType)
+        public static IEnumerable<Column> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, IEntityType entityType)
         {
             IEnumerable<IProperty> properties = entityType.GetProperties();
             if (unselectableProperties != null)

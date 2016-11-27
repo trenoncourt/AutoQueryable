@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System.Reflection;
 using AutoQueryable.Managers;
 using AutoQueryable.Helpers;
+using AutoQueryable.Models;
 
 namespace AutoQueryable.Filters
 {
@@ -43,10 +44,11 @@ namespace AutoQueryable.Filters
                 string[] queryStringParts = context.HttpContext.Request.QueryString.HasValue
                     ? context.HttpContext.Request.QueryString.Value.Replace("?", "").Split('&')
                     : null;
-
+                dbSet = dbSet.AsNoTracking();
                 if (queryStringParts == null)
                 {
-                    context.Result = new OkObjectResult(dbSet);
+                    List<Column> columns = SelectHelper.GetSelectableColumns(null, _autoQueryableProfile.UnselectableProperties, entityType).ToList();
+                    context.Result = new OkObjectResult(dbSet.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.Select(c => c.PropertyName)))));
                     return;
                 }
 
@@ -58,7 +60,7 @@ namespace AutoQueryable.Filters
                  var result = QueryBuilder.Build(dbSet, entityType, table, clauses, criterias, _autoQueryableProfile.UnselectableProperties);
                 context.Result = new OkObjectResult(result);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (_autoQueryableProfile.UseFallbackValue)
                 {

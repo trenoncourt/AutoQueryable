@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AutoQueryable.Extensions;
 using AutoQueryable.Managers;
+using AutoQueryable.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -42,11 +43,7 @@ namespace AutoQueryable.Filters
                 }
 
                 var dbSet = dbSetProperty.GetValue(dbContext, null) as DbSet<TEntity>;
-
-                if (entityType == null)
-                {
-                    throw new Exception($"Unable to find DbSet of type DbSet<{typeof(TEntity).Name}> in DbContext {typeof(TDbContext).Name}.");
-                }
+                
                 if (dbSet == null)
                 {
                     throw new Exception($"Unable to retreive value of DbSet with type DbSet<{typeof(TEntity).Name}> in DbContext {typeof(TDbContext).Name}.");

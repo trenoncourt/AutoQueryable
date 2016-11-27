@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoQueryable.Filters;
+using AutoQueryable.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AutoQueryable.Attributes

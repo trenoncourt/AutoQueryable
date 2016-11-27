@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using AutoQueryable.Aliases;
 using AutoQueryable.Extensions;
+using AutoQueryable.Models;
 
 namespace AutoQueryable.Managers
 {

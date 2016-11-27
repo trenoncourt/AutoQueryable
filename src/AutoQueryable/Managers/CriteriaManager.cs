@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AutoQueryable.Aliases;
 using AutoQueryable.Extensions;
+using AutoQueryable.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

@@ -1,4 +1,4 @@
-﻿namespace AutoQueryable
+﻿namespace AutoQueryable.Models
 {
     public enum ConditionType
     {
