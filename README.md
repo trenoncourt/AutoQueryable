@@ -61,5 +61,5 @@ Roadmap :
 - Add capability to choose which property (column in table) can be filtered
 - ~~Add capability to make projection on entities~~
 - Add capability to get single element
-- Add unselectable columns
+- ~~Add unselectable columns~~
 - Add capability to use Dto projection
