@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +35,39 @@ namespace AutoQueryable.Helpers
 
             string sqlRequest = selectClauseString + whereClauseString;
 
+
+            ParameterExpression entity = Expression.Parameter(typeof(T), "x");
+            //ConstantExpression five = Expression.Constant(5, typeof(int));
+            //BinaryExpression numLessThanFive = Expression.LessThan(numParam, five);
+
+            BinaryExpression whereExpression = null;
+            foreach (var c in criterias)
+            {
+                PropertyInfo propertyInfo = typeof(T)
+                    .GetProperty(c.Column, BindingFlags.Public | BindingFlags.Instance);
+                MemberExpression memberExpression = Expression.Property(entity, propertyInfo);
+                BinaryExpression orExpression = null;
+                foreach (var d in c.DbParameters)
+                {
+                    ConstantExpression val = Expression.Constant(d.Value, d.Value.GetType());
+                    if (orExpression == null)
+                        orExpression = Expression.Equal(memberExpression, val);
+                    else
+                        orExpression = Expression.Or(orExpression, Expression.Equal(memberExpression, val));
+                }
+                if (whereExpression == null)
+                    whereExpression = orExpression;
+                else
+                    whereExpression = Expression.And(whereExpression, orExpression);
+            }
+
+            
+
+            var x = Expression.Lambda<Func<T, bool>>(whereExpression, entity);
+
+            //var propertyInfo = typeof(T).GetProperties().FirstOrDefault(p => p.Name.Contains("color", StringComparison.OrdinalIgnoreCase));
+            //var t = query.OrderBy(q => propertyInfo.GetValue(q, null)).ToList();
+
             query = query.FromSql(sqlRequest, criterias.SelectMany(c => c.DbParameters).ToArray());
 
             if (skipClause != null)
@@ -48,7 +84,7 @@ namespace AutoQueryable.Helpers
             }
 
             var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", columns.Select(c => c.PropertyName))));
-
+            
             if (firstClause != null)
             {
                 return queryProjection.FirstOrDefault();
