@@ -20,9 +20,11 @@ namespace AutoQueryable.Helpers
             Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
             Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
             Clause orderByClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderBy);
+            Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
 
             List<Column> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
 
             if (criterias.Any())
             {
@@ -32,6 +34,10 @@ namespace AutoQueryable.Helpers
             if (orderColumns != null)
             {
                 query = query.OrderBy(orderColumns);
+            }
+            else if (orderDescColumns != null)
+            {
+                query = query.OrderByDesc(orderDescColumns);
             }
             
             var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
@@ -48,11 +54,11 @@ namespace AutoQueryable.Helpers
                 int.TryParse(topClause.Value, out take);
                 queryProjection = queryProjection.Take(take);
             }
-            if (firstClause != null)
+            else if (firstClause != null)
             {
                 return queryProjection.FirstOrDefault();
             }
-            if (lastClause != null)
+            else if (lastClause != null)
             {
                 return queryProjection.LastOrDefault();
             }
@@ -106,6 +112,27 @@ namespace AutoQueryable.Helpers
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             Expression lambda = Expression.Lambda(propertyAccess, parameter);
             var resultExp = Expression.Call(typeof(Queryable), "OrderBy", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
+
+            return source.Provider.CreateQuery<T>(resultExp);
+        }
+
+        private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, IEnumerable<Column> columns)
+        {
+            foreach (Column column in columns)
+            {
+                source = source.OrderByDesc(column.PropertyName);
+            }
+            return source;
+        }
+
+        private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, string sortProperty)
+        {
+            var type = typeof(T);
+            var property = type.GetProperty(sortProperty);
+            var parameter = Expression.Parameter(type, "x");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            Expression lambda = Expression.Lambda(propertyAccess, parameter);
+            var resultExp = Expression.Call(typeof(Queryable), "OrderByDescending", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
 
             return source.Provider.CreateQuery<T>(resultExp);
         }

@@ -42,6 +42,10 @@ namespace AutoQueryable.Managers
                 {
                     clause = GetClause(q, ClauseAlias.OrderBy, ClauseType.OrderBy);
                 }
+                else if (q.Contains(ClauseAlias.OrderByDesc, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.OrderByDesc, ClauseType.OrderByDesc);
+                }
                 if (clause != null)
                 {
                     yield return clause;
