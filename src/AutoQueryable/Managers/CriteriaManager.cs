@@ -1,44 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using AutoQueryable.Aliases;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AutoQueryable.Managers
 {
     public class CriteriaManager
     {
-        private int _criteriaIndex;
-
         public IEnumerable<Criteria> GetCriterias(IEntityType entityType, string[] queryStringParts)
         {
-            foreach (string q in queryStringParts)
+            foreach (string qPart in queryStringParts)
             {
+                string q = WebUtility.UrlDecode(qPart);
                 Criteria criteria = null;
                 if (q.Contains(ConditionAlias.NotEqual, StringComparison.OrdinalIgnoreCase))
                 {
                     criteria = GetCriteria(q, ConditionAlias.NotEqual, ConditionType.NotEqual, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Less, StringComparison.OrdinalIgnoreCase))
-                {
-                    criteria = GetCriteria(q, ConditionAlias.Less, ConditionType.Less, entityType);
-                }
                 else if (q.Contains(ConditionAlias.LessEqual, StringComparison.OrdinalIgnoreCase))
                 {
                     criteria = GetCriteria(q, ConditionAlias.LessEqual, ConditionType.LessEqual, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Greater, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Less, StringComparison.OrdinalIgnoreCase))
                 {
-                    criteria = GetCriteria(q, ConditionAlias.Greater, ConditionType.Greater, entityType);
+                    criteria = GetCriteria(q, ConditionAlias.Less, ConditionType.Less, entityType);
                 }
                 else if (q.Contains(ConditionAlias.GreaterEqual, StringComparison.OrdinalIgnoreCase))
                 {
                     criteria = GetCriteria(q, ConditionAlias.GreaterEqual, ConditionType.GreaterEqual, entityType);
+                }
+                else if (q.Contains(ConditionAlias.Greater, StringComparison.OrdinalIgnoreCase))
+                {
+                    criteria = GetCriteria(q, ConditionAlias.Greater, ConditionType.Greater, entityType);
                 }
                 else if (q.Contains(ConditionAlias.Contains, StringComparison.OrdinalIgnoreCase))
                 {
