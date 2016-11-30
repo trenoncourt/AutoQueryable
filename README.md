@@ -65,3 +65,5 @@ Roadmap :
 - ~~Add capability to get single element (first or last)~~
 - ~~Add unselectable columns~~
 - Add capability to use Dto projection
+- Add capability to ignore case
+- Use Expression tree instead of DbSet<T>.FromSql for filters
