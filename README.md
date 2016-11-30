@@ -66,4 +66,4 @@ Roadmap :
 - ~~Add unselectable columns~~
 - Add capability to use Dto projection
 - Add capability to ignore case
-- Use Expression tree instead of DbSet<T>.FromSql for filters
+- ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
