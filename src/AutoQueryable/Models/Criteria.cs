@@ -7,6 +7,6 @@ namespace AutoQueryable.Models
     {
         public string Column { get; set; }
         public ConditionType ConditionType { get; set; }
-        public IEnumerable<DbParameter> DbParameters { get; set; }
+        public dynamic[] Values { get; set; }
     }
 }

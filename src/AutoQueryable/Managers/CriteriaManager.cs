@@ -73,25 +73,15 @@ namespace AutoQueryable.Managers
             var criteria = new Criteria
             {
                 Column = operands[0],
-                ConditionType = conditionType
+                ConditionType = conditionType,
+                Values = operands[1].Split(',')
             };
-            string[] operandValues = operands[1].Split(',');
-
-            if (conditionType == ConditionType.Contains)
-            {
-                for (var i = 0; i < operandValues.Length; i++)
-                {
-                    operandValues[i] = $"%{operandValues[i]}%";
-                }
-            }
-            
-            criteria.DbParameters = operandValues.Select(v => new SqlParameter(criteria.Column + _criteriaIndex++, v)).ToList();
             IProperty property = entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(criteria.Column, StringComparison.OrdinalIgnoreCase));
             if (property == null)
             {
                 return null;
             }
-            criteria.Column = property.Relational().ColumnName;
+            criteria.Column = property.Name;
             return criteria;
         }
     }
