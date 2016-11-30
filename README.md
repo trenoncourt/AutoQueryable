@@ -12,6 +12,9 @@ From version 0.2.0 you can use selectable columns eg: [http://baseurl/api/produc
 
 From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5)
 
+From version 0.4.0 you can now use First or Last keyword to select only one element eg:
+[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true)
+
 **Basic usage**
 ```c#
 [Route("api/[controller]")]
@@ -59,6 +62,8 @@ Roadmap :
 - Add capability to include navidation properties (aka expand in OData)
 - ~~Add capability to select properties (columns in table)~~
 - ~~Add capability to make projection on entities~~
-- Add capability to get single element
+- ~~Add capability to get single element (first or last)~~
 - ~~Add unselectable columns~~
 - Add capability to use Dto projection
+- Add capability to ignore case
+- Use Expression tree instead of DbSet<T>.FromSql for filters
