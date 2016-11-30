@@ -15,6 +15,21 @@ From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/p
 From version 0.4.0 you can now use First or Last keyword to select only one element eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true)
 
+**Existing filters** 
+
+By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
+
+In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
+- Equals '=' (eg color=red or color=red,black)
+- Not Equals '!=' (eg color!=green or color!=green,blue)
+- Less Than '<' (eg productCount\<5)
+- Less Than or Equals '<=' (eg productCount\<=5)
+- Greater Than '>' (eg productCount>5)
+- Greater Than or Equals '>=' (eg productCount>=5)
+- Contains 'contains' (eg colorContains=ed or colorContains=bla,ed)
+- StartsWith 'startswith' (eg colorStartsWith=re or colorStartsWith=bla,re)
+- EndsWith 'endswith' (eg colorEndsWith=ed or colorEndsWith=ack,ed)
+
 **Basic usage**
 ```c#
 [Route("api/[controller]")]
