@@ -15,6 +15,9 @@ From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/p
 From version 0.4.0 you can now use First or Last keyword to select only one element eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true)
 
+From version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by one or more elements eg:
+[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id)
+
 **Existing filters** 
 
 By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
@@ -73,7 +76,7 @@ public class ProductsController : Controller
 ```
 
 Roadmap :
-- Add ~~**Top**, **Skip**, **Take**~~, **OrderBy** keywords
+- ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
 - Add capability to include navidation properties (aka expand in OData)
 - ~~Add capability to select properties (columns in table)~~
 - ~~Add capability to make projection on entities~~
@@ -82,3 +85,4 @@ Roadmap :
 - Add capability to use Dto projection
 - Add capability to ignore case
 - ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
+- Add capability to use Group by
