@@ -78,7 +78,7 @@ namespace AutoQueryable.Helpers
                 Expression orExpression = null;
                 foreach (var d in c.Values)
                 {
-                    var tt = Convert.ChangeType(d, propertyInfo.PropertyType);
+                    var tt = ConvertHelper.Convert(d, propertyInfo.PropertyType);
                     ConstantExpression val = Expression.Constant(tt, propertyInfo.PropertyType);
                     Expression newExpression = c.ConditionType.ToBinaryExpression(memberExpression, val);
                     if (orExpression == null)
