@@ -38,6 +38,14 @@ namespace AutoQueryable.Managers
                 {
                     clause = new Clause {ClauseType = ClauseType.Last};
                 }
+                else if (q.Contains(ClauseAlias.OrderBy, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.OrderBy, ClauseType.OrderBy);
+                }
+                else if (q.Contains(ClauseAlias.OrderByDesc, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.OrderByDesc, ClauseType.OrderByDesc);
+                }
                 else if (q.Contains(ClauseAlias.Include, StringComparison.OrdinalIgnoreCase))
                 {
                     clause = GetClause(q, ClauseAlias.Include, ClauseType.Include);
