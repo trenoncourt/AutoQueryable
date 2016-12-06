@@ -47,9 +47,10 @@ namespace AutoQueryable.Helpers
 
         }
 
-        public static IEnumerable<Column> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, IEntityType entityType)
+        public static IEnumerable<Column> GetSelectableColumns(Clause includeClause, Clause selectClause, string[] unselectableProperties, IEntityType entityType)
         {
             IEnumerable<IProperty> properties = entityType.GetProperties();
+            IEnumerable<INavigation> navigations = new List<INavigation>();
             if (unselectableProperties != null)
             {
                 properties = properties.Where(c => !unselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
@@ -59,10 +60,15 @@ namespace AutoQueryable.Helpers
                 string[] columns = selectClause.Value.Split(',');
                 properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
             }
-            return properties.Select(v => new Column
+            if (includeClause != null)
             {
-                PropertyName = v.Name,
-                ColumnName = v.Relational().ColumnName
+                string[] columns = includeClause.Value.Split(',');
+                navigations = entityType.GetNavigations().Where(n => columns.Contains(n.Name, StringComparer.OrdinalIgnoreCase));
+            }
+
+            return properties.Select(p => p.Name).Concat(navigations.Select(n => n.Name)).Select(v => new Column
+            {
+                PropertyName = v
             });
         }
     }

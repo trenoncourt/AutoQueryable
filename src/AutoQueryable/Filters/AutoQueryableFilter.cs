@@ -47,7 +47,7 @@ namespace AutoQueryable.Filters
                 dbSet = dbSet.AsNoTracking();
                 if (queryStringParts == null)
                 {
-                    List<Column> columns = SelectHelper.GetSelectableColumns(null, _autoQueryableProfile.UnselectableProperties, entityType).ToList();
+                    List<Column> columns = SelectHelper.GetSelectableColumns(null, null, _autoQueryableProfile.UnselectableProperties, entityType).ToList();
                     context.Result = new OkObjectResult(dbSet.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.Select(c => c.PropertyName)))));
                     return;
                 }

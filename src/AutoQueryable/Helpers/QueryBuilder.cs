@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AutoQueryable.Helpers
@@ -18,8 +19,9 @@ namespace AutoQueryable.Helpers
             Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
             Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
             Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
+            Clause includeClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Include);
 
-            List<Column> columns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
+            List<Column> columns = SelectHelper.GetSelectableColumns(includeClause, selectClause, unselectableProperties, entityType).ToList();
 
             if (criterias.Any())
             {
