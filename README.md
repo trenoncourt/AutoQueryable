@@ -89,6 +89,10 @@ Roadmap :
 - Add capability to include navigation properties on multiple levels
 - Add capability to select on multiple levels
 - Add simpler Attribute using OnActionExecuted
+- Add Unselectable navigations in include clause
+- Add allowed clauses or not
+- Add allowed operators or not in where clause
+- Add more date filters in where clause eg: yearEquals
 - Add capability to use Dto projection
 - Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
