@@ -18,6 +18,9 @@ From version 0.4.0 you can now use First or Last keyword to select only one elem
 From version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by one or more elements eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id)
 
+From version 0.7.0 you can now use Include keyword to include navigation properties from first level eg:
+[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category)
+
 **Existing filters** 
 
 By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
