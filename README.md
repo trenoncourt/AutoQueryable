@@ -70,9 +70,9 @@ public class UsersController : Controller
 {
     [HttpGet]
     [AutoQueryable(UnselectableProperties = new []{ "Password", "Id" })]
-    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
+    public IQueryable<User> Get([FromServices] myDbContext dbContext)
     {
-        return dbContext.Product;
+        return dbContext.User;
     }
 }
 ```
