@@ -42,6 +42,19 @@ In a filter, comma separator is used for OR (eg: color=red,black is translated b
 public class ProductsController : Controller
 {
     [HttpGet]
+    [AutoQueryable]
+    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
+    {
+        return dbContext.Product;
+    }
+}
+```
+**OR**
+```c#
+[Route("api/[controller]")]
+public class ProductsController : Controller
+{
+    [HttpGet]
     [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(Product))]
     public void Get()
     {
@@ -56,9 +69,10 @@ If you want some properties to be unselectable (eg: Id, Password, ...)
 public class UsersController : Controller
 {
     [HttpGet]
-    [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(User), UnselectableProperties = new []{ "Password", "Id" })]
-    public void Get()
+    [AutoQueryable(UnselectableProperties = new []{ "Password", "Id" })]
+    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
     {
+        return dbContext.Product;
     }
 }
 ```
