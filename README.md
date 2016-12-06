@@ -80,12 +80,15 @@ public class ProductsController : Controller
 
 Roadmap :
 - ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
-- Add capability to include navidation properties (aka expand in OData)
+- ~~Add capability to include navidation properties (aka expand in OData)~~
 - ~~Add capability to select properties (columns in table)~~
 - ~~Add capability to make projection on entities~~
 - ~~Add capability to get single element (first or last)~~
 - ~~Add unselectable columns~~
-- Add capability to use Dto projection
-- Add capability to ignore case
 - ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
+- Add capability to include navigation properties on multiple levels
+- Add capability to select on multiple levels
+- Add simpler Attribute using OnActionExecuted
+- Add capability to use Dto projection
+- Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
