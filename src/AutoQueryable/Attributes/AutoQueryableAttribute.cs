@@ -48,15 +48,21 @@ namespace AutoQueryable.Attributes
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
             _useFallbackValue = _useFallbackValue ?? false;
-            Type profileType = typeof(AutoQueryableFilter<>).MakeGenericType(EntityType);
-            var o = Activator.CreateInstance(profileType, new AutoQueryableProfile
+            var profile = new AutoQueryableProfile
             {
                 DbContextType = DbContextType,
                 EntityType = EntityType,
                 UseFallbackValue = _useFallbackValue.Value,
                 UnselectableProperties = UnselectableProperties
-            }, serviceProvider) as IAsyncActionFilter;
-            return o;
+            };
+
+            if (DbContextType != null && EntityType != null)
+            {
+                Type typeFilterExecuting = typeof(AutoQueryableFilter).MakeGenericType(EntityType);
+                var oExecuting = Activator.CreateInstance(typeFilterExecuting, profile, serviceProvider) as IAsyncActionFilter;
+                return oExecuting;
+            }
+            return new AutoQueryableFilter(profile);
         }
     }
 }
