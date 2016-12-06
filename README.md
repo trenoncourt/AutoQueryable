@@ -96,3 +96,4 @@ Roadmap :
 - Add capability to use Dto projection
 - Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
+- Add capability to include hierarchical data
