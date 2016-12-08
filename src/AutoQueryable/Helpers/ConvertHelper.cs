@@ -10,14 +10,14 @@ namespace AutoQueryable.Helpers
     {
         public static T Convert<T>(string value)
         {
-            if (typeof(T).GetTypeInfo().IsEnum)
-                return (T)Enum.Parse(typeof(T), value);
-
-            return (T)System.Convert.ChangeType(value, typeof(T));
+            Type type = typeof(T);
+            return Convert(value, type);
         }
 
         public static dynamic Convert(string value, Type type)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
             if (type.GetTypeInfo().IsEnum)
                 return Enum.Parse(type, value);
 
