@@ -58,7 +58,7 @@ namespace AutoQueryable.Attributes
 
             if (DbContextType != null && EntityType != null)
             {
-                Type typeFilterExecuting = typeof(AutoQueryableFilter).MakeGenericType(EntityType);
+                Type typeFilterExecuting = typeof(AutoQueryableFilter<>).MakeGenericType(EntityType);
                 var oExecuting = Activator.CreateInstance(typeFilterExecuting, profile, serviceProvider) as IAsyncActionFilter;
                 return oExecuting;
             }
