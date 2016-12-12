@@ -18,6 +18,10 @@ namespace AutoQueryable.Helpers
             dbSet = dbSet.AsNoTracking();
             if (queryStringParts == null)
             {
+                if (profile.UnselectableProperties == null)
+                {
+                    return dbSet;
+                }
                 List<Column> columns = SelectHelper.GetSelectableColumns(null, null, profile.UnselectableProperties, entityType).ToList();
                 return dbSet.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.Select(c => c.PropertyName))));
             }
@@ -36,6 +40,10 @@ namespace AutoQueryable.Helpers
             query = query.AsNoTracking();
             if (queryStringParts == null)
             {
+                if (profile.UnselectableProperties == null)
+                {
+                    return query;
+                }
                 List<Column> columns = SelectHelper.GetSelectableColumns(null, profile.UnselectableProperties, entityType).ToList();
                 return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.Select(c => c.PropertyName))));
             }

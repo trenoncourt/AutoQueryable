@@ -40,8 +40,16 @@ namespace AutoQueryable.Helpers
             {
                 query = query.OrderByDesc(orderDescColumns);
             }
-            
-            var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
+
+            dynamic queryProjection;
+            if (selectClause == null && includeClause == null && unselectableProperties == null)
+            {
+                queryProjection = query;
+            }
+            else
+            {
+                queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
+            }
 
             if (skipClause != null)
             {
@@ -92,8 +100,16 @@ namespace AutoQueryable.Helpers
             {
                 query = query.OrderByDesc(orderDescColumns);
             }
-            
-            var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
+
+            dynamic queryProjection;
+            if (selectClause == null && unselectableProperties == null)
+            {
+                queryProjection = query;
+            }
+            else
+            {
+                queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
+            }
 
             if (skipClause != null)
             {
