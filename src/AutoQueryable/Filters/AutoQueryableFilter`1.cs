@@ -23,17 +23,17 @@ namespace AutoQueryable.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (_autoQueryableProfile.DbContextType == null || _autoQueryableProfile.EntityType == null)
+            if (_autoQueryableProfile.QueryableType == null || _autoQueryableProfile.EntityType == null)
                 return;
-            DbContext dbContext = _sp.GetService(_autoQueryableProfile.DbContextType) as DbContext;
-            if (dbContext == null) throw new Exception($"Unable to find DbContext of type {_autoQueryableProfile.DbContextType.Name}.");
+            DbContext dbContext = _sp.GetService(_autoQueryableProfile.QueryableType) as DbContext;
+            if (dbContext == null) throw new Exception($"Unable to find DbContext of type {_autoQueryableProfile.QueryableType.Name}.");
             IEntityType model = dbContext.Model.FindEntityType(_autoQueryableProfile.EntityType);
 
             var dbSetProperty = dbContext.GetType().GetProperties().FirstOrDefault(p => p.PropertyType.GenericTypeArguments.Contains(_autoQueryableProfile.EntityType));
-            if (dbSetProperty == null) throw new Exception($"Unable to find DbSet of type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
+            if (dbSetProperty == null) throw new Exception($"Unable to find DbSet of type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.QueryableType.Name}.");
 
             var dbSet = dbSetProperty.GetValue(dbContext, null) as IQueryable<TEntity>;
-            if (dbSet == null) throw new Exception($"Unable to retreive value of DbSet with type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.DbContextType.Name}.");
+            if (dbSet == null) throw new Exception($"Unable to retreive value of DbSet with type DbSet<{_autoQueryableProfile.EntityType.Name}> in DbContext {_autoQueryableProfile.QueryableType.Name}.");
 
             string queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;
             context.Result = new OkObjectResult(QueryableHelper.GetAutoQuery(queryString, model, dbSet, _autoQueryableProfile));

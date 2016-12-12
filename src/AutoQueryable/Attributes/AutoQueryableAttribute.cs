@@ -29,7 +29,7 @@ namespace AutoQueryable.Attributes
             }
         }
 
-        public Type DbContextType { get; set; }
+        public Type QueryableType { get; set; }
 
         public Type EntityType { get; set; }
 
@@ -50,13 +50,13 @@ namespace AutoQueryable.Attributes
             _useFallbackValue = _useFallbackValue ?? false;
             var profile = new AutoQueryableProfile
             {
-                DbContextType = DbContextType,
+                QueryableType = QueryableType,
                 EntityType = EntityType,
                 UseFallbackValue = _useFallbackValue.Value,
                 UnselectableProperties = UnselectableProperties
             };
 
-            if (DbContextType != null && EntityType != null)
+            if (QueryableType != null && EntityType != null)
             {
                 Type typeFilterExecuting = typeof(AutoQueryableFilter<>).MakeGenericType(EntityType);
                 var oExecuting = Activator.CreateInstance(typeFilterExecuting, profile, serviceProvider) as IActionFilter;

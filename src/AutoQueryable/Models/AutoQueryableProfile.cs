@@ -6,7 +6,7 @@ namespace AutoQueryable.Models
     {
         public bool UseFallbackValue { get; set; }
 
-        public Type DbContextType { get; set; }
+        public Type QueryableType { get; set; }
 
         public Type EntityType { get; set; }
 

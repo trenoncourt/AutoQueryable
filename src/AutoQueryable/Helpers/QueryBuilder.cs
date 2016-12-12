@@ -65,6 +65,58 @@ namespace AutoQueryable.Helpers
             }
             return queryProjection;
         }
+        public static dynamic Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties) where T : class
+        {
+            Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
+            Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
+            Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
+            Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
+            Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
+            Clause orderByClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderBy);
+            Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
+
+            List<Column> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
+            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
+
+            if (criterias.Any())
+            {
+                query = query.Where(criterias);
+            }
+
+            if (orderColumns != null)
+            {
+                query = query.OrderBy(orderColumns);
+            }
+            else if (orderDescColumns != null)
+            {
+                query = query.OrderByDesc(orderDescColumns);
+            }
+            
+            var queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns.Select(c => c.PropertyName))));
+
+            if (skipClause != null)
+            {
+                int skip;
+                int.TryParse(skipClause.Value, out skip);
+                queryProjection = queryProjection.Skip(skip);
+            }
+            if (topClause != null)
+            {
+                int take;
+                int.TryParse(topClause.Value, out take);
+                queryProjection = queryProjection.Take(take);
+            }
+            else if (firstClause != null)
+            {
+                return queryProjection.FirstOrDefault();
+            }
+            else if (lastClause != null)
+            {
+                return queryProjection.LastOrDefault();
+            }
+            return queryProjection;
+        }
 
         private static IQueryable<T> Where<T>(this IQueryable<T> source, IList<Criteria> criterias)
         {

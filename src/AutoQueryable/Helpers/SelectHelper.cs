@@ -71,5 +71,24 @@ namespace AutoQueryable.Helpers
                 PropertyName = v
             });
         }
+
+        public static IEnumerable<Column> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
+        {
+            IEnumerable<PropertyInfo> properties = entityType.GetProperties();
+            if (unselectableProperties != null)
+            {
+                properties = properties.Where(c => !unselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+            if (selectClause != null)
+            {
+                string[] columns = selectClause.Value.Split(',');
+                properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+            }
+
+            return properties.Select(p => p.Name).Select(v => new Column
+            {
+                PropertyName = v
+            });
+        }
     }
 }

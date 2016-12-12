@@ -24,16 +24,28 @@ namespace AutoQueryable.Filters
 
         public virtual void OnActionExecuted(ActionExecutedContext context)
         {
-            if (_autoQueryableProfile.DbContextType != null || _autoQueryableProfile.EntityType != null)
+            if (_autoQueryableProfile.QueryableType != null || _autoQueryableProfile.EntityType != null)
                 return;
-            dynamic dbSet = ((ObjectResult)context.Result).Value;
-            if (dbSet == null) throw new Exception($"Unable to retreive value of DbSet from context result.");
-            Type entityType = dbSet.GetType().GenericTypeArguments[0];
-            var dbContext = GetInstanceField<DbContext>(dbSet, "_context");
-            IEntityType model = dbContext.Model.FindEntityType(entityType);
+            dynamic query = ((ObjectResult)context.Result).Value;
+            if (query == null) throw new Exception($"Unable to retreive value of IQueryable from context result.");
+            Type entityType = query.GetType().GenericTypeArguments[0];
 
             string queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;
-            context.Result = new OkObjectResult(QueryableHelper.GetAutoQuery(queryString, model, dbSet, _autoQueryableProfile));
+
+            var dbContext = GetInstanceField<DbContext>(query, "_context");
+            
+            // Work on IEntityType that allow more actions
+            if (dbContext != null)
+            {
+                IEntityType model = dbContext.Model.FindEntityType(entityType);
+                context.Result = new OkObjectResult(QueryableHelper.GetAutoQuery(queryString, model, query, _autoQueryableProfile));
+            }
+            // Work on generic type directly, for dto projection
+            else
+            {
+                context.Result = new OkObjectResult(QueryableHelper.GetAutoQuery(queryString, entityType, query, _autoQueryableProfile));
+            }
+
         }
 
         ///  <summary>
@@ -47,7 +59,7 @@ namespace AutoQueryable.Filters
         {
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
             FieldInfo field = instance.GetType().GetField(fieldName, bindFlags);
-            return (TResult)field.GetValue(instance);
+            return (TResult)field?.GetValue(instance);
         }
         
     }
