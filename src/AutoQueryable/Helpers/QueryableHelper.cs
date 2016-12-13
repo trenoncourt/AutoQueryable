@@ -10,7 +10,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryableHelper
     {
-        public static IQueryable<object> GetAutoQuery<TEntity>(string queryString, IEntityType entityType, IQueryable<TEntity> dbSet, AutoQueryableProfile profile) where TEntity : class
+        public static dynamic GetAutoQuery<TEntity>(string queryString, IEntityType entityType, IQueryable<TEntity> dbSet, AutoQueryableProfile profile) where TEntity : class
         {
             IRelationalEntityTypeAnnotations table = entityType.Relational();
 
@@ -34,7 +34,7 @@ namespace AutoQueryable.Helpers
             return QueryBuilder.Build(dbSet, entityType, table, clauses, criterias, profile.UnselectableProperties);
         }
 
-        public static IQueryable<object> GetAutoQuery<TEntity>(string queryString, Type entityType, IQueryable<TEntity> query, AutoQueryableProfile profile) where TEntity : class
+        public static dynamic GetAutoQuery<TEntity>(string queryString, Type entityType, IQueryable<TEntity> query, AutoQueryableProfile profile) where TEntity : class
         {
             string[] queryStringParts = queryString?.Replace("?", "")?.Split('&');
             query = query.AsNoTracking();
