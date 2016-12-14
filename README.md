@@ -62,6 +62,20 @@ public class ProductsController : Controller
 }
 ```
 
+**Dto projection**
+```c#
+[HttpGet]
+[AutoQueryable]
+public IQueryable Get([FromServices] AdventureWorksContext adventureWorksContext)
+{
+    return adventureWorksContext.Product.Select(p => new ProductProjection
+    {
+        Name = p.Name
+    });
+}
+```
+*Note that with Dto projection, you cannot use include keyword*
+
 **Unselectable properties** 
 If you want some properties to be unselectable (eg: Id, Password, ...)
 ```c#
