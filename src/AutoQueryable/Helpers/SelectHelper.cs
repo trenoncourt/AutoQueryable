@@ -15,58 +15,89 @@ namespace AutoQueryable.Helpers
     {
         public static Expression<Func<TEntity, object>> GetSelector<TEntity>(string columns)
         {
-            Type entityType = typeof(TEntity);
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
             ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
             TypeBuilder dynamicTypeBuilder = dynamicModule.DefineType("AutoQueryableDynamicType", TypeAttributes.Public);
+            ICollection<MemberExpression> memberExpressions = new List<MemberExpression>();
+
+            ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
             foreach (string column in columns.Split(','))
             {
-                PropertyInfo property = entityType.GetProperty(column, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (property == null)
+                MemberExpression ex = GetMemberExpression<TEntity>(column, parameter);
+                if (ex == null)
                 {
                     continue;
                 }
-                dynamicTypeBuilder.AddProperty(property);
+                memberExpressions.Add(ex);
+                dynamicTypeBuilder.AddProperty(ex.Member as PropertyInfo);
             }
 
             Type dynamicType = dynamicTypeBuilder.CreateTypeInfo().AsType();
 
             var ctor = Expression.New(dynamicType);
 
-            ParameterExpression parameter = Expression.Parameter(entityType, "p");
+            var memberAssignments = dynamicType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Select(p =>
+                {
+                    var t = Expression.Bind(p, memberExpressions.Single(me => me.Member.Name == p.Name));
 
-            var memberAssignments = dynamicType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p =>
-            {
-                PropertyInfo propertyInfo = entityType.GetProperty(p.Name, BindingFlags.Public | BindingFlags.Instance);
-                MemberExpression memberExpression = Expression.Property(parameter, propertyInfo);
-                return Expression.Bind(p, memberExpression);
-            });
+                    return Expression.Bind(p, memberExpressions.Single(me => me.Member.Name == p.Name));
+                });
 
             var memberInit = Expression.MemberInit(ctor, memberAssignments);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
 
         }
 
+        private static MemberExpression GetMemberExpression<TEntity>(string column, ParameterExpression parameter)
+        {
+            string[] properties = column.Split('.');
+            Type type = typeof(TEntity);
+            MemberExpression memberExpression = null;
+            foreach (string property in properties)
+            {
+                PropertyInfo propertyInfo = type.GetProperty(property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (propertyInfo == null)
+                {
+                    return null;
+                }
+                if (memberExpression == null)
+                {
+                    memberExpression = Expression.Property(parameter, propertyInfo);
+                }
+                else
+                {
+                    memberExpression = Expression.Property(memberExpression, propertyInfo);
+                }
+                type = propertyInfo.PropertyType;
+            }
+            return memberExpression;
+        }
+
         public static IEnumerable<Column> GetSelectableColumns(Clause includeClause, Clause selectClause, string[] unselectableProperties, IEntityType entityType)
         {
-            IEnumerable<IProperty> properties = entityType.GetProperties();
+            //IEnumerable<IProperty> properties = entityType.GetProperties();
+            IEnumerable<Column> columns = selectClause.Value.Split(',').Select(c => new Column
+            {
+                PropertyName = c
+            });
             IEnumerable<INavigation> navigations = new List<INavigation>();
             if (unselectableProperties != null)
             {
-                properties = properties.Where(c => !unselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+                columns = columns.Where(c => !unselectableProperties.Contains(c.PropertyName, StringComparer.OrdinalIgnoreCase));
             }
-            if (selectClause != null)
-            {
-                string[] columns = selectClause.Value.Split(',');
-                properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
-            }
+            //if (selectClause != null)
+            //{
+            //    string[] columns = selectClause.Value.Split(',');
+            //    properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+            //}
             if (includeClause != null)
             {
-                string[] columns = includeClause.Value.Split(',');
-                navigations = entityType.GetNavigations().Where(n => columns.Contains(n.Name, StringComparer.OrdinalIgnoreCase));
+                string[] includeColumns = includeClause.Value.Split(',');
+                navigations = entityType.GetNavigations().Where(n => includeColumns.Contains(n.Name, StringComparer.OrdinalIgnoreCase));
             }
 
-            return properties.Select(p => p.Name).Concat(navigations.Select(n => n.Name)).Select(v => new Column
+            return columns.Select(p => p.PropertyName).Concat(navigations.Select(n => n.Name)).Select(v => new Column
             {
                 PropertyName = v
             });
