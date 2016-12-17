@@ -114,6 +114,7 @@ Roadmap :
 - ~~Add capability to get single element (first or last)~~
 - ~~Add unselectable columns~~
 - ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
+- Add EntityFramework & .Net 4.6.x support
 - Add capability to include navigation properties on multiple levels
 - Add capability to select on multiple levels
 - Add simpler Attribute using OnActionExecuted
