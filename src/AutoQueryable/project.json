@@ -5,18 +5,20 @@
     "Microsoft.AspNetCore.Mvc.Abstractions": "1.1.0",
     "Microsoft.AspNetCore.Mvc.Core": "1.1.0",
     "NETStandard.Library": "1.6.1",
-    "System.Data.SqlClient": "4.3.0",
-    "System.Linq.Queryable": "4.3.0"
+    "System.Data.SqlClient": "4.3.0"
   },
 
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
-        "System.Reflection.Emit": "4.3.0"
+        "System.Reflection.Emit": "4.3.0",
+        "System.Linq.Queryable": "4.3.0"
       }
     },
     "net46": {
       "dependencies": {
+        "System.Reflection.Emit": "4.0.0.0",
+        "System.Linq.Queryable": "4.0.0.0"
       }
     }
   },
