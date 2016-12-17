@@ -18,7 +18,7 @@ namespace AutoQueryable.Helpers
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
             ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
             TypeBuilder dynamicTypeBuilder = dynamicModule.DefineType("AutoQueryableDynamicType", TypeAttributes.Public);
-            ICollection<MemberExpression> memberExpressions = new List<MemberExpression>();
+            Dictionary<string, MemberExpression> memberExpressions = new Dictionary<string, MemberExpression>();
 
             ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
             foreach (string column in columns.Split(','))
@@ -28,8 +28,9 @@ namespace AutoQueryable.Helpers
                 {
                     continue;
                 }
-                memberExpressions.Add(ex);
-                dynamicTypeBuilder.AddProperty(ex.Member as PropertyInfo);
+                string propName = column.Replace(".", "");
+                memberExpressions.Add(propName, ex);
+                dynamicTypeBuilder.AddProperty(propName, ex.Member as PropertyInfo);
             }
 
             Type dynamicType = dynamicTypeBuilder.CreateTypeInfo().AsType();
@@ -39,9 +40,7 @@ namespace AutoQueryable.Helpers
             var memberAssignments = dynamicType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(p =>
                 {
-                    var t = Expression.Bind(p, memberExpressions.Single(me => me.Member.Name == p.Name));
-
-                    return Expression.Bind(p, memberExpressions.Single(me => me.Member.Name == p.Name));
+                    return Expression.Bind(p, memberExpressions.Single(me => me.Key == p.Name).Value);
                 });
 
             var memberInit = Expression.MemberInit(ctor, memberAssignments);

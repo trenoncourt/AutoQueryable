@@ -6,22 +6,22 @@ namespace AutoQueryable.Extensions
 {
     public static class TypeBuilderExtension
     {
-        public static void AddProperty(this TypeBuilder typeBuilder, PropertyInfo propertyInfo)
+        public static void AddProperty(this TypeBuilder typeBuilder, string propName, PropertyInfo propertyInfo)
         {
             const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
 
-            FieldBuilder field = typeBuilder.DefineField("_" + propertyInfo.Name, propertyInfo.PropertyType, FieldAttributes.Private);
+            FieldBuilder field = typeBuilder.DefineField("_" + propName, propertyInfo.PropertyType, FieldAttributes.Private);
             
-            PropertyBuilder property = typeBuilder.DefineProperty(propertyInfo.Name,propertyInfo.Attributes, propertyInfo.PropertyType, new Type[] {});
+            PropertyBuilder property = typeBuilder.DefineProperty(propName,propertyInfo.Attributes, propertyInfo.PropertyType, new Type[] {});
 
-            MethodBuilder getMethodBuilder = typeBuilder.DefineMethod($"get_{propertyInfo.Name}", getSetAttr, propertyInfo.PropertyType, Type.EmptyTypes);
+            MethodBuilder getMethodBuilder = typeBuilder.DefineMethod($"get_{propName}", getSetAttr, propertyInfo.PropertyType, Type.EmptyTypes);
      
             ILGenerator getIl = getMethodBuilder.GetILGenerator();
             getIl.Emit(OpCodes.Ldarg_0);
             getIl.Emit(OpCodes.Ldfld, field);
             getIl.Emit(OpCodes.Ret);
 
-            MethodBuilder setMethodBuilder = typeBuilder.DefineMethod($"set_{propertyInfo.Name}", getSetAttr, null, new[] { propertyInfo.PropertyType });
+            MethodBuilder setMethodBuilder = typeBuilder.DefineMethod($"set_{propName}", getSetAttr, null, new[] { propertyInfo.PropertyType });
             ILGenerator setIl = setMethodBuilder.GetILGenerator();
 
             setIl.Emit(OpCodes.Ldarg_0);

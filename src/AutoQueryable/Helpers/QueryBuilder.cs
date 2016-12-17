@@ -41,7 +41,7 @@ namespace AutoQueryable.Helpers
                 query = query.OrderByDesc(orderDescColumns);
             }
 
-            dynamic queryProjection;
+            IQueryable<object> queryProjection;
             if (selectClause == null && includeClause == null && unselectableProperties == null)
             {
                 queryProjection = query;
