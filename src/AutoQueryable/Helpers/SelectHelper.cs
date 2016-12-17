@@ -5,9 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoQueryable.Helpers
 {
@@ -73,52 +71,14 @@ namespace AutoQueryable.Helpers
             return memberExpression;
         }
 
-        public static IEnumerable<Column> GetSelectableColumns(Clause includeClause, Clause selectClause, string[] unselectableProperties, IEntityType entityType)
+        public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
-            //IEnumerable<IProperty> properties = entityType.GetProperties();
-            IEnumerable<Column> columns = selectClause.Value.Split(',').Select(c => new Column
-            {
-                PropertyName = c
-            });
-            IEnumerable<INavigation> navigations = new List<INavigation>();
+            IEnumerable<string> columns = selectClause.Value.Split(',');
             if (unselectableProperties != null)
             {
-                columns = columns.Where(c => !unselectableProperties.Contains(c.PropertyName, StringComparer.OrdinalIgnoreCase));
+                columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
-            //if (selectClause != null)
-            //{
-            //    string[] columns = selectClause.Value.Split(',');
-            //    properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
-            //}
-            if (includeClause != null)
-            {
-                string[] includeColumns = includeClause.Value.Split(',');
-                navigations = entityType.GetNavigations().Where(n => includeColumns.Contains(n.Name, StringComparer.OrdinalIgnoreCase));
-            }
-
-            return columns.Select(p => p.PropertyName).Concat(navigations.Select(n => n.Name)).Select(v => new Column
-            {
-                PropertyName = v
-            });
-        }
-
-        public static IEnumerable<Column> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
-        {
-            IEnumerable<PropertyInfo> properties = entityType.GetProperties();
-            if (unselectableProperties != null)
-            {
-                properties = properties.Where(c => !unselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
-            }
-            if (selectClause != null)
-            {
-                string[] columns = selectClause.Value.Split(',');
-                properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
-            }
-
-            return properties.Select(p => p.Name).Select(v => new Column
-            {
-                PropertyName = v
-            });
+            return columns;
         }
     }
 }

@@ -20,8 +20,6 @@ namespace AutoQueryable.Filters
 
         public virtual void OnActionExecuted(ActionExecutedContext context)
         {
-            if (_autoQueryableProfile.QueryableType != null || _autoQueryableProfile.EntityType != null)
-                return;
             dynamic query = ((ObjectResult)context.Result).Value;
             if (query == null) throw new Exception($"Unable to retreive value of IQueryable from context result.");
             Type entityType = query.GetType().GenericTypeArguments[0];

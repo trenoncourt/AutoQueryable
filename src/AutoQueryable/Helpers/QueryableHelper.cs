@@ -17,8 +17,8 @@ namespace AutoQueryable.Helpers
                 {
                     return query;
                 }
-                List<Column> columns = SelectHelper.GetSelectableColumns(null, profile.UnselectableProperties, entityType).ToList();
-                return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.Select(c => c.PropertyName))));
+                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(null, profile.UnselectableProperties, entityType);
+                return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
             }
 
             var criteriaManager = new CriteriaManager();
