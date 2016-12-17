@@ -80,5 +80,21 @@ namespace AutoQueryable.Helpers
             }
             return columns;
         }
+        public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType)
+        {
+            IEnumerable<string> columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => 
+                (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
+                || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
+                || p.PropertyType.GetTypeInfo().IsArray
+                || p.PropertyType == typeof(string) 
+                )
+                .Select(p => p.Name);
+            if (unselectableProperties != null)
+            {
+                columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+            }
+            return columns.ToList();
+        }
     }
 }

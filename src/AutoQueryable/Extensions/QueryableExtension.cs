@@ -7,9 +7,9 @@ namespace AutoQueryable.Extensions
 {
     public static class QueryableExtension
     {
-        public static dynamic AutoQueryable(this IQueryable<object> query, string queryString, AutoQueryableProfile profile)
+        public static dynamic AutoQueryable<TEntity>(this IQueryable<TEntity> query, string queryString, AutoQueryableProfile profile = null) where TEntity : class
         {
-            Type entityType = query.GetType().GenericTypeArguments[0];
+            Type entityType = typeof(TEntity);
             return QueryableHelper.GetAutoQuery(queryString, entityType, query, profile);
         }
     }

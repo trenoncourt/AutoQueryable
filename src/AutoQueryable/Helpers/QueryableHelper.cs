@@ -10,23 +10,23 @@ namespace AutoQueryable.Helpers
     {
         public static dynamic GetAutoQuery<TEntity>(string queryString, Type entityType, IQueryable<TEntity> query, AutoQueryableProfile profile) where TEntity : class
         {
-            string[] queryStringParts = queryString?.Replace("?", "")?.Split('&');
-            if (queryStringParts == null)
+            if (string.IsNullOrEmpty(queryString))
             {
-                if (profile.UnselectableProperties == null)
+                if (profile?.UnselectableProperties == null)
                 {
                     return query;
                 }
-                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(null, profile.UnselectableProperties, entityType);
+                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile.UnselectableProperties, entityType);
                 return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
             }
+            string[] queryStringParts = queryString?.Replace("?", "")?.Split('&');
 
             var criteriaManager = new CriteriaManager();
             IList<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();
             var clauseManager = new ClauseManager();
             IList<Clause> clauses = clauseManager.GetClauses(queryStringParts).ToList();
 
-            return QueryBuilder.Build(query, entityType, clauses, criterias, profile.UnselectableProperties);
+            return QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties);
         }
     }
 }
