@@ -21,6 +21,9 @@ From version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by on
 From version 0.7.0 you can now use Include keyword to include navigation properties from first level eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category)
 
+From version 0.10.0 you can use Projection in Select clause :
+[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name)
+
 **Existing filters** 
 
 By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
