@@ -1,12 +1,12 @@
 # AutoQueryable
 AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices to Asp.Net & Asp.Net Core.
 
-Install with for AspNet Core [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter/):
+Install with for **AspNet Core** [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter/):
 ```powershell
 Install-Package AutoQueryable.AspNetCore.Filter
 ```
 
-Install with for Web api 2 [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter/):
+Install with for **Web api 2** [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter/):
 ```powershell
 Install-Package AutoQueryable.AspNet.Filter
 ```
