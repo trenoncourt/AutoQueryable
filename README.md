@@ -1,9 +1,14 @@
 # AutoQueryable
-AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core
+AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices to Asp.Net & Asp.Net Core.
 
-Install with [NuGet](https://www.nuget.org/packages/AutoQueryable):
+Install with for AspNet Core [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter/):
 ```powershell
-Install-Package AutoQueryable
+Install-Package AutoQueryable.AspNetCore.Filter
+```
+
+Install with for Web api 2 [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter/):
+```powershell
+Install-Package AutoQueryable.AspNet.Filter
 ```
 
 AutoQueryable helps you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black)
@@ -52,18 +57,6 @@ public class ProductsController : Controller
     }
 }
 ```
-**OR**
-```c#
-[Route("api/[controller]")]
-public class ProductsController : Controller
-{
-    [HttpGet]
-    [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(Product))]
-    public void Get()
-    {
-    }
-}
-```
 
 **Dto projection**
 ```c#
@@ -94,20 +87,6 @@ public class UsersController : Controller
 }
 ```
 
-**Fallback value** 
-Sometimes filters can cause exceptions, you can specify you want to use a fallback value to hide exception eg:
-```c#
-[Route("api/[controller]")]
-public class ProductsController : Controller
-{
-    [HttpGet]
-    [AutoQueryable(DbContextType = typeof(AdventureWorksContext), EntityType = typeof(Product), UseFallbackValue = true)]
-    public IActionResult Get()
-    {
-        return Ok(_dbContext.Products);
-    }
-}
-```
 
 Roadmap :
 - ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
@@ -117,10 +96,11 @@ Roadmap :
 - ~~Add capability to get single element (first or last)~~
 - ~~Add unselectable columns~~
 - ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
-- Add EntityFramework & .Net 4.6.x support
+- ~~Add EntityFramework 6.1.3 support~~
+- ~~Add .Net 4.5.1 min support~~
+- ~~Add capability to select with projection~~
+- ~~Add simpler Attribute using OnActionExecuted~~
 - Add capability to include navigation properties on multiple levels
-- Add capability to select on multiple levels
-- Add simpler Attribute using OnActionExecuted
 - Add Unselectable navigations in include clause
 - Add allowed clauses or not
 - Add allowed operators or not in where clause
