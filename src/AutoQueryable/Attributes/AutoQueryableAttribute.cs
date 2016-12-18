@@ -1,33 +1,33 @@
-﻿using System;
-using AutoQueryable.Filters;
-using AutoQueryable.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿//using System;
+//using AutoQueryable.Filters;
+//using AutoQueryable.Models;
+//using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace AutoQueryable.Attributes
-{
-    [AttributeUsage(AttributeTargets.Method)]
-    public class AutoQueryableAttribute : Attribute, IFilterFactory, IOrderedFilter
-    {
-        public string[] UnselectableProperties { get; set; }
+//namespace AutoQueryable.Attributes
+//{
+//    [AttributeUsage(AttributeTargets.Method)]
+//    public class AutoQueryableAttribute : Attribute, IFilterFactory, IOrderedFilter
+//    {
+//        public string[] UnselectableProperties { get; set; }
 
-        /// <inheritdoc />
-        public bool IsReusable { get; set; }
+//        /// <inheritdoc />
+//        public bool IsReusable { get; set; }
 
-        /// <inheritdoc />
-        public int Order { get; set; }
+//        /// <inheritdoc />
+//        public int Order { get; set; }
 
-        public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
-        {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-            var profile = new AutoQueryableProfile
-            {
-                UnselectableProperties = UnselectableProperties
-            };
+//        public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
+//        {
+//            if (serviceProvider == null)
+//            {
+//                throw new ArgumentNullException(nameof(serviceProvider));
+//            }
+//            var profile = new AutoQueryableProfile
+//            {
+//                UnselectableProperties = UnselectableProperties
+//            };
             
-            return new AutoQueryableFilter(profile);
-        }
-    }
-}
+//            return new AutoQueryableFilter(profile);
+//        }
+//    }
+//}

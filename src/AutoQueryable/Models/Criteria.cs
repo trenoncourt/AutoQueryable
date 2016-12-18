@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Data.Common;
-
 namespace AutoQueryable.Models
 {
     public class Criteria
