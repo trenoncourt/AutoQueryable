@@ -12,14 +12,10 @@ namespace AutoQueryable.Helpers
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                if (profile?.UnselectableProperties == null)
-                {
-                    return query;
-                }
-                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile.UnselectableProperties, entityType);
+                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile?.UnselectableProperties, entityType);
                 return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
             }
-            string[] queryStringParts = queryString?.Replace("?", "")?.Split('&');
+            string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
             var criteriaManager = new CriteriaManager();
             IList<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();

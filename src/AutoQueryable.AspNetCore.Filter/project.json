@@ -10,5 +10,15 @@
 
   "frameworks": {
     "netstandard1.6": {}
-  }
+  },
+  "packOptions": {
+    "licenseUrl": "https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE",
+    "projectUrl": "https://github.com/trenoncourt/AutoQueryable",
+    "tags": [ "AutoQueryable", "AutoQuery", "OData" ],
+    "owners": [ "trenoncourt" ]
+  },
+
+  "title": "AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.",
+  "description": "AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.",
+  "authors": [ "Thibaut Renoncourt" ]
 }

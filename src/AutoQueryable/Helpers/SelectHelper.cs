@@ -73,6 +73,10 @@ namespace AutoQueryable.Helpers
 
         public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
+            if (selectClause == null)
+            {
+                return GetSelectableColumns(unselectableProperties, entityType);
+            }
             IEnumerable<string> columns = selectClause.Value.Split(',');
             if (unselectableProperties != null)
             {

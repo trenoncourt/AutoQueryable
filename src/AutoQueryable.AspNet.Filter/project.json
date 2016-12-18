@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "0.0.1",
 
   "dependencies": {
@@ -12,5 +12,15 @@
 
       }
     }
-  }
+  },
+  "packOptions": {
+    "licenseUrl": "https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE",
+    "projectUrl": "https://github.com/trenoncourt/AutoQueryable",
+    "tags": [ "AutoQueryable", "AutoQuery", "OData" ],
+    "owners": [ "trenoncourt" ]
+  },
+
+  "title": "AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net >=4.5.1.",
+  "description": "AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net >=4.5.1.",
+  "authors": [ "Thibaut Renoncourt" ]
 }
