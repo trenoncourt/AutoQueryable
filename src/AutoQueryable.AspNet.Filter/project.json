@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.1.0",
 
   "dependencies": {
   },
@@ -8,7 +8,7 @@
     "net451": {
       "dependencies": {
         "Microsoft.AspNet.WebApi.Core": "5.2.3",
-        "AutoQueryable": "0.11.0"
+        "AutoQueryable": "0.11.1"
 
       }
     }
