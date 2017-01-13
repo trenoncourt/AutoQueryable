@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoQueryable.Helpers
 {
@@ -19,8 +20,10 @@ namespace AutoQueryable.Helpers
             Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
             Clause orderByClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderBy);
             Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
+            Clause includeClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Include);
 
             List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
+            List<string> includeColumns = IncludeHelper.GetIncludableColumns(includeClause, unselectableProperties, entityType).ToList();
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
 
@@ -38,8 +41,16 @@ namespace AutoQueryable.Helpers
                 query = query.OrderByDesc(orderDescColumns);
             }
 
+            if (includeClause != null)
+            {
+                foreach (string column in includeColumns)
+                {
+                    query = query.Include(column);
+                }
+            }
+
             IQueryable<object> queryProjection;
-            if (selectClause == null && unselectableProperties == null)
+            if (selectClause == null &&  unselectableProperties == null)
             {
                 queryProjection = query;
             }

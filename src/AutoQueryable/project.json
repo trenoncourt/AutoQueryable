@@ -1,6 +1,5 @@
 {
-  "version": "0.11.1",
-
+  "version": "0.11.3",
   "frameworks": {
     "netstandard1.3": {
       "dependencies": {
@@ -19,15 +18,16 @@
       }
     }
   },
-
   "packOptions": {
     "licenseUrl": "https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE",
     "projectUrl": "https://github.com/trenoncourt/AutoQueryable",
     "tags": [ "AutoQueryable", "AutoQuery", "OData" ],
     "owners": [ "trenoncourt" ]
   },
-
   "title": "AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.",
   "description": "AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.",
-  "authors": [ "Thibaut Renoncourt" ]
+  "authors": [ "Thibaut Renoncourt" ],
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore": "1.1.0"
+  }
 }

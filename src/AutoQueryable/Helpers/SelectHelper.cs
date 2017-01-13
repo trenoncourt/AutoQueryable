@@ -78,6 +78,7 @@ namespace AutoQueryable.Helpers
                 return GetSelectableColumns(unselectableProperties, entityType);
             }
             IEnumerable<string> columns = selectClause.Value.Split(',');
+        
             if (unselectableProperties != null)
             {
                 columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
