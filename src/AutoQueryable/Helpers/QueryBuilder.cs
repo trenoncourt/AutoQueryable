@@ -23,7 +23,6 @@ namespace AutoQueryable.Helpers
             Clause includeClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Include);
 
             List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
-            List<string> includeColumns = IncludeHelper.GetIncludableColumns(includeClause, unselectableProperties, entityType).ToList();
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
 
@@ -43,6 +42,7 @@ namespace AutoQueryable.Helpers
 
             if (includeClause != null)
             {
+                List<string> includeColumns = IncludeHelper.GetIncludableColumns(includeClause, unselectableProperties, entityType).ToList();
                 foreach (string column in includeColumns)
                 {
                     query = query.Include(column);

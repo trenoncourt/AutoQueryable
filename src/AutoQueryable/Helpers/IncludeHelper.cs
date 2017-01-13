@@ -9,10 +9,6 @@ namespace AutoQueryable.Helpers
     {
         public static IEnumerable<string> GetIncludableColumns(Clause includeClause, string[] unselectableProperties, Type entityType)
         {
-            if (includeClause == null)
-            {
-                return null;
-            }
             IEnumerable<string> columns = includeClause.Value.Split(',');
             if (unselectableProperties != null)
             {
