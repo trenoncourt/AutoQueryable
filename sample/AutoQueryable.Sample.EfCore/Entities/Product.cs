@@ -11,7 +11,7 @@ namespace AutoQueryable.Sample.EfCore.Entities
         }
 
         public int ProductId { get; set; }
-        public string Namea { get; set; }
+        public string Name { get; set; }
         public string ProductNumber { get; set; }
         public string Color { get; set; }
         public decimal StandardCost { get; set; }

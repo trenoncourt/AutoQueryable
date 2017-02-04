@@ -10,7 +10,8 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
     "Microsoft.AspNetCore.Mvc.Formatters.Json": "1.1.1",
     "Microsoft.EntityFrameworkCore": "1.1.0",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0"
+    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
+    "AutoQueryable.AspNetCore.Filter": "0.1.0"
   },
 
   "frameworks": {

@@ -58,7 +58,7 @@ namespace AutoQueryable.Sample.EfCore
                     ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
                     ProductModel = model1,
                     ListPrice = i,
-                    Namea = $"Product {i}",
+                    Name = $"Product {i}",
                     ProductNumber = Guid.NewGuid().ToString(),
                     Rowguid = Guid.NewGuid(),
                     Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
