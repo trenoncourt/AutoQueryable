@@ -100,7 +100,7 @@ Roadmap :
 - ~~Add .Net 4.5.1 min support~~
 - ~~Add capability to select with projection~~
 - ~~Add simpler Attribute using OnActionExecuted~~
-- Add Samples
+- ~~Add Samples~~
 - Add Demo
 - Add capability to include navigation properties on multiple levels
 - Add Unselectable navigations in include clause
