@@ -111,3 +111,6 @@ Roadmap :
 - Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
 - Add capability to include hierarchical data
+
+## Buy me a beer
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/trenoncourt/5)
