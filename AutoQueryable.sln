@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{4AB594
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AutoQueryable.Sample.EfCore", "sample\AutoQueryable.Sample.EfCore\AutoQueryable.Sample.EfCore.xproj", "{8189A516-C550-416C-BC2B-9D11AA2E1955}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A9207ADA-C81F-4112-BC31-35EA2A8362F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
