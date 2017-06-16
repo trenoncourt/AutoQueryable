@@ -19,7 +19,7 @@ namespace AutoQueryable.Helpers
             type = Nullable.GetUnderlyingType(type) ?? type;
 
             if (type.GetTypeInfo().IsEnum)
-                return Enum.Parse(type, value);
+                return Enum.Parse(type, value, ignoreCase:true);
 
             return System.Convert.ChangeType(value, type);
         }
