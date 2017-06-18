@@ -108,7 +108,191 @@ namespace AutoQueryable.UnitTest
         }
 
         [TestMethod]
-        public void SelectAllWithInclude()
+        public void SelectSkip50()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=ProductId,name,color&skip=50") as IQueryable<dynamic>;
+                var first = query.First();
+                Type type = first.GetType();
+                int value = type.GetProperty("ProductId").GetValue(first);
+
+                Assert.AreEqual(value, 51);
+                Assert.AreEqual(query.Count(), 10000 - 50);
+            }
+        }
+
+        [TestMethod]
+        public void SelectTake50()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=ProductId,name,color&take=50") as IQueryable<dynamic>;
+                Assert.AreEqual(query.Count(), 50);
+            }
+        }
+
+        [TestMethod]
+        public void SelectSkipAndTake50()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=ProductId,name,color&skip=50&take=50") as IQueryable<dynamic>;
+                var first = query.First();
+                Type type = first.GetType();
+                int value = type.GetProperty("ProductId").GetValue(first);
+
+                Assert.AreEqual(value, 51);
+                Assert.AreEqual(query.Count(), 50);
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderByColor()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=name,color&orderby=color") as IEnumerable<dynamic>).ToList();
+                var first = query.First();
+                var second = query.Skip(1).First();
+
+                var last = query.Last();
+                var preLast = query.Skip(9998).First();
+
+                Type type = first.GetType();
+                string firstValue = type.GetProperty("color").GetValue(first);
+                string secondValue = type.GetProperty("color").GetValue(second);
+
+                string lastValue = type.GetProperty("color").GetValue(last);
+                string preLastValue = type.GetProperty("color").GetValue(preLast);
+
+
+
+                Assert.AreEqual(firstValue, "black");
+                Assert.AreEqual(secondValue, "black");
+                Assert.AreEqual(lastValue, "red");
+                Assert.AreEqual(preLastValue, "red");
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderById()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=productid,name,color&orderby=productid") as IEnumerable<dynamic>).ToList();
+                var first = query.First();
+                var second = query.Skip(1).First();
+
+                var last = query.Last();
+                var preLast = query.Skip(9998).First();
+
+                Type type = first.GetType();
+                int firstValue = type.GetProperty("productid").GetValue(first);
+                int secondValue = type.GetProperty("productid").GetValue(second);
+
+                int lastValue = type.GetProperty("productid").GetValue(last);
+                int preLastValue = type.GetProperty("productid").GetValue(preLast);
+
+
+
+                Assert.AreEqual(firstValue, 1);
+                Assert.AreEqual(secondValue, 2);
+                Assert.AreEqual(lastValue, 10000);
+                Assert.AreEqual(preLastValue, 9999);
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderByIdDesc()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=productid,name,color&orderbydesc=productid") as IEnumerable<dynamic>).ToList();
+                var first = query.First();
+                var second = query.Skip(1).First();
+
+                var last = query.Last();
+                var preLast = query.Skip(9998).First();
+
+                Type type = first.GetType();
+                int firstValue = type.GetProperty("productid").GetValue(first);
+                int secondValue = type.GetProperty("productid").GetValue(second);
+
+                int lastValue = type.GetProperty("productid").GetValue(last);
+                int preLastValue = type.GetProperty("productid").GetValue(preLast);
+
+
+
+                Assert.AreEqual(firstValue, 10000);
+                Assert.AreEqual(secondValue, 9999);
+                Assert.AreEqual(lastValue, 1);
+                Assert.AreEqual(preLastValue, 2);
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderByColorDesc()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=name,color&orderbydesc=color") as IEnumerable<dynamic>).ToList();
+                var first = query.First();
+                var second = query.Skip(1).First();
+
+                var last = query.Last();
+                var preLast = query.Skip(9998).First();
+
+                Type type = first.GetType();
+                string firstValue = type.GetProperty("color").GetValue(first);
+                string secondValue = type.GetProperty("color").GetValue(second);
+
+                string lastValue = type.GetProperty("color").GetValue(last);
+                string preLastValue = type.GetProperty("color").GetValue(preLast);
+
+
+
+                Assert.AreEqual(firstValue, "red");
+                Assert.AreEqual(secondValue, "red");
+                Assert.AreEqual(lastValue, "black");
+                Assert.AreEqual(preLastValue, "black");
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderBySellStartDate()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=SellStartDate&orderby=SellStartDate") as IEnumerable<dynamic>).ToList();
+                DateTime currentDate = DateTime.MinValue;
+                foreach (var product in query)
+                {
+                    var date = product.GetType().GetProperty("SellStartDate").GetValue(product);
+                    Assert.IsTrue(date > currentDate);
+                    currentDate = date;
+                }
+            }
+        }
+
+        [TestMethod]
+        public void SelectOrderBySellStartDateDesc()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("select=SellStartDate&orderbydesc=SellStartDate") as IEnumerable<dynamic>).ToList();
+                DateTime currentDate = DateTime.MaxValue;
+                foreach (var product in query)
+                {
+                    var date = product.GetType().GetProperty("SellStartDate").GetValue(product);
+                    Assert.IsTrue(date < currentDate);
+                    currentDate = date;
+                }
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllWithSelectInclude()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
@@ -263,7 +447,7 @@ namespace AutoQueryable.UnitTest
                         ProductNumber = Guid.NewGuid().ToString(),
                         Rowguid = Guid.NewGuid(),
                         Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
-                        SellStartDate = DateTime.Today,
+                        SellStartDate = DateTime.Today.AddHours(8*i),
                         StandardCost = i + 1,
                         Weight = i % 32,
                         SalesOrderDetail = new List<SalesOrderDetail>
