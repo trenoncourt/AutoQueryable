@@ -292,6 +292,38 @@ namespace AutoQueryable.UnitTest
         }
 
         [TestMethod]
+        public void SelectFirst()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                Product product = context.Product.AutoQueryable("first=true");
+                Assert.IsTrue(product.ProductId == 1);
+            }
+        }
+
+        [TestMethod]
+        public void SelectLast()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                Product product = context.Product.AutoQueryable("last=true");
+                Assert.IsTrue(product.ProductId == 10000);
+            }
+        }
+
+
+
+        [TestMethod]
+        public void SelectFirstOrderbyIdDesc()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                Product product = context.Product.AutoQueryable("first=true&orderbydesc=productid");
+                Assert.IsTrue(product.ProductId == 10000);
+            }
+        }
+
+        [TestMethod]
         public void SelectAllWithSelectInclude()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
