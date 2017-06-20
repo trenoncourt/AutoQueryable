@@ -87,7 +87,27 @@ namespace AutoQueryable.UnitTest
             {
                 string todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
                 var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 1);
+                Assert.AreEqual(2, query.Count);
+                var first = query.First();
+                DateTime sellStartDate = first.GetType().GetProperty("SellStartDate").GetValue(first);
+                Assert.IsTrue(sellStartDate == DateTime.Today);
+            }
+        }
+
+        [TestMethod]
+        public void SellStartDateEqualsTodayOrTodayPlus8HourJsonFormatted()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                string todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
+                string todayPlus8HourJsonFormated = DateTime.Today.AddHours(8).ToString("yyyy-MM-ddThh:mm:ss");
+                var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated},{todayPlus8HourJsonFormated}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(2, query.Count);
+                foreach (var product in query)
+                {
+                    DateTime sellStartDate = product.GetType().GetProperty("SellStartDate").GetValue(product);
+                    Assert.IsTrue(sellStartDate == DateTime.Today || sellStartDate == DateTime.Today.AddHours(8));
+                }
             }
         }
 
