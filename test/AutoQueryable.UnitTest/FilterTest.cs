@@ -11,6 +11,8 @@ namespace AutoQueryable.UnitTest
     [TestClass]
     public class FilterTest
     {
+        public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
+
         [TestMethod]
         public void IdEquals5()
         {
@@ -61,6 +63,19 @@ namespace AutoQueryable.UnitTest
         }
 
         [TestMethod]
+        public void RowGuidEqualsGuidString()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable($"rowguid={GuidString}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(10000, query.Count());
+                var first = query.First();
+                Guid id = first.GetType().GetProperty("Rowguid").GetValue(first);
+                Assert.IsTrue(id == Guid.Parse(GuidString));
+            }
+        }
+
+        [TestMethod]
         public void ColorEqualsRed()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
@@ -87,7 +102,7 @@ namespace AutoQueryable.UnitTest
             {
                 string todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
                 var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(2, query.Count);
+                Assert.AreEqual(1, query.Count);
                 var first = query.First();
                 DateTime sellStartDate = first.GetType().GetProperty("SellStartDate").GetValue(first);
                 Assert.IsTrue(sellStartDate == DateTime.Today);
@@ -138,7 +153,7 @@ namespace AutoQueryable.UnitTest
                         ListPrice = i,
                         Name = $"Product {i}",
                         ProductNumber = Guid.NewGuid().ToString(),
-                        Rowguid = Guid.NewGuid(),
+                        Rowguid = Guid.Parse(GuidString),
                         Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
                         SellStartDate = DateTime.Today.AddHours(8 * i),
                         StandardCost = i + 1,

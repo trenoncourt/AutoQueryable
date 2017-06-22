@@ -14,6 +14,8 @@ namespace AutoQueryable.UnitTest
     [TestClass]
     public class SelectTest
     {
+        public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
+
         [TestMethod]
         public void SelectAllProducts()
         {
@@ -477,7 +479,7 @@ namespace AutoQueryable.UnitTest
                         ListPrice = i,
                         Name = $"Product {i}",
                         ProductNumber = Guid.NewGuid().ToString(),
-                        Rowguid = Guid.NewGuid(),
+                        Rowguid = Guid.Parse(GuidString),
                         Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
                         SellStartDate = DateTime.Today.AddHours(8*i),
                         StandardCost = i + 1,

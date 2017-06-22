@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace AutoQueryable.Helpers
 {
@@ -16,10 +13,18 @@ namespace AutoQueryable.Helpers
 
         public static dynamic Convert(string value, Type type)
         {
+            if (value.Equals("null"))
+            {
+                return null;
+            }
+
             type = Nullable.GetUnderlyingType(type) ?? type;
 
             if (type.GetTypeInfo().IsEnum)
                 return Enum.Parse(type, value, ignoreCase:true);
+
+            if (Equals(type.GetTypeInfo(), typeof(Guid).GetTypeInfo()))
+                return Guid.Parse(value);
 
             return System.Convert.ChangeType(value, type);
         }
