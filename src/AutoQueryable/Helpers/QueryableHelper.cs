@@ -16,11 +16,9 @@ namespace AutoQueryable.Helpers
                 return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
-
-            var criteriaManager = new CriteriaManager();
-            IList<Criteria> criterias = criteriaManager.GetCriterias(entityType, queryStringParts).ToList();
-            var clauseManager = new ClauseManager();
-            IList<Clause> clauses = clauseManager.GetClauses(queryStringParts).ToList();
+            
+            IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts).ToList();
+            IList<Clause> clauses = ClauseManager.GetClauses(queryStringParts).ToList();
 
             return QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties);
         }

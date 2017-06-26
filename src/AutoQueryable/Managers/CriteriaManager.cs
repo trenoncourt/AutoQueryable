@@ -10,9 +10,9 @@ using AutoQueryable.Models;
 
 namespace AutoQueryable.Managers
 {
-    public class CriteriaManager
+    public static class CriteriaManager
     {
-        public IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts)
+        public static IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts)
         {
             foreach (string qPart in queryStringParts)
             {
@@ -65,7 +65,7 @@ namespace AutoQueryable.Managers
             }
         }
 
-        private Criteria GetCriteria(string q, string conditionAlias, ConditionType conditionType, Type entityType)
+        private static Criteria GetCriteria(string q, string conditionAlias, ConditionType conditionType, Type entityType)
         {
             string[] operands = Regex.Split(q, conditionAlias, RegexOptions.IgnoreCase);
             var criteria = new Criteria

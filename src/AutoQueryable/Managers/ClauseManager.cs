@@ -9,7 +9,7 @@ namespace AutoQueryable.Managers
 {
     public class ClauseManager
     {
-        public IEnumerable<Clause> GetClauses(string[] queryStringParts)
+        public static IEnumerable<Clause> GetClauses(string[] queryStringParts)
         {
             foreach (string q in queryStringParts)
             {
@@ -57,7 +57,7 @@ namespace AutoQueryable.Managers
             }
         }
 
-        private Clause GetClause(string q, string clauseAlias, ClauseType clauseType)
+        private static Clause GetClause(string q, string clauseAlias, ClauseType clauseType)
         {
             string[] operands = Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase);
             var criteria = new Clause
