@@ -457,6 +457,10 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                if (context.Product.Any())
+                {
+                    return;
+                }
                 var redCategory = new ProductCategory
                 {
                     Name = "red"

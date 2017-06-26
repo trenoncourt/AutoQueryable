@@ -2,16 +2,16 @@
 {
     public class ClauseAlias
     {
-        public const string Select = "Select=";
-        public const string Top = "Top=";
-        public const string Take = "Take=";
-        public const string Skip = "Skip=";
-        public const string OrderBy = "OrderBy=";
-        public const string OrderByDesc = "OrderByDesc=";
-        public const string Include = "Include=";
-        public const string GroupBy = "GroupBy=";
-        public const string First = "First=True";
-        public const string Last = "Last=True";
-        public const string WrapWith = "WrapWith=";
+        public const string Select = "select=";
+        public const string Top = "top=";
+        public const string Take = "take=";
+        public const string Skip = "skip=";
+        public const string OrderBy = "orderby=";
+        public const string OrderByDesc = "orderbydesc=";
+        public const string Include = "include=";
+        public const string GroupBy = "groupby=";
+        public const string First = "first=true";
+        public const string Last = "last=true";
+        public const string WrapWith = "wrapwith=";
     }
 }
