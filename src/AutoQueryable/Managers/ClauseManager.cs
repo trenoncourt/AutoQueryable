@@ -7,7 +7,7 @@ using AutoQueryable.Models;
 
 namespace AutoQueryable.Managers
 {
-    public class ClauseManager
+    public static class ClauseManager
     {
         public static IEnumerable<Clause> GetClauses(string[] queryStringParts)
         {
@@ -49,6 +49,10 @@ namespace AutoQueryable.Managers
                 else if (q.Contains(ClauseAlias.Include, StringComparison.OrdinalIgnoreCase))
                 {
                     clause = GetClause(q, ClauseAlias.Include, ClauseType.Include);
+                }
+                else if (q.Contains(ClauseAlias.WrapWith, StringComparison.OrdinalIgnoreCase))
+                {
+                    clause = GetClause(q, ClauseAlias.WrapWith, ClauseType.WrapWith);
                 }
                 if (clause != null)
                 {
