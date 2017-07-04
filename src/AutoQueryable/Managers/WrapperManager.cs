@@ -16,13 +16,17 @@ namespace AutoQueryable.Managers
         {
             foreach (string q in queryStringWrapperParts)
             {
-                if (q.Contains(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase))
+                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase))
                 {
                     yield return WrapperPartType.Count;
                 }
-                else if (q.Contains(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase))
+                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase))
                 {
                     yield return WrapperPartType.NextLink;
+                }
+                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return WrapperPartType.TotalCount;
                 }
             }
         }
@@ -30,20 +34,23 @@ namespace AutoQueryable.Managers
         public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, dynamic result, IList<Clause> clauses, string queryString)
         {
             dynamic wrapper = new ExpandoObject();
-            wrapper.Result = (result as IQueryable<object>).ToList();
+            wrapper.Result = (result.Item1 as IQueryable<object>).ToList();
             foreach (var part in wrapperParts)
             {
                 switch (part)
                 {
                     case WrapperPartType.Count:
-                        bool isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)result.GetType());
+                        bool isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)result.Item1.GetType());
                         if (isResultEnumerableCount)
                         {
                             wrapper.Count = wrapper.Result.Count;
                         }
                         break;
+                    case WrapperPartType.TotalCount:
+                        wrapper.TotalCount = result.Item2;
+                        break;
                     case WrapperPartType.NextLink:
-                        bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)result.GetType());
+                        bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)result.Item1.GetType());
 
                         Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
                         Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);

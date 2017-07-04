@@ -11,7 +11,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static dynamic Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties) where T : class
+        public static dynamic Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties, bool countAllRows) where T : class
         {
             Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
             Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
@@ -30,7 +30,11 @@ namespace AutoQueryable.Helpers
             {
                 query = query.Where(criterias);
             }
-
+            var totalCount = 0;
+            if (countAllRows)
+            {
+                totalCount = query.Count();
+            }
             if (orderColumns != null)
             {
                 query = query.OrderBy(orderColumns);
@@ -50,7 +54,7 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<object> queryProjection;
-            if (selectClause == null &&  unselectableProperties == null)
+            if (selectClause == null && unselectableProperties == null)
             {
                 queryProjection = query;
             }
@@ -73,13 +77,13 @@ namespace AutoQueryable.Helpers
             }
             else if (firstClause != null)
             {
-                return queryProjection.FirstOrDefault();
+                return Tuple.Create(queryProjection.FirstOrDefault(), totalCount);
             }
             else if (lastClause != null)
             {
-                return queryProjection.LastOrDefault();
+                return Tuple.Create(queryProjection.LastOrDefault(), totalCount);
             }
-            return queryProjection;
+            return Tuple.Create(queryProjection, totalCount);
         }
 
         private static IQueryable<T> Where<T>(this IQueryable<T> source, IList<Criteria> criterias)

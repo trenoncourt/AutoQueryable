@@ -25,6 +25,17 @@ namespace AutoQueryable.UnitTest
         }
 
         [TestMethod]
+        public void WrapWithTotalCount()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                dynamic query = context.Product.AutoQueryable("wrapwith=total-count") as ExpandoObject;
+                var totalCount = query.TotalCount;
+                Assert.AreEqual(totalCount, 10000);
+            }
+        }
+
+        [TestMethod]
         public void NextLinkWithoutSkip()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
