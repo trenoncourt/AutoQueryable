@@ -11,8 +11,7 @@ namespace AutoQueryable.UnitTest
     [TestClass]
     public class FilterTest
     {
-        public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
-
+       
         [TestMethod]
         public void IdEquals5()
         {
@@ -41,6 +40,15 @@ namespace AutoQueryable.UnitTest
                 }
             }
         }
+        [TestMethod]
+        public void ProductCateqoryIdEquals1()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = (context.Product.AutoQueryable("ProductCategory.ProductCategoryId=1") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount / 2);
+            }
+        }
 
         [TestMethod]
         public void IdEquals3And4()
@@ -67,11 +75,11 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                var query = (context.Product.AutoQueryable($"rowguid={GuidString}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(10000, query.Count());
+                var query = (context.Product.AutoQueryable($"rowguid={DataInitializer.GuidString}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(DataInitializer.ProductSampleCount, query.Count());
                 var first = query.First();
                 Guid id = first.GetType().GetProperty("Rowguid").GetValue(first);
-                Assert.IsTrue(id == Guid.Parse(GuidString));
+                Assert.IsTrue(id == Guid.Parse(DataInitializer.GuidString));
             }
         }
 
@@ -81,7 +89,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 var query = (context.Product.AutoQueryable("color=red") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 5000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount / 2);
             }
         }
 
@@ -91,7 +99,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 var query = (context.Product.AutoQueryable("color=red,black") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -125,64 +133,24 @@ namespace AutoQueryable.UnitTest
                 }
             }
         }
-
-        [ClassInitialize]
-        public static void InitializeSeed(TestContext testContext)
+        [TestMethod]
+        public void SalesOrderDetailUnitPriceEquals2()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                if (context.Product.Any())
-                {
-                    return;
-                }
-                var redCategory = new ProductCategory
-                {
-                    Name = "red"
-                };
-                var blackCategory = new ProductCategory
-                {
-                    Name = "black"
-                };
-                var model1 = new ProductModel
-                {
-                    Name = "Model 1"
-                };
-                for (int i = 0; i < 10000; i++)
-                {
-                    context.Product.Add(new Product
-                    {
-                        Color = i % 2 == 0 ? "red" : "black",
-                        ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
-                        ProductModel = model1,
-                        ListPrice = i,
-                        Name = $"Product {i}",
-                        ProductNumber = Guid.NewGuid().ToString(),
-                        Rowguid = Guid.Parse(GuidString),
-                        Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
-                        SellStartDate = DateTime.Today.AddHours(8 * i),
-                        StandardCost = i + 1,
-                        Weight = i % 32,
-                        SalesOrderDetail = new List<SalesOrderDetail>
-                        {
-                            new SalesOrderDetail
-                            {
-                                LineTotal = i % 54,
-                                OrderQty = 5,
-                                UnitPrice = i + i,
-                                UnitPriceDiscount = i + i / 2
-                            },
-                            new SalesOrderDetail
-                            {
-                                LineTotal = i + 15 % 64,
-                                OrderQty = 3,
-                                UnitPrice = i + i,
-                                UnitPriceDiscount = i + i / 2
-                            }
-                        }
-                    });
-                }
-                context.SaveChanges();
+                var query = context.Product.AutoQueryable("SalesOrderDetail.UnitPrice=2") as IEnumerable<dynamic>;
+                Assert.AreEqual(query.Count(), 1);
             }
         }
+        [TestMethod]
+        public void SalesOrderDetailUnitProductIdEquals1()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId=1") as IEnumerable<dynamic>;
+                Assert.AreEqual(query.Count(), 1);
+            }
+        } 
+ 
     }
 }
