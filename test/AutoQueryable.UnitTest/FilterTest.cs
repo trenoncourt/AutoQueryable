@@ -133,6 +133,7 @@ namespace AutoQueryable.UnitTest
                 }
             }
         }
+
         [TestMethod]
         public void SalesOrderDetailUnitPriceEquals2()
         {
@@ -142,6 +143,7 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(query.Count(), 1);
             }
         }
+
         [TestMethod]
         public void SalesOrderDetailUnitProductIdEquals1()
         {

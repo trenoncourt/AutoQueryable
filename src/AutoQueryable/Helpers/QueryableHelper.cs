@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Reflection;
-using AutoQueryable.Aliases;
 using AutoQueryable.Managers;
 using AutoQueryable.Models;
 
@@ -33,13 +29,13 @@ namespace AutoQueryable.Helpers
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
-            dynamic result = QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties,countAllRows);
+            QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties, countAllRows);
             if (wrapWithClause == null)
             {
-                return result.Item1;
+                return queryResult.Result;
             }
 
-            return WrapperManager.GetWrappedResult(wrapperParts, result, clauses, queryString);
+            return WrapperManager.GetWrappedResult(wrapperParts, queryResult, clauses, queryString);
         }
     }
 }

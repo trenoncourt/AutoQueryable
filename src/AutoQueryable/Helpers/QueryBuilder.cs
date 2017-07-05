@@ -11,7 +11,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static dynamic Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties, bool countAllRows) where T : class
         {
             Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
             Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
@@ -77,14 +77,15 @@ namespace AutoQueryable.Helpers
             }
             else if (firstClause != null)
             {
-                return Tuple.Create(queryProjection.FirstOrDefault(), totalCount);
+                return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
             }
             else if (lastClause != null)
             {
-                return Tuple.Create(queryProjection.LastOrDefault(), totalCount);
+                return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
             }
-            return Tuple.Create(queryProjection, totalCount);
+            return new QueryResult { Result = queryProjection, TotalCount = totalCount };
         }
+
         private static Expression MakeLambda(Expression parameter, Expression predicate)
         {
             var resultParameterVisitor = new ParameterVisitor();
@@ -106,6 +107,7 @@ namespace AutoQueryable.Helpers
                 return node;
             }
         }
+
         private static Expression BuildSubQuery(Expression parameter, Expression childParameter, Type childType, Expression predicate)
         {
             var anyMethod = typeof(Enumerable).GetMethods().Single(m => m.Name == "Any" && m.GetParameters().Length == 2);
@@ -116,7 +118,6 @@ namespace AutoQueryable.Helpers
 
         private static Expression BuildExpression(Expression parameter, ConditionType conditionType, dynamic[] values, params string[] properties)
         {
-            Expression childParameter, predicate;
             Type childType = null;
 
             if (properties.Count() > 1)
@@ -125,6 +126,7 @@ namespace AutoQueryable.Helpers
                 parameter = Expression.Property(parameter, properties[0]);
                 var isCollection = parameter.Type.GetInterfaces().Any(x => x.Name == "IEnumerable");
                 //if it´s a collection we later need to use the predicate in the methodexpressioncall
+                Expression childParameter;
                 if (isCollection)
                 {
                     childType = parameter.Type.GetGenericArguments()[0];
@@ -136,7 +138,7 @@ namespace AutoQueryable.Helpers
                 }
                 //skip current property and get navigation property expression recursivly
                 var innerProperties = properties.Skip(1).ToArray();
-                predicate = BuildExpression(childParameter, conditionType, values, innerProperties);
+                Expression predicate = BuildExpression(childParameter, conditionType, values, innerProperties);
                 if (isCollection)
                 {
                     //build subquery
@@ -145,25 +147,22 @@ namespace AutoQueryable.Helpers
 
                 return predicate;
             }
-            else
+            //build final predicate
+            var childProperty = parameter.Type.GetProperty(properties[0]);
+            MemberExpression memberExpression = Expression.Property(parameter, childProperty);
+            Expression orExpression = null;
+            foreach (var d in values)
             {
-                //build final predicate
-                var childProperty = parameter.Type.GetProperty(properties[0]);
-                MemberExpression memberExpression = Expression.Property(parameter, childProperty);
-                Expression orExpression = null;
-                foreach (var d in values)
-                {
-                    var tt = ConvertHelper.Convert(d, childProperty.PropertyType);
-                    ConstantExpression val = Expression.Constant(tt, childProperty.PropertyType);
-                    Expression newExpression = conditionType.ToBinaryExpression(memberExpression, val); //MakeLambda(parameter, conditionType.ToBinaryExpression(memberExpression, val));
+                var tt = ConvertHelper.Convert(d, childProperty.PropertyType);
+                ConstantExpression val = Expression.Constant(tt, childProperty.PropertyType);
+                Expression newExpression = conditionType.ToBinaryExpression(memberExpression, val); //MakeLambda(parameter, conditionType.ToBinaryExpression(memberExpression, val));
 
-                    if (orExpression == null)
-                        orExpression = newExpression;
-                    else
-                        orExpression = Expression.OrElse(orExpression, newExpression);
-                }
-                return orExpression;
+                if (orExpression == null)
+                    orExpression = newExpression;
+                else
+                    orExpression = Expression.OrElse(orExpression, newExpression);
             }
+            return orExpression;
         }
 
         private static IQueryable<T> Where<T>(this IQueryable<T> source, IList<Criteria> criterias)

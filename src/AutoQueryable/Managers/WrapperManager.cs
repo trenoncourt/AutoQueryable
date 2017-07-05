@@ -31,26 +31,26 @@ namespace AutoQueryable.Managers
             }
         }
 
-        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, dynamic result, IList<Clause> clauses, string queryString)
+        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, QueryResult queryResult, IList<Clause> clauses, string queryString)
         {
             dynamic wrapper = new ExpandoObject();
-            wrapper.Result = (result.Item1 as IQueryable<object>).ToList();
+            wrapper.Result = (queryResult.Result as IQueryable<object>).ToList();
             foreach (var part in wrapperParts)
             {
                 switch (part)
                 {
                     case WrapperPartType.Count:
-                        bool isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)result.Item1.GetType());
+                        bool isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
                         if (isResultEnumerableCount)
                         {
                             wrapper.Count = wrapper.Result.Count;
                         }
                         break;
                     case WrapperPartType.TotalCount:
-                        wrapper.TotalCount = result.Item2;
+                        wrapper.TotalCount = queryResult.TotalCount;
                         break;
                     case WrapperPartType.NextLink:
-                        bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)result.Item1.GetType());
+                        bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
 
                         Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
                         Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
