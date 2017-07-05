@@ -13,21 +13,25 @@ Install-Package AutoQueryable.AspNet.Filter
 
 AutoQueryable helps you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black)
 
-From version 0.2.0 you can use selectable columns eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto)
+Since version 0.2.0 you can use selectable columns eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto)
 
-From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5)
+Since version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5)
 
-From version 0.4.0 you can now use First or Last keyword to select only one element eg:
+Since version 0.4.0 you can now use First or Last keyword to select only one element eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true)
 
-From version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by one or more elements eg:
+Since version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by one or more elements eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id)
 
-From version 0.7.0 you can now use Include keyword to include navigation properties from first level eg:
+Since version 0.7.0 you can now use Include keyword to include navigation properties from first level eg:
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category)
 
-From version 0.10.0 you can use Projection in Select clause :
+Since version 0.10.0 you can use Projection in Select clause :
 [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name)
+
+Since version 0.13.0 you can use Filter Projection :
+[http://baseurl/api/salesorderdetail.product.productid=1](http://baseurl/api/salesorderdetail.product.productid=1)
+
 
 **Existing filters** 
 
