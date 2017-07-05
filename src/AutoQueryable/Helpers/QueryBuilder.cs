@@ -108,7 +108,7 @@ namespace AutoQueryable.Helpers
             }
         }
 
-        private static Expression BuildSubQuery(Expression parameter, Expression childParameter, Type childType, Expression predicate)
+        private static Expression BuildWhereSubQueryExpression(Expression parameter, Expression childParameter, Type childType, Expression predicate)
         {
             var anyMethod = typeof(Enumerable).GetMethods().Single(m => m.Name == "Any" && m.GetParameters().Length == 2);
             anyMethod = anyMethod.MakeGenericMethod(childType);
@@ -116,7 +116,7 @@ namespace AutoQueryable.Helpers
             return Expression.Call(anyMethod, parameter, lambdaPredicate);
         }
 
-        private static Expression BuildExpression(Expression parameter, ConditionType conditionType, dynamic[] values, params string[] properties)
+        private static Expression BuildWhereExpression(Expression parameter, ConditionType conditionType, dynamic[] values, params string[] properties)
         {
             Type childType = null;
 
@@ -138,11 +138,11 @@ namespace AutoQueryable.Helpers
                 }
                 //skip current property and get navigation property expression recursivly
                 var innerProperties = properties.Skip(1).ToArray();
-                Expression predicate = BuildExpression(childParameter, conditionType, values, innerProperties);
+                Expression predicate = BuildWhereExpression(childParameter, conditionType, values, innerProperties);
                 if (isCollection)
                 {
                     //build subquery
-                    predicate = BuildSubQuery(parameter, childParameter, childType, predicate);
+                    predicate = BuildWhereSubQueryExpression(parameter, childParameter, childType, predicate);
                 }
 
                 return predicate;
@@ -172,7 +172,7 @@ namespace AutoQueryable.Helpers
             foreach (var c in criterias)
             {
 
-                var expression = BuildExpression(parentEntity, c.ConditionType, c.Values, c.ColumnPath.ToArray());
+                Expression expression = BuildWhereExpression(parentEntity, c.ConditionType, c.Values, c.ColumnPath.ToArray());
                 if (whereExpression == null)
                     whereExpression = expression;
                 else
