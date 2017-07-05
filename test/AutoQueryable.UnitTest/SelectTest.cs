@@ -13,8 +13,7 @@ namespace AutoQueryable.UnitTest
 {
     [TestClass]
     public class SelectTest
-    {
-        public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
+    { 
 
         [TestMethod]
         public void SelectAllProducts()
@@ -22,7 +21,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 var query = context.Product.AutoQueryable("") as IQueryable<object>;
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -39,7 +38,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
                 Assert.IsTrue(properties.Any(p => p.Name == "productcategoryname"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -56,7 +55,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
                 Assert.IsTrue(properties.Any(p => p.Name == "color"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -73,7 +72,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
                 Assert.IsTrue(properties.Any(p => p.Name == "COLOR"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -88,7 +87,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsFalse(properties.Any(p => p.Name == "ProductId"));
                 Assert.IsFalse(properties.Any(p => p.Name == "Rowguid"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -105,7 +104,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
                 Assert.IsFalse(properties.Any(p => p.Name == "COLOR"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -120,7 +119,7 @@ namespace AutoQueryable.UnitTest
                 int value = type.GetProperty("ProductId").GetValue(first);
 
                 Assert.AreEqual(value, 51);
-                Assert.AreEqual(query.Count(), 10000 - 50);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount - 50);
             }
         }
 
@@ -159,7 +158,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(9998).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount -2).First();
 
                 Type type = first.GetType();
                 string firstValue = type.GetProperty("color").GetValue(first);
@@ -187,7 +186,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(9998).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount-2).First();
 
                 Type type = first.GetType();
                 int firstValue = type.GetProperty("productid").GetValue(first);
@@ -200,8 +199,8 @@ namespace AutoQueryable.UnitTest
 
                 Assert.AreEqual(firstValue, 1);
                 Assert.AreEqual(secondValue, 2);
-                Assert.AreEqual(lastValue, 10000);
-                Assert.AreEqual(preLastValue, 9999);
+                Assert.AreEqual(lastValue, DataInitializer.ProductSampleCount);
+                Assert.AreEqual(preLastValue, DataInitializer.ProductSampleCount -1);
             }
         }
 
@@ -215,7 +214,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(9998).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount -2).First();
 
                 Type type = first.GetType();
                 int firstValue = type.GetProperty("productid").GetValue(first);
@@ -226,8 +225,8 @@ namespace AutoQueryable.UnitTest
 
 
 
-                Assert.AreEqual(firstValue, 10000);
-                Assert.AreEqual(secondValue, 9999);
+                Assert.AreEqual(firstValue, DataInitializer.ProductSampleCount);
+                Assert.AreEqual(secondValue, DataInitializer.ProductSampleCount -1);
                 Assert.AreEqual(lastValue, 1);
                 Assert.AreEqual(preLastValue, 2);
             }
@@ -243,7 +242,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(9998).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount -2 ).First();
 
                 Type type = first.GetType();
                 string firstValue = type.GetProperty("color").GetValue(first);
@@ -309,7 +308,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 Product product = context.Product.AutoQueryable("last=true");
-                Assert.IsTrue(product.ProductId == 10000);
+                Assert.IsTrue(product.ProductId == DataInitializer.ProductSampleCount);
             }
         }
 
@@ -321,7 +320,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 Product product = context.Product.AutoQueryable("first=true&orderbydesc=productid");
-                Assert.IsTrue(product.ProductId == 10000);
+                Assert.IsTrue(product.ProductId == DataInitializer.ProductSampleCount);
             }
         }
 
@@ -357,7 +356,7 @@ namespace AutoQueryable.UnitTest
 
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -381,7 +380,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
                 Assert.IsTrue(properties.Any(p => p.Name == "categoryname"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -404,7 +403,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "color"));
                 Assert.IsTrue(properties.Any(p => p.Name == "categoryName"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -426,7 +425,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
                 Assert.IsTrue(properties.Any(p => p.Name == "COLOR"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
@@ -448,68 +447,11 @@ namespace AutoQueryable.UnitTest
                 Assert.IsFalse(properties.Any(p => p.Name == "ProductId"));
                 Assert.IsFalse(properties.Any(p => p.Name == "Rowguid"));
 
-                Assert.AreEqual(query.Count(), 10000);
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
 
-        [ClassInitialize]
-        public static void InitializeSeed(TestContext testContext)
-        {
-            using (AutoQueryableContext context = new AutoQueryableContext())
-            {
-                if (context.Product.Any())
-                {
-                    return;
-                }
-                var redCategory = new ProductCategory
-                {
-                    Name = "red"
-                };
-                var blackCategory = new ProductCategory
-                {
-                    Name = "black"
-                };
-                var model1 = new ProductModel
-                {
-                    Name = "Model 1"
-                };
-                for (int i = 0; i < 10000; i++)
-                {
-                    context.Product.Add(new Product
-                    {
-                        Color = i % 2 == 0 ? "red" : "black",
-                        ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
-                        ProductModel = model1,
-                        ListPrice = i,
-                        Name = $"Product {i}",
-                        ProductNumber = Guid.NewGuid().ToString(),
-                        Rowguid = Guid.Parse(GuidString),
-                        Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",
-                        SellStartDate = DateTime.Today.AddHours(8*i),
-                        StandardCost = i + 1,
-                        Weight = i % 32,
-                        SalesOrderDetail = new List<SalesOrderDetail>
-                        {
-                            new SalesOrderDetail
-                            {
-                                LineTotal = i % 54,
-                                OrderQty = 5,
-                                UnitPrice = i + i,
-                                UnitPriceDiscount = i + i / 2
-                            },
-                            new SalesOrderDetail
-                            {
-                                LineTotal = i + 15 % 64,
-                                OrderQty = 3,
-                                UnitPrice = i + i,
-                                UnitPriceDiscount = i + i / 2
-                            }
-                        }
-                    });
-                }
-                context.SaveChanges();
-            }
-        }
+      
     }
     
 }

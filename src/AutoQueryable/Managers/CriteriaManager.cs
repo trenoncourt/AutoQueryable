@@ -68,18 +68,43 @@ namespace AutoQueryable.Managers
         private static Criteria GetCriteria(string q, string conditionAlias, ConditionType conditionType, Type entityType)
         {
             string[] operands = Regex.Split(q, conditionAlias, RegexOptions.IgnoreCase);
+
+            PropertyInfo property = null;
+            var columnPath = new List<string>();
+            var columns = operands[0].Split('.');
+            foreach (var column in columns)
+            {
+                if (property == null)
+                {
+                    property = entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(column, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    var isCollection = property.PropertyType.GetInterfaces().Any(x => x.Name == "IEnumerable");
+                    if (isCollection)
+                    {
+                        var childType = property.PropertyType.GetGenericArguments()[0];
+                        property = childType.GetProperties().FirstOrDefault(p => p.Name.Equals(column, StringComparison.OrdinalIgnoreCase));
+                    }
+                    else
+                    {
+                        property = property.PropertyType.GetProperties().FirstOrDefault(p => p.Name.Equals(column, StringComparison.OrdinalIgnoreCase));
+
+                    }
+                }
+
+                if (property == null)
+                {
+                    return null;
+                }
+                columnPath.Add(property.Name);
+            }
             var criteria = new Criteria
             {
-                Column = operands[0],
+                ColumnPath = columnPath,
                 ConditionType = conditionType,
                 Values = operands[1].Split(',')
             };
-            PropertyInfo property = entityType.GetProperties().FirstOrDefault(p => p.Name.Equals(criteria.Column, StringComparison.OrdinalIgnoreCase));
-            if (property == null)
-            {
-                return null;
-            }
-            criteria.Column = property.Name;
             return criteria;
         }
     }
