@@ -9,29 +9,100 @@ using System.Linq;
 
 namespace AutoQueryable.Helpers
 {
-    public static class SelectHelper
+    internal static class RuntimeTypeBuilder
     {
-        public static Expression<Func<TEntity, object>> GetSelector<TEntity>(string columns)
+        private static readonly ModuleBuilder moduleBuilder;
+        private static readonly IDictionary<string, Type> builtTypes;
+
+        static RuntimeTypeBuilder()
         {
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
-            ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
-            TypeBuilder dynamicTypeBuilder = dynamicModule.DefineType("AutoQueryableDynamicType", TypeAttributes.Public);
-            Dictionary<string, MemberExpression> memberExpressions = new Dictionary<string, MemberExpression>();
+            moduleBuilder = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
+
+            builtTypes = new Dictionary<string, Type>();
+        }
+
+        internal static Type GetRuntimeType<TEntity>(IDictionary<string, object> fields)
+        {
+            var typeKey = GetTypeKey<TEntity>(fields);
+            if (!builtTypes.ContainsKey(typeKey))
+            {
+                lock (moduleBuilder)
+                {
+                    builtTypes[typeKey] = GetRuntimeType(typeKey, fields);
+                }
+            }
+
+            return builtTypes[typeKey];
+        }
+        private static Type GetRuntimeType(string typeName, IEnumerable<KeyValuePair<string, object>> properties)
+        {
+            var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable);
+            foreach (var property in properties)
+            {
+                if (property.Value is PropertyInfo)
+                {
+                    typeBuilder.AddProperty(property.Key, property.Value as PropertyInfo);
+                }
+                else
+                {
+                    typeBuilder.AddProperty(property.Key, property.Value as Type);
+
+                }
+            }
+
+            return typeBuilder.CreateTypeInfo().AsType();
+        }
+
+        private static string GetTypeKey<TEntity>(IEnumerable<KeyValuePair<string, object>> fields)
+        {
+
+            var fieldsKey = fields.Aggregate(string.Empty, (current, field) =>
+            {
+                if (field.Value is PropertyInfo)
+                {
+                    current = current + (field.Key + "#" + (field.Value as PropertyInfo).Name + "#");
+                }
+                else
+                {
+                    current = current + (field.Key + "#" + (field.Value as Type).FullName + "#");
+                }
+                return current;
+            });
+            return typeof(TEntity).FullName + fieldsKey;
+        }
+    }
+    public static class SelectHelper
+    {
+
+        public static Expression<Func<TEntity, object>> GetSelector<TEntity>(string columns)
+        {
+            Dictionary<string, Expression> memberExpressions = new Dictionary<string, Expression>();
 
             ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
+            var properties = new Dictionary<string, object>();
             foreach (string column in columns.Split(','))
             {
-                MemberExpression ex = GetMemberExpression<TEntity>(column, parameter);
+                var cols = column.Split('.');
+                var ex = GetMemberExpression(parameter, cols, 0);
                 if (ex == null)
                 {
                     continue;
                 }
                 string propName = column.Replace(".", "");
                 memberExpressions.Add(propName, ex);
-                dynamicTypeBuilder.AddProperty(propName, ex.Member as PropertyInfo);
+                if (ex is MemberExpression)
+                {
+                    properties.Add(propName, (ex as MemberExpression).Member as PropertyInfo);
+                }
+                if (ex is MethodCallExpression)
+                {
+                    var callExpression = (ex as MethodCallExpression);
+                    properties.Add(propName, ex.Type);
+                }
             }
 
-            Type dynamicType = dynamicTypeBuilder.CreateTypeInfo().AsType();
+            var dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
 
             var ctor = Expression.New(dynamicType);
 
@@ -45,30 +116,67 @@ namespace AutoQueryable.Helpers
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
 
         }
-
-        private static MemberExpression GetMemberExpression<TEntity>(string column, ParameterExpression parameter)
+        private static Expression GetMemberExpression(Expression parent, string[] properties, int index)
         {
-            string[] properties = column.Split('.');
-            Type type = typeof(TEntity);
-            MemberExpression memberExpression = null;
-            foreach (string property in properties)
+            if (index < properties.Length)
             {
-                PropertyInfo propertyInfo = type.GetProperty(property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (propertyInfo == null)
+                var member = properties[index];
+
+                // check if it's IEnumerable like 
+                var isCollection = parent.Type.GetInterfaces().Any(x => x.Name == "IEnumerable");
+                if (isCollection && parent.Type != typeof(string))
                 {
-                    return null;
-                }
-                if (memberExpression == null)
-                {
-                    memberExpression = Expression.Property(parameter, propertyInfo);
+                    // input eg: Product.SalesOrderDetail (type IList<SalesOrderDetail>), output: type SalesOrderDetail
+                    var enumerableType = parent.Type.GetGenericArguments().SingleOrDefault();
+
+                    // declare parameter for the lambda expression of SalesOrderDetail.Select(x => x.LineTotal)
+                    var param = Expression.Parameter(enumerableType, "x");
+
+                    // Recurse to build the inside of the lambda, so x => x.LineTotal. 
+                    var lambdaBody = GetMemberExpression(param, properties, index);
+
+                    // Lambda is of type Func<Order, int> in the case of x => x.LineTotal
+                    var funcType = typeof(Func<,>).MakeGenericType(enumerableType, lambdaBody.Type); 
+
+                    var lambda = Expression.Lambda(funcType, lambdaBody, param);
+
+            
+                    var selectMethod = (from m in typeof(Enumerable).GetMethods()
+                                        where m.Name == "Select"
+                                        && m.IsGenericMethod
+                                        let parameters = m.GetParameters()
+                                        where parameters.Length == 2
+                                        && parameters[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)
+                                        select m).Single().MakeGenericMethod(enumerableType, lambdaBody.Type);
+
+                    // Do SalesOrderDetail.Select(x => x.LineTotal)
+                    var invokeSelect = Expression.Call(null, selectMethod, parent, lambda);
+
+                    return invokeSelect;
+
                 }
                 else
                 {
-                    memberExpression = Expression.Property(memberExpression, propertyInfo);
+                    // Simply access a property like ProductId
+                    var propertyInfo = parent.Type.GetProperty(member, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (propertyInfo == null)
+                    {
+                        return null;
+                    }
+                    var newParent = Expression.PropertyOrField(parent, member);
+
+                    // Recurse
+                    return GetMemberExpression(newParent, properties, ++index);
+
                 }
-                type = propertyInfo.PropertyType;
+
             }
-            return memberExpression;
+            else
+            {
+                // Return the final expression once we're done recursing.
+                return parent;
+            }
+
         }
 
         public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
@@ -78,7 +186,7 @@ namespace AutoQueryable.Helpers
                 return GetSelectableColumns(unselectableProperties, entityType);
             }
             IEnumerable<string> columns = selectClause.Value.Split(',');
-        
+
             if (unselectableProperties != null)
             {
                 columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
@@ -88,11 +196,11 @@ namespace AutoQueryable.Helpers
         public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType)
         {
             IEnumerable<string> columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => 
+                .Where(p =>
                 (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
                 || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
                 || p.PropertyType.GetTypeInfo().IsArray
-                || p.PropertyType == typeof(string) 
+                || p.PropertyType == typeof(string)
                 )
                 .Select(p => p.Name);
             if (unselectableProperties != null)

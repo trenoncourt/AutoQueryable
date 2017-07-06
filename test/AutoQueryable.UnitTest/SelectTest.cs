@@ -341,6 +341,25 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(query.Count(), 50);
             }
         }
+        [TestMethod]
+        public void SelectWithIncludeNavigationProperties()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("top=50&select=name,SalesOrderDetail.Product.ProductId,productcategory", new AutoQueryableProfile { UnselectableProperties = new[] { "color" } }) as IQueryable<object>;
+                var firstResult = query.First();
+                PropertyInfo[] properties = firstResult.GetType().GetProperties();
+
+                Assert.AreEqual(properties.Count(), 3);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SalesOrderDetailProductProductId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                Assert.AreEqual(query.Count(), 50);
+            }
+        }
+
 
         [TestMethod]
         public void SelectAllProductsWithDtoProjection()
