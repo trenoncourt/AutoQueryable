@@ -1,5 +1,5 @@
 # AutoQueryable
-AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices to Asp.Net & Asp.Net Core.
+AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black) with no effort.
 
 Install for **AspNet Core** [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter/):
 ```powershell
@@ -11,40 +11,9 @@ Install for **Web api 2** [NuGet](https://www.nuget.org/packages/AutoQueryable.A
 Install-Package AutoQueryable.AspNet.Filter
 ```
 
-AutoQueryable helps you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black)
+**Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
 
-From version 0.2.0 you can use selectable columns eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto)
-
-From version 0.3.1 you can use Top/Take, Skip keywords eg: [http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5)
-
-From version 0.4.0 you can now use First or Last keyword to select only one element eg:
-[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true)
-
-From version 0.6.0 you can now use OrderBy or OrderByDesc keyword to order by one or more elements eg:
-[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&take=5&skip=5&first=true&orderby=price,id)
-
-From version 0.7.0 you can now use Include keyword to include navigation properties from first level eg:
-[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto&include=category)
-
-From version 0.10.0 you can use Projection in Select clause :
-[http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name](http://baseurl/api/products?nameContains=frame&color=red,black&select=name,color,toto,productcategory.name)
-
-**Existing filters** 
-
-By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
-
-In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
-- Equals '=' (eg color=red or color=red,black)
-- Not Equals '!=' (eg color!=green or color!=green,blue)
-- Less Than '<' (eg productCount\<5)
-- Less Than or Equals '<=' (eg productCount\<=5)
-- Greater Than '>' (eg productCount>5)
-- Greater Than or Equals '>=' (eg productCount>=5)
-- Contains 'contains' (eg colorContains=ed or colorContains=bla,ed)
-- StartsWith 'startswith' (eg colorStartsWith=re or colorStartsWith=bla,re)
-- EndsWith 'endswith' (eg colorEndsWith=ed or colorEndsWith=ack,ed)
-
-**Basic usage**
+## Basic usage
 ```c#
 [Route("api/[controller]")]
 public class ProductsController : Controller
@@ -58,7 +27,37 @@ public class ProductsController : Controller
 }
 ```
 
-**Dto projection**
+## Api URL usage
+- Selectable columns: [/products?**select=name,color,toto**](/products?select=name,color,toto)
+- Top/Take, Skip: [/products?**take=5&skip=5**](/products?take=5&skip=5)
+- First, Last: [/products?**first=true**](/products?first=true)
+- OrderBy, OrderByDesc: [/products?**orderby=price,id**](/products?orderby=price,id)
+- Include (Only for EF core): [/products?**include=category**](/products?include=category)
+- Wrap with: [/products?wrapwith=**count,total-count,next-link**](/products?wrapwith=count,total-count,next-link)
+- Filtering: [/products?**nameContains=frame&color=red,black**](/products?nameContains=frame&color=red,black) 
+
+## Existing filters
+By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
+
+In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
+- Equals '=': [/products?**color=red,black**](/products?color!=green,blue)
+- Not Equals '!=': [/products?**color!=green,blue**](/products?color=red,black)
+- Less Than, Greater Than '<', '>': [/products?**productCount\<5**](/products?productCount\<5)
+- Less Than or Equals, Greater Than or equals '<=' [/products?**productCount\<=5**](/products?productCount\<=5)
+- Contains 'contains': [/products?**colorContains=bla,ed**](/products?colorContains=bla,ed)
+- StartsWith, EndsWith 'startswith', 'endswith': [/products?**colorStartsWith=bla,re**](/products?colorStartsWith=bla,re)
+
+*Note that filters works with primitive types, string, datetime & guid*
+
+## Projection
+- Select projection: [/products?**select=name,color,toto,productcategory.name**](/products?select=name,color,toto,productcategory.name)
+
+*For now select projection does not work with collection navigation properties*
+- Filter projection: [/products?**salesorderdetail.product.productid=1**](/products?salesorderdetail.product.productid=1)
+
+*For now filter projection only work with equal filter*
+
+## Dto projection
 ```c#
 [HttpGet]
 [AutoQueryable]
@@ -72,7 +71,7 @@ public IQueryable Get([FromServices] AdventureWorksContext adventureWorksContext
 ```
 *Note that with Dto projection, you cannot use include keyword*
 
-**Unselectable properties** 
+## Unselectable properties
 If you want some properties to be unselectable (eg: Id, Password, ...)
 ```c#
 [Route("api/[controller]")]
@@ -87,6 +86,28 @@ public class UsersController : Controller
 }
 ```
 
+## Use AutoQueryable without attribute 
+If you don't want to use autoqueryable attribute you could use AQ directry in your code by passing it the querystring. 
+First install the Autoqueryable package
+```powershell
+Install-Package AutoQueryable
+```
+```c#
+[Route("api/[controller]")]
+public class UsersController
+{
+    [HttpGet]
+    public IActionResult Get([FromServices] myDbContext dbContext)
+    {
+        var resultSet = dbContext.Product.Select(p => new { ... }).AutoQueryable(queryString);
+        return new OkObjectResult(new {
+            foo = "",
+            ....,
+            Values = resultSet;
+        })
+    }
+}
+```
 
 Roadmap :
 - ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
@@ -101,13 +122,13 @@ Roadmap :
 - ~~Add capability to select with projection~~
 - ~~Add simpler Attribute using OnActionExecuted~~
 - ~~Add Samples~~
+- ~~Add capability to use Dto projection~~
 - Add Demo
 - Add capability to include navigation properties on multiple levels
 - Add Unselectable navigations in include clause
 - Add allowed clauses or not
 - Add allowed operators or not in where clause
 - Add more date filters in where clause eg: yearEquals
-- Add capability to use Dto projection
 - Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
 - Add capability to include hierarchical data
