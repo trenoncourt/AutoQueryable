@@ -43,6 +43,57 @@ namespace AutoQueryable.UnitTest
         }
 
         [TestMethod]
+        public void SelectAllProductsWithSelectProjection2()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=SalesOrderDetail.LineTotal") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategoryname"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection3()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=SalesOrderDetail.Product.ProductId") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategoryname"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection4()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory.name,ProductCategory.ProductCategoryId,SalesOrderDetail.LineTotal") as IQueryable<object>;
+                var x = query.ToList();
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategoryname"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
         public void SelectAllProductsWithNameAndColor()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())

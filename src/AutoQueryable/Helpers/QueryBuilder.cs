@@ -22,7 +22,8 @@ namespace AutoQueryable.Helpers
             Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
             Clause includeClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Include);
 
-            List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
+            //List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
+            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(selectClause, entityType);
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
 
@@ -60,7 +61,7 @@ namespace AutoQueryable.Helpers
             }
             else
             {
-                queryProjection = query.Select(SelectHelper.GetSelector<T>(string.Join(",", selectColumns)));
+                queryProjection = query.Select(SelectHelper.GetSelector<T>(selectColumns));
             }
 
             if (skipClause != null)
