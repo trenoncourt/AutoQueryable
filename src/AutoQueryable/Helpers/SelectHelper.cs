@@ -109,11 +109,6 @@ namespace AutoQueryable.Helpers
                 {
                     return Expression.Bind(p, memberExpressions.Single(me => me.Key == p.Name).Value);
                 }).ToList();
-
-            if (memberAssignments.Count() == 1)
-            {
-                return Expression.Lambda<Func<TEntity, object>>(memberAssignments.First().Expression, parameter);
-            }
             
             var memberInit = Expression.MemberInit(ctor, memberAssignments);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
@@ -142,7 +137,6 @@ namespace AutoQueryable.Helpers
                     var funcType = typeof(Func<,>).MakeGenericType(enumerableType, lambdaBody.Type);
 
                     var lambda = Expression.Lambda(funcType, lambdaBody, param);
-
             
                     var selectMethod = (from m in typeof(Enumerable).GetMethods()
                                         where m.Name == "Select"
@@ -156,64 +150,50 @@ namespace AutoQueryable.Helpers
                     var invokeSelect = Expression.Call(null, selectMethod, parent, lambda);
 
                     return invokeSelect;
-
+                }
+                Expression newParent;
+                // access to an object with childs
+                if (isLambdaBody)
+                {
+                    newParent = parent;
                 }
                 else
                 {
-                    Expression newParent;
-                    // access to an object with childs
-                    if (isLambdaBody)
+                    var propertyInfo = parent.Type.GetProperty(member,
+                        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (propertyInfo == null)
                     {
-                        newParent = parent;
+                        return null;
                     }
-                    else
-                    {
-                        var propertyInfo = parent.Type.GetProperty(member,
-                            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                        if (propertyInfo == null)
-                        {
-                            return null;
-                        }
-                        newParent = Expression.PropertyOrField(parent, member);
-                    }
-
-
-                    var properties = new Dictionary<string, object>();
-                    var expressions = new Dictionary<string, Expression>();
-                    foreach (SelectColumn subColumn in column.SubColumns)
-                    {
-                        Expression ex = GetMemberExpression<TEntity>(newParent, subColumn);
-
-                        if (ex is MemberExpression)
-                        {
-                            expressions.Add(subColumn.Name, ex);
-                            properties.Add(subColumn.Name, (ex as MemberExpression).Member as PropertyInfo);
-                        }
-                        if (ex is MethodCallExpression)
-                        {
-                            return ex;
-                            expressions.Add(column.Name, ex);
-                            properties.Add(column.Name, ex.Type);
-                        }
-                    }
-                    
-                    Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
-                    NewExpression ctor = Expression.New(dynamicType);
-                    MemberInitExpression init = Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
-                    return init;
-                    //expressions.Select(e => Expression.Bind(column.Name, e));
-                    //MemberBinding
-                    //Expression.MemberInit(Expression.New(typeof(object)), bindings)
-                    //expressions.Select(x => )
-
-                    //BlockExpression blockExpression = Expression.Block(expressions);
-                    //Expression.
-
-                    // Recurse
-                    return GetMemberExpression<TEntity>(newParent, column.SubColumns.First());
-
+                    newParent = Expression.PropertyOrField(parent, member);
                 }
 
+                var properties = new Dictionary<string, object>();
+                var expressions = new Dictionary<string, Expression>();
+                foreach (SelectColumn subColumn in column.SubColumns)
+                {
+                    Expression ex = GetMemberExpression<TEntity>(newParent, subColumn);
+
+                    if (ex is MemberExpression)
+                    {
+                        expressions.Add(subColumn.Name, ex);
+                        properties.Add(subColumn.Name, (ex as MemberExpression).Member as PropertyInfo);
+                    }
+                    if (ex is MemberInitExpression)
+                    {
+                        expressions.Add(subColumn.Name, ex);
+                        properties.Add(subColumn.Name, ex.Type);
+                    }
+                    if (ex is MethodCallExpression)
+                    {
+                        return ex;
+                    }
+                }
+                    
+                Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
+                NewExpression ctor = Expression.New(dynamicType);
+                MemberInitExpression init = Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
+                return init;
             }
             else
             {

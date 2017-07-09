@@ -10,32 +10,6 @@ namespace AutoQueryable.Sample.EfCore.Controllers
     [Route("api/products")]
     public class ProductController
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <example>http://localhost:5000/api/products</example>
-        /// <example>http://localhost:5000/api/products?select=name&top=50&skip=10</example>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        [HttpGet("test")]
-        public IQueryable GetTest([FromServices] AutoQueryableContext context)
-        {
-            try
-            {
-                return context.Product.Take(50).Select(p => new
-                {
-                    SalesOrderDetail = p.SalesOrderDetail.Select(x => new
-                    {
-                        x.LineTotal,
-                        x.OrderQty
-                    })
-                });
-            }
-            catch (System.Exception e)
-            {
-                throw;
-            }
-        }
 
         /// <summary>
         /// 
@@ -48,14 +22,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         [HttpGet]
         public IQueryable Get([FromServices] AutoQueryableContext context)
         {
-            try
-            {
-                return context.Product;
-            }
-            catch (System.Exception e)
-            {
-                throw;
-            }
+            return context.Product;
         }
 
         /// <summary>
