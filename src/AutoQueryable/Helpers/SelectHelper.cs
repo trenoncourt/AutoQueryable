@@ -276,7 +276,7 @@ namespace AutoQueryable.Helpers
 
         //}
 
-        public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
+       /* public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
             if (selectClause == null)
             {
@@ -289,10 +289,11 @@ namespace AutoQueryable.Helpers
                 columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
             return columns;
-        }
+        }*/
 
-        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, Type entityType)
+        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
+
             if (selectClause == null)
             {
                 // TODO unselectable properties.
@@ -310,6 +311,9 @@ namespace AutoQueryable.Helpers
                     SelectColumn column = allSelectColumns.FirstOrDefault(all => all.Key == key);
                     if (column == null)
                     {
+                        if (unselectableProperties!=null && unselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase)) {
+                            continue;
+                        }
                         column = new SelectColumn
                         {
                             Key = key,
