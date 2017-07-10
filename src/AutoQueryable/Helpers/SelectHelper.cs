@@ -19,7 +19,7 @@ namespace AutoQueryable.Helpers
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
             moduleBuilder = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
 
-            builtTypes = new Dictionary<string, Type>(); // Todo : Maybe use ConcurrentDictionary ?
+            builtTypes = new Dictionary<string, Type>(); 
         }
 
         internal static Type GetRuntimeType<TEntity>(IDictionary<string, object> fields)
@@ -29,7 +29,11 @@ namespace AutoQueryable.Helpers
             {
                 lock (moduleBuilder)
                 {
-                    builtTypes[typeKey] = GetRuntimeType(typeKey, fields);
+                    //double check 
+                    if (!builtTypes.ContainsKey(typeKey))
+                    {
+                        builtTypes[typeKey] = GetRuntimeType(typeKey, fields);
+                    }
                 }
             }
 
