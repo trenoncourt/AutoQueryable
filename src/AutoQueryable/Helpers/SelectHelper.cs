@@ -124,32 +124,12 @@ namespace AutoQueryable.Helpers
                 // check if it's IEnumerable like 
                 if (isCollection && parent.Type != typeof(string) && !isLambdaBody)
                 {
-                    // input eg: Product.SalesOrderDetail (type IList<SalesOrderDetail>), output: type SalesOrderDetail
-                    var enumerableType = parent.Type.GetGenericArguments().SingleOrDefault();
-
                     // declare parameter for the lambda expression of SalesOrderDetail.Select(x => x.LineTotal)
-                    var param = Expression.Parameter(enumerableType, "x");
-                    
+                    ParameterExpression param = parent.CreateParameterFromGenericType();
+
                     // Recurse to build the inside of the lambda, so x => x.LineTotal. 
                     var lambdaBody = GetMemberExpression<TEntity>(param, column.ParentColumn, true);
-
-                    // Lambda is of type Func<Order, int> in the case of x => x.LineTotal
-                    var funcType = typeof(Func<,>).MakeGenericType(enumerableType, lambdaBody.Type);
-
-                    var lambda = Expression.Lambda(funcType, lambdaBody, param);
-            
-                    var selectMethod = (from m in typeof(Enumerable).GetMethods()
-                                        where m.Name == "Select"
-                                        && m.IsGenericMethod
-                                        let parameters = m.GetParameters()
-                                        where parameters.Length == 2
-                                        && parameters[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)
-                                        select m).Single().MakeGenericMethod(enumerableType, lambdaBody.Type);
-
-                    // Do SalesOrderDetail.Select(x => x.LineTotal)
-                    var invokeSelect = Expression.Call(null, selectMethod, parent, lambda);
-
-                    return invokeSelect;
+                    return parent.CreateSelect(lambdaBody, param);
                 }
                 Expression newParent;
                 // access to an object with childs
