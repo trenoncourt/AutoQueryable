@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace AutoQueryable.Extensions
 {
-    public static class LambdaExtension
+    public static class ExpressionExtension
     {
         /// <summary>
         /// Create a select lambda expression called from another expression.
@@ -43,6 +43,12 @@ namespace AutoQueryable.Extensions
             return Expression.Call(null, selectMethod, from, lambda);
         }
 
+        /// <summary>
+        /// Create a parameter expression from another expression wich have a generic type.
+        /// </summary>
+        /// <param name="from">Existing expression to create the parameter on<</param>
+        /// <param name="parameterName">Optional, the name of the parameter</param>
+        /// <returns>The created parameter expression</returns>
         public static ParameterExpression CreateParameterFromGenericType(this Expression from, string parameterName = "x")
         {
             // input eg: Product.SalesOrderDetail (type IList<SalesOrderDetail>), output: type SalesOrderDetail
