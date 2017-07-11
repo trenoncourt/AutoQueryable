@@ -65,14 +65,12 @@ namespace AutoQueryable.Helpers
 
             if (skipClause != null)
             {
-                int skip;
-                int.TryParse(skipClause.Value, out skip);
+                int.TryParse(skipClause.Value, out int skip);
                 queryProjection = queryProjection.Skip(skip);
             }
             if (topClause != null)
             {
-                int take;
-                int.TryParse(topClause.Value, out take);
+                int.TryParse(topClause.Value, out int take);
                 queryProjection = queryProjection.Take(take);
             }
             else if (firstClause != null)
