@@ -19,7 +19,7 @@ namespace AutoQueryable.Helpers
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
             moduleBuilder = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
 
-            builtTypes = new Dictionary<string, Type>(); // Todo : Maybe use ConcurrentDictionary ?
+            builtTypes = new Dictionary<string, Type>(); 
         }
 
         internal static Type GetRuntimeType<TEntity>(IDictionary<string, object> fields)
@@ -29,7 +29,11 @@ namespace AutoQueryable.Helpers
             {
                 lock (moduleBuilder)
                 {
-                    builtTypes[typeKey] = GetRuntimeType(typeKey, fields);
+                    //double check 
+                    if (!builtTypes.ContainsKey(typeKey))
+                    {
+                        builtTypes[typeKey] = GetRuntimeType(typeKey, fields);
+                    }
                 }
             }
 
@@ -252,7 +256,7 @@ namespace AutoQueryable.Helpers
 
         //}
 
-        public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
+       /* public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
             if (selectClause == null)
             {
@@ -265,10 +269,11 @@ namespace AutoQueryable.Helpers
                 columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
             return columns;
-        }
+        }*/
 
-        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, Type entityType)
+        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
+
             if (selectClause == null)
             {
                 // TODO unselectable properties.
@@ -286,6 +291,9 @@ namespace AutoQueryable.Helpers
                     SelectColumn column = allSelectColumns.FirstOrDefault(all => all.Key == key);
                     if (column == null)
                     {
+                        if (unselectableProperties!=null && unselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase)) {
+                            continue;
+                        }
                         column = new SelectColumn
                         {
                             Key = key,

@@ -13,7 +13,7 @@ namespace AutoQueryable.Helpers
             if (string.IsNullOrEmpty(queryString))
             {
                 IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile?.UnselectableProperties, entityType);
-                return null;// todo query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
+                queryString = $"select={string.Join(",", columns.ToArray())}"; 
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
