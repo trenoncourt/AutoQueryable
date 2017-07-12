@@ -150,17 +150,27 @@ namespace AutoQueryable.Helpers
                 {
                     return null;
                 }
-                nextParent = Expression.PropertyOrField(parent, column.Name);
+                var ex = Expression.PropertyOrField(parent, column.Name);
+                if (ex.Type.IsEnumerableButNotString())
+                {
+                    ParameterExpression param = ex.CreateParameterFromGenericType();
+                    Expression lambdaBody = GetMemberExpression<TEntity>(param, column, true);
+                    return ex.CreateSelect(lambdaBody, param);
+                }
+                else
+                {
+                    nextParent = Expression.PropertyOrField(parent, column.Name);
+                }
             }
 
             var expressions = new Dictionary<string, Expression>();
             foreach (SelectColumn subColumn in column.SubColumns)
             {
                 Expression ex = GetMemberExpression<TEntity>(nextParent, subColumn);
-                if (ex is MethodCallExpression)
-                {
-                    return ex;
-                }
+                //if (ex is MethodCallExpression)
+                //{
+                //    return ex;
+                //}
                 expressions.Add(subColumn.Name, ex);
             }
 
@@ -316,6 +326,10 @@ namespace AutoQueryable.Helpers
                     return (x.Value as MemberExpression).Member as object;
                 }
                 if (x.Value is MemberInitExpression)
+                {
+                    return x.Value.Type;
+                }
+                if (x.Value is MethodCallExpression)
                 {
                     return x.Value.Type;
                 }
