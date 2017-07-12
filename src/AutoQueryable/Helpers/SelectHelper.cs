@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AutoQueryable.Helpers
 {
@@ -123,7 +124,7 @@ namespace AutoQueryable.Helpers
         {
             bool isCollection = parent.Type.IsEnumerableButNotString();
             // If the current column has no sub column, return the final property.
-            if (!column.HasSubColumn)
+            if (!column.HasSubColumn && !isCollection)
             {
                 if (!parent.Type.PropertyExist(column.Name))
                 {
@@ -151,34 +152,23 @@ namespace AutoQueryable.Helpers
                 }
                 nextParent = Expression.PropertyOrField(parent, column.Name);
             }
-
-            var properties = new Dictionary<string, object>();
+            
             var expressions = new Dictionary<string, Expression>();
             foreach (SelectColumn subColumn in column.SubColumns)
             {
                 Expression ex = GetMemberExpression<TEntity>(nextParent, subColumn);
-
-                if (ex is MemberExpression)
-                {
-                    expressions.Add(subColumn.Name, ex);
-                    properties.Add(subColumn.Name, (ex as MemberExpression).Member as PropertyInfo);
-                }
-                if (ex is MemberInitExpression)
-                {
-                    expressions.Add(subColumn.Name, ex);
-                    properties.Add(subColumn.Name, ex.Type);
-                }
                 if (ex is MethodCallExpression)
                 {
                     return ex;
                 }
+                expressions.Add(subColumn.Name, ex);
             }
+
+            var properties = GetTypeProperties(expressions);
 
             Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
             NewExpression ctor = Expression.New(dynamicType);
-            MemberInitExpression init =
-                Expression.MemberInit(ctor,
-                    expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
+            MemberInitExpression init = Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
             return init;
         }
 
@@ -245,6 +235,22 @@ namespace AutoQueryable.Helpers
                 columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
             return columns.ToList();
+        }
+
+        private static Dictionary<string, object> GetTypeProperties(Dictionary<string, Expression> expressions)
+        {
+            return expressions.ToDictionary(x => x.Key, x =>
+            {
+                if (x.Value is MemberExpression)
+                {
+                    return (x.Value as MemberExpression).Member as object;
+                }
+                if (x.Value is MemberInitExpression)
+                {
+                    return x.Value.Type;
+                }
+                return null;
+            });
         }
 
         //private static Expression BuildWhereExpression(Expression parameter, params string[] properties)

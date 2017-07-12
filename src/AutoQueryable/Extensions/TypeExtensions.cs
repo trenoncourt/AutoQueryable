@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 
 namespace AutoQueryable.Extensions
@@ -26,6 +27,27 @@ namespace AutoQueryable.Extensions
         {
             PropertyInfo propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             return propertyInfo != null;
+        }
+
+        /// <summary>
+        /// Check if a type own a property by a propertyname.
+        /// </summary>
+        /// <param name="type">Type to check</param>
+        /// <param name="propertyName">Name of the property (case is ignored)</param>
+        /// <param name="checkGenericType">If true, the check is made on the first generic type of the given type</param>
+        /// <returns>True if the type own the property, False otherwise</returns>
+        public static bool PropertyExist(this Type type, string propertyName, bool checkGenericType)
+        {
+            if (!checkGenericType)
+            {
+                return type.PropertyExist(propertyName);
+            }
+            Type genericType = type.GetGenericArguments().FirstOrDefault();
+            if (genericType == null)
+            {
+                return false;
+            }
+            return genericType.PropertyExist(propertyName);
         }
     }
 }
