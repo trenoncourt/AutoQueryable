@@ -121,155 +121,66 @@ namespace AutoQueryable.Helpers
 
         private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, bool isLambdaBody = false)
         {
-            string member = column.Name;
-            bool isCollection = parent.Type.GetInterfaces().Any(x => x.Name == "IEnumerable");
-            if (column.HasSubColumn || isCollection)
+            bool isCollection = parent.Type.IsEnumerableButNotString();
+            // If the current column has no sub column, return the final property.
+            if (!column.HasSubColumn)
             {
-                // check if it's IEnumerable like 
-                if (isCollection && parent.Type != typeof(string) && !isLambdaBody)
-                {
-                    // declare parameter for the lambda expression of SalesOrderDetail.Select(x => x.LineTotal)
-                    ParameterExpression param = parent.CreateParameterFromGenericType();
-
-                    // Recurse to build the inside of the lambda, so x => x.LineTotal. 
-                    var lambdaBody = GetMemberExpression<TEntity>(param, column.ParentColumn, true);
-                    return parent.CreateSelect(lambdaBody, param);
-                }
-                Expression newParent;
-                // access to an object with childs
-                if (isLambdaBody)
-                {
-                    newParent = parent;
-                }
-                else
-                {
-                    var propertyInfo = parent.Type.GetProperty(member,
-                        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    if (propertyInfo == null)
-                    {
-                        return null;
-                    }
-                    newParent = Expression.PropertyOrField(parent, member);
-                }
-
-                var properties = new Dictionary<string, object>();
-                var expressions = new Dictionary<string, Expression>();
-                foreach (SelectColumn subColumn in column.SubColumns)
-                {
-                    Expression ex = GetMemberExpression<TEntity>(newParent, subColumn);
-
-                    if (ex is MemberExpression)
-                    {
-                        expressions.Add(subColumn.Name, ex);
-                        properties.Add(subColumn.Name, (ex as MemberExpression).Member as PropertyInfo);
-                    }
-                    if (ex is MemberInitExpression)
-                    {
-                        expressions.Add(subColumn.Name, ex);
-                        properties.Add(subColumn.Name, ex.Type);
-                    }
-                    if (ex is MethodCallExpression)
-                    {
-                        return ex;
-                    }
-                }
-                    
-                Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
-                NewExpression ctor = Expression.New(dynamicType);
-                MemberInitExpression init = Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
-                return init;
-            }
-            else
-            {
-                var propertyInfo = parent.Type.GetProperty(member, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (propertyInfo == null)
+                if (!parent.Type.PropertyExist(column.Name))
                 {
                     return null;
                 }
-                var newParent = Expression.PropertyOrField(parent, member);
-                // Return the final expression once we're done recursing.
-                return newParent;
+                return Expression.PropertyOrField(parent, column.Name);
             }
 
+            // Current column is a collection, let's create a select lambda, eg: SalesOrderDetail.Select(x => x.LineTotal)
+            if (isCollection && !isLambdaBody)
+            {
+                ParameterExpression param = parent.CreateParameterFromGenericType();
+                Expression lambdaBody = GetMemberExpression<TEntity>(param, column.ParentColumn, true);
+                return parent.CreateSelect(lambdaBody, param);
+            }
+
+            Expression nextParent = parent;
+            
+            // If we are not inside a select lambda, the next parent will be the current column
+            if (!isLambdaBody)
+            {
+                if (!parent.Type.PropertyExist(column.Name))
+                {
+                    return null;
+                }
+                nextParent = Expression.PropertyOrField(parent, column.Name);
+            }
+
+            var properties = new Dictionary<string, object>();
+            var expressions = new Dictionary<string, Expression>();
+            foreach (SelectColumn subColumn in column.SubColumns)
+            {
+                Expression ex = GetMemberExpression<TEntity>(nextParent, subColumn);
+
+                if (ex is MemberExpression)
+                {
+                    expressions.Add(subColumn.Name, ex);
+                    properties.Add(subColumn.Name, (ex as MemberExpression).Member as PropertyInfo);
+                }
+                if (ex is MemberInitExpression)
+                {
+                    expressions.Add(subColumn.Name, ex);
+                    properties.Add(subColumn.Name, ex.Type);
+                }
+                if (ex is MethodCallExpression)
+                {
+                    return ex;
+                }
+            }
+
+            Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
+            NewExpression ctor = Expression.New(dynamicType);
+            MemberInitExpression init =
+                Expression.MemberInit(ctor,
+                    expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
+            return init;
         }
-
-        //private static Expression GetMemberExpression(Expression parent, SelectColumn column, int index)
-        //{
-        //    if (index < properties.Length)
-        //    {
-        //        string member = properties[index];
-
-        //        // check if it's IEnumerable like 
-        //        bool isCollection = parent.Type.GetInterfaces().Any(x => x.Name == "IEnumerable");
-        //        if (isCollection && parent.Type != typeof(string))
-        //        {
-        //            // input eg: Product.SalesOrderDetail (type IList<SalesOrderDetail>), output: type SalesOrderDetail
-        //            var enumerableType = parent.Type.GetGenericArguments().SingleOrDefault();
-
-        //            // declare parameter for the lambda expression of SalesOrderDetail.Select(x => x.LineTotal)
-        //            var param = Expression.Parameter(enumerableType, "x");
-
-        //            // Recurse to build the inside of the lambda, so x => x.LineTotal. 
-        //            var lambdaBody = GetMemberExpression(param, properties, index);
-
-        //            // Lambda is of type Func<Order, int> in the case of x => x.LineTotal
-        //            var funcType = typeof(Func<,>).MakeGenericType(enumerableType, lambdaBody.Type);
-
-        //            var lambda = Expression.Lambda(funcType, lambdaBody, param);
-
-
-        //            var selectMethod = (from m in typeof(Enumerable).GetMethods()
-        //                where m.Name == "Select"
-        //                      && m.IsGenericMethod
-        //                let parameters = m.GetParameters()
-        //                where parameters.Length == 2
-        //                      && parameters[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)
-        //                select m).Single().MakeGenericMethod(enumerableType, lambdaBody.Type);
-
-        //            // Do SalesOrderDetail.Select(x => x.LineTotal)
-        //            var invokeSelect = Expression.Call(null, selectMethod, parent, lambda);
-
-        //            return invokeSelect;
-
-        //        }
-        //        else
-        //        {
-        //            // Simply access a property like ProductId
-        //            var propertyInfo = parent.Type.GetProperty(member, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-        //            if (propertyInfo == null)
-        //            {
-        //                return null;
-        //            }
-        //            var newParent = Expression.PropertyOrField(parent, member);
-
-        //            // Recurse
-        //            return GetMemberExpression(newParent, properties, ++index);
-
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        // Return the final expression once we're done recursing.
-        //        return parent;
-        //    }
-
-        //}
-
-       /* public static IEnumerable<string> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
-        {
-            if (selectClause == null)
-            {
-                return GetSelectableColumns(unselectableProperties, entityType);
-            }
-            IEnumerable<string> columns = selectClause.Value.Split(',');
-
-            if (unselectableProperties != null)
-            {
-                columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
-            }
-            return columns;
-        }*/
 
         public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
