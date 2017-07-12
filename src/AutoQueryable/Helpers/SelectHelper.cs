@@ -86,36 +86,8 @@ namespace AutoQueryable.Helpers
             Dictionary<string, Expression> memberExpressions = new Dictionary<string, Expression>();
 
             ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
-            var properties = new Dictionary<string, object>();
-            foreach (SelectColumn column in columns)
-            {
-                var ex = GetMemberExpression<TEntity>(parameter, column);
-                if (ex == null)
-                {
-                    continue;
-                }
-                memberExpressions.Add(column.Name, ex);
-                if (ex is MemberExpression)
-                {
-                    properties.Add(column.Name, (ex as MemberExpression).Member as PropertyInfo);
-                }
-                if (ex is MethodCallExpression || ex is MemberInitExpression)
-                {
-                    properties.Add(column.Name, ex.Type);
-                }
-            }
 
-            var dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
-
-            var ctor = Expression.New(dynamicType);
-
-            IEnumerable<MemberAssignment> memberAssignments = dynamicType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Select(p =>
-                {
-                    return Expression.Bind(p, memberExpressions.Single(me => me.Key == p.Name).Value);
-                }).ToList();
-
-            var memberInit = Expression.MemberInit(ctor, memberAssignments);
+            MemberInitExpression memberInit =  InitType<TEntity>(columns, parameter);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
 
         }
@@ -133,16 +105,7 @@ namespace AutoQueryable.Helpers
                 return Expression.PropertyOrField(parent, column.Name);
             }
 
-            // Current column is a collection, let's create a select lambda, eg: SalesOrderDetail.Select(x => x.LineTotal)
-            if (isCollection && !isLambdaBody)
-            {
-                ParameterExpression param = parent.CreateParameterFromGenericType();
-                Expression lambdaBody = GetMemberExpression<TEntity>(param, column.ParentColumn, true);
-                return parent.CreateSelect(lambdaBody, param);
-            }
-
             Expression nextParent = parent;
-
             // If we are not inside a select lambda, the next parent will be the current column
             if (!isLambdaBody)
             {
@@ -151,6 +114,7 @@ namespace AutoQueryable.Helpers
                     return null;
                 }
                 var ex = Expression.PropertyOrField(parent, column.Name);
+                // Current column is a collection, let's create a select lambda, eg: SalesOrderDetail.Select(x => x.LineTotal)
                 if (ex.Type.IsEnumerableButNotString())
                 {
                     ParameterExpression param = ex.CreateParameterFromGenericType();
@@ -163,23 +127,7 @@ namespace AutoQueryable.Helpers
                 }
             }
 
-            var expressions = new Dictionary<string, Expression>();
-            foreach (SelectColumn subColumn in column.SubColumns)
-            {
-                Expression ex = GetMemberExpression<TEntity>(nextParent, subColumn);
-                //if (ex is MethodCallExpression)
-                //{
-                //    return ex;
-                //}
-                expressions.Add(subColumn.Name, ex);
-            }
-
-            var properties = GetTypeProperties(expressions);
-
-            Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
-            NewExpression ctor = Expression.New(dynamicType);
-            MemberInitExpression init = Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
-            return init;
+            return InitType<TEntity>(column.SubColumns, nextParent);
         }
 
         public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
@@ -335,6 +283,22 @@ namespace AutoQueryable.Helpers
                 }
                 return null;
             });
+        }
+        
+        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node)
+        {
+            var expressions = new Dictionary<string, Expression>();
+            foreach (SelectColumn subColumn in columns)
+            {
+                Expression ex = GetMemberExpression<TEntity>(node, subColumn);
+                expressions.Add(subColumn.Name, ex);
+            }
+
+            var properties = GetTypeProperties(expressions);
+
+            Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
+            NewExpression ctor = Expression.New(dynamicType);
+            return Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
         }
     }
 }
