@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AutoQueryable.Models
@@ -6,6 +7,8 @@ namespace AutoQueryable.Models
     public class SelectColumn
     {
         public string Key { get; set; }
+        public Type Type;
+        public bool IncludeBaseProperties { get; set; }
 
         public string Name { get; set; }
 

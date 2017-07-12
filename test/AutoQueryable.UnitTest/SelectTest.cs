@@ -476,6 +476,24 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjectionWithUnselectableProperty()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory.name,ProductCategory.ProductCategoryId", new AutoQueryableProfile { UnselectableProperties = new[] { "ProductCategory.ProductCategoryId" } }) as IQueryable<object>;
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsFalse(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
+            }
+        }
 
         [TestMethod]
         public void SelectAllProductsWithNameAndColorWithDtoProjection()

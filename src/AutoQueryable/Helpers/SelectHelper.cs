@@ -20,7 +20,7 @@ namespace AutoQueryable.Helpers
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("AutoQueryableDynamicAssembly"), AssemblyBuilderAccess.Run);
             moduleBuilder = dynamicAssembly.DefineDynamicModule("AutoQueryableDynamicAssemblyModule");
 
-            builtTypes = new Dictionary<string, Type>(); 
+            builtTypes = new Dictionary<string, Type>();
         }
 
         internal static Type GetRuntimeType<TEntity>(IDictionary<string, object> fields)
@@ -114,7 +114,7 @@ namespace AutoQueryable.Helpers
                 {
                     return Expression.Bind(p, memberExpressions.Single(me => me.Key == p.Name).Value);
                 }).ToList();
-            
+
             var memberInit = Expression.MemberInit(ctor, memberAssignments);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
 
@@ -142,7 +142,7 @@ namespace AutoQueryable.Helpers
             }
 
             Expression nextParent = parent;
-            
+
             // If we are not inside a select lambda, the next parent will be the current column
             if (!isLambdaBody)
             {
@@ -152,7 +152,7 @@ namespace AutoQueryable.Helpers
                 }
                 nextParent = Expression.PropertyOrField(parent, column.Name);
             }
-            
+
             var expressions = new Dictionary<string, Expression>();
             foreach (SelectColumn subColumn in column.SubColumns)
             {
@@ -183,23 +183,49 @@ namespace AutoQueryable.Helpers
             }
             ICollection<SelectColumn> allSelectColumns = new List<SelectColumn>();
             ICollection<SelectColumn> selectColumns = new List<SelectColumn>();
-            IEnumerable<string[]> strings = selectClause.Value.Split(',').ToList().Select(d => d.Split('.'));
-            foreach (string[] s in strings)
+            var selection = selectClause.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+            var selectionWithColumnPath = new List<string[]>();
+            foreach (string selectionItem in selection)
             {
-                for (int i = 0; i < s.Length; i++)
+                var columnPath = selectionItem.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+                selectionWithColumnPath.Add(columnPath);
+
+            }
+            foreach (string[] selectionColumnPath in selectionWithColumnPath)
+            {
+                var parentType = entityType;
+                for (int i = 0; i < selectionColumnPath.Length; i++)
                 {
-                    string key = string.Join(".", s.Take(i + 1)).ToLowerInvariant();
+                    string key = string.Join(".", selectionColumnPath.Take(i + 1)).ToLowerInvariant();
+
+                    var columnName = selectionColumnPath[i];
+                    var property = parentType.GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
+                    if (property == null)
+                    {
+                        break;
+                    }
+                    bool isCollection = property.PropertyType.IsEnumerable();
+                    if (isCollection)
+                    {
+                        parentType = property.PropertyType.GetGenericArguments().FirstOrDefault();
+                    }
+                    else
+                    {
+                        parentType = property.PropertyType;
+                    }
                     SelectColumn column = allSelectColumns.FirstOrDefault(all => all.Key == key);
                     if (column == null)
                     {
-                        if (unselectableProperties!=null && unselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase)) {
+                        if (unselectableProperties != null && unselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
+                        {
                             continue;
                         }
                         column = new SelectColumn
                         {
                             Key = key,
-                            Name = s[i],
-                            SubColumns = new List<SelectColumn>()
+                            Name = columnName,
+                            SubColumns = new List<SelectColumn>(),
+                            Type = property.PropertyType
                         };
                         allSelectColumns.Add(column);
                         if (i == 0)
@@ -208,13 +234,42 @@ namespace AutoQueryable.Helpers
                         }
                         else
                         {
-                            string parentKey = string.Join(".", s.Take(i)).ToLowerInvariant();
+                            string parentKey = string.Join(".", selectionColumnPath.Take(i)).ToLowerInvariant();
                             SelectColumn parentColumn = allSelectColumns.FirstOrDefault(all => all.Key == parentKey);
+                            if (selection.Contains(parentKey, StringComparer.OrdinalIgnoreCase))
+                            {
+                                parentColumn.IncludeBaseProperties = true;
+                            }
                             column.ParentColumn = parentColumn;
                             parentColumn.SubColumns.Add(column);
                         }
                     }
                 }
+            }
+            foreach (var selectColumn in selectColumns)
+            {
+                if (selectColumn.SubColumns.Any() &&
+                    selectColumn.IncludeBaseProperties)
+                {
+                    var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type);
+                    foreach (var columnName in selectableColumns)
+                    {
+                        if (!selectColumn.SubColumns.Any(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant()))
+                        {
+                            var column = new SelectColumn
+                            {
+                                Key = selectColumn.Key+"."+ columnName,
+                                Name = columnName,
+                                SubColumns = new List<SelectColumn>(),
+                                Type = selectColumn.Type.GetProperties().Single(x => x.Name == columnName).PropertyType,
+                                ParentColumn= selectColumn
+                            };
+                            selectColumn.SubColumns.Add(column);
+                        }
+
+                    }
+                }
+
             }
 
             return selectColumns;
@@ -252,42 +307,5 @@ namespace AutoQueryable.Helpers
                 return null;
             });
         }
-
-        //private static Expression BuildWhereExpression(Expression parameter, params string[] properties)
-        //{
-        //    Type childType = null;
-
-        //    if (properties.Count() > 1)
-        //    {
-        //        //build path
-        //        parameter = Expression.Property(parameter, properties[0]);
-        //        var isCollection = parameter.Type.GetInterfaces().Any(x => x.Name == "IEnumerable");
-        //        //if it´s a collection we later need to use the predicate in the methodexpressioncall
-        //        Expression childParameter;
-        //        if (isCollection)
-        //        {
-        //            childType = parameter.Type.GetGenericArguments()[0];
-        //            childParameter = Expression.Parameter(childType, childType.Name);
-        //        }
-        //        else
-        //        {
-        //            childParameter = parameter;
-        //        }
-        //        //skip current property and get navigation property expression recursivly
-        //        var innerProperties = properties.Skip(1).ToArray();
-        //        Expression predicate = BuildWhereExpression(childParameter, innerProperties);
-        //        if (isCollection)
-        //        {
-        //            //build subquery
-        //            predicate = BuildWhereSubQueryExpression(parameter, childParameter, childType, predicate);
-        //        }
-
-        //        return predicate;
-        //    }
-        //    //build final predicate
-        //    var childProperty = parameter.Type.GetProperty(properties[0]);
-        //    MemberExpression memberExpression = Expression.Property(parameter, childProperty);
-        //    return memberExpression;
-        //}
     }
 }

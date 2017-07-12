@@ -8,6 +8,16 @@ namespace AutoQueryable.Extensions
     public static class TypeExtensions
     {
         /// <summary>
+        /// Check if a type implements IEnumerable.
+        /// </summary>
+        /// <param name="type">Type to check</param>
+        /// <returns>True if the typ implements IEnumerable, False otherwise</returns>
+        public static bool IsEnumerable(this Type type)
+        {
+            return typeof(IEnumerable).IsAssignableFrom(type);
+        }
+
+        /// <summary>
         /// Check if a type is not a string implements IEnumerable.
         /// </summary>
         /// <param name="type">Type to check</param>
