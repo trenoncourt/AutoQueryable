@@ -236,10 +236,15 @@ namespace AutoQueryable.Helpers
                         {
                             string parentKey = string.Join(".", selectionColumnPath.Take(i)).ToLowerInvariant();
                             SelectColumn parentColumn = allSelectColumns.FirstOrDefault(all => all.Key == parentKey);
-                            if (selection.Contains(parentKey, StringComparer.OrdinalIgnoreCase))
+                            if (selection.Contains(parentKey + ".*", StringComparer.OrdinalIgnoreCase))
                             {
-                                parentColumn.IncludeBaseProperties = true;
+                                parentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
                             }
+                            else if (selection.Contains(parentKey, StringComparer.OrdinalIgnoreCase))
+                            {
+                                parentColumn.InclusionType = SelectInclusingType.IncludeBaseProperties;
+                            }
+
                             column.ParentColumn = parentColumn;
                             parentColumn.SubColumns.Add(column);
                         }
@@ -248,21 +253,20 @@ namespace AutoQueryable.Helpers
             }
             foreach (var selectColumn in selectColumns)
             {
-                if (selectColumn.SubColumns.Any() &&
-                    selectColumn.IncludeBaseProperties)
+                if (selectColumn.SubColumns.Any() && selectColumn.InclusionType != SelectInclusingType.Default)
                 {
-                    var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type);
+                    var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type, selectColumn.InclusionType);
                     foreach (var columnName in selectableColumns)
                     {
                         if (!selectColumn.SubColumns.Any(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant()))
                         {
                             var column = new SelectColumn
                             {
-                                Key = selectColumn.Key+"."+ columnName,
+                                Key = selectColumn.Key + "." + columnName,
                                 Name = columnName,
                                 SubColumns = new List<SelectColumn>(),
                                 Type = selectColumn.Type.GetProperties().Single(x => x.Name == columnName).PropertyType,
-                                ParentColumn= selectColumn
+                                ParentColumn = selectColumn
                             };
                             selectColumn.SubColumns.Add(column);
                         }
@@ -275,21 +279,32 @@ namespace AutoQueryable.Helpers
             return selectColumns;
         }
 
-        public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType)
+        public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
-            IEnumerable<string> columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p =>
-                (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
-                || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
-                || p.PropertyType.GetTypeInfo().IsArray
-                || p.PropertyType == typeof(string)
-                )
-                .Select(p => p.Name);
+            IEnumerable<string> columns = null;
+            if (selectInclusingType == SelectInclusingType.IncludeBaseProperties)
+            {
+                columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p =>
+                    (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
+                    || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
+                    || p.PropertyType.GetTypeInfo().IsArray
+                    || p.PropertyType == typeof(string)
+                    )
+                    .Select(p => p.Name);
+            }
+            else if (selectInclusingType == SelectInclusingType.IncludeAllProperties)
+            {
+                columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                   .Select(p => p.Name);
+            }
+
             if (unselectableProperties != null)
             {
-                columns = columns.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+                columns = columns?.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
-            return columns.ToList();
+
+            return columns?.ToList();
         }
 
         private static Dictionary<string, object> GetTypeProperties(Dictionary<string, Expression> expressions)

@@ -4,11 +4,17 @@ using System.Linq;
 
 namespace AutoQueryable.Models
 {
+    public enum SelectInclusingType
+    {
+        Default = 0,
+        IncludeBaseProperties = 1,
+        IncludeAllProperties = 2
+    }
     public class SelectColumn
     {
         public string Key { get; set; }
         public Type Type;
-        public bool IncludeBaseProperties { get; set; }
+        public SelectInclusingType InclusionType { get; set; }
 
         public string Name { get; set; }
 
