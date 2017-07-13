@@ -79,9 +79,30 @@ namespace AutoQueryable.UnitTest
             }
         }
 
-     
 
-       [TestMethod]
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection0()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=ProductCategory.Product.name,ProductCategory.Product.name,ProductCategory.Product.ProductId,ProductCategory.name") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 1);
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductCategory"));
+                var productCategoryProperties = properties.FirstOrDefault(p => p.Name == "ProductCategory").PropertyType.GetProperties();
+ 
+                Assert.IsTrue(productCategoryProperties.Any(x => x.Name == "name"));
+                Assert.IsTrue(productCategoryProperties.Any(x => x.Name == "Product"));
+                var productProperties = productCategoryProperties.FirstOrDefault(p => p.Name == "Product").PropertyType.GenericTypeArguments[0].GetProperties();
+
+                Assert.IsTrue(productProperties.Any(x => x.Name == "name"));
+                Assert.IsTrue(productProperties.Any(x => x.Name == "ProductId"));
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
         public void SelectAllProductsWithSelectProjection1()
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
