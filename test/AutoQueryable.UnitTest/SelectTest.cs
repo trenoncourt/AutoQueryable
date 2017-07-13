@@ -8,12 +8,13 @@ using AutoQueryable.UnitTest.Mock;
 using AutoQueryable.UnitTest.Mock.Dtos;
 using AutoQueryable.UnitTest.Mock.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AutoQueryable.Helpers;
 
 namespace AutoQueryable.UnitTest
 {
     [TestClass]
     public class SelectTest
-    { 
+    {
 
         [TestMethod]
         public void SelectAllProducts()
@@ -36,7 +37,153 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(properties.Count(), 2);
 
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
-                Assert.IsTrue(properties.Any(p => p.Name == "productcategoryname"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+
+
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjectionWithStarSelection()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory.*,productcategory.name") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Rowguid"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ModifiedDate"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ParentProductCategoryId"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Product"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ParentProductCategory"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "InverseParentProductCategory"));
+
+                
+
+
+
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection0()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=ProductCategory.Product.name,ProductCategory.Product.name,ProductCategory.Product.ProductId,ProductCategory.name") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 1);
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductCategory"));
+                var productCategoryProperties = properties.FirstOrDefault(p => p.Name == "ProductCategory").PropertyType.GetProperties();
+ 
+                Assert.IsTrue(productCategoryProperties.Any(x => x.Name == "name"));
+                Assert.IsTrue(productCategoryProperties.Any(x => x.Name == "Product"));
+                var productProperties = productCategoryProperties.FirstOrDefault(p => p.Name == "Product").PropertyType.GenericTypeArguments[0].GetProperties();
+
+                Assert.IsTrue(productProperties.Any(x => x.Name == "name"));
+                Assert.IsTrue(productProperties.Any(x => x.Name == "ProductId"));
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection1()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory,productcategory.name") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Rowguid"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ModifiedDate"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ParentProductCategoryId"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection2()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=SalesOrderDetail.LineTotal") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 1);
+                Assert.IsTrue(properties.Any(p => p.Name == "SalesOrderDetail"));
+
+                var salesOrderDetailProperty = properties.FirstOrDefault(p => p.Name == "SalesOrderDetail").PropertyType.GenericTypeArguments[0];
+                Assert.IsTrue(salesOrderDetailProperty.GetProperties().Any(x => x.Name == "LineTotal"));
+
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection3()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=SalesOrderDetail.Product.ProductId") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 1);
+
+                var salesOrderDetailProperty = properties.FirstOrDefault(p => p.Name == "SalesOrderDetail").PropertyType.GenericTypeArguments[0];
+                var productProperty = salesOrderDetailProperty.GetProperties().FirstOrDefault(x => x.Name == "Product");
+                Assert.IsNotNull(productProperty);
+                Assert.IsTrue(productProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductId"));
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjection4()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory.name,ProductCategory.ProductCategoryId,SalesOrderDetail.LineTotal") as IQueryable<object>;
+
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+                Assert.AreEqual(properties.Count(), 3);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SalesOrderDetail"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
+
+                var salesOrderDetailProperty = properties.FirstOrDefault(p => p.Name == "SalesOrderDetail").PropertyType.GenericTypeArguments[0];
+                Assert.IsTrue(salesOrderDetailProperty.GetProperties().Any(x => x.Name == "LineTotal"));
+
+
 
                 Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
@@ -96,7 +243,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                var query = context.Product.AutoQueryable("select=Name,COLOR", new AutoQueryableProfile {UnselectableProperties = new []{ "color" }}) as IQueryable<object>;
+                var query = context.Product.AutoQueryable("select=Name,COLOR", new AutoQueryableProfile { UnselectableProperties = new[] { "color" } }) as IQueryable<object>;
                 PropertyInfo[] properties = query.First().GetType().GetProperties();
 
                 Assert.AreEqual(properties.Count(), 1);
@@ -158,7 +305,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(DataInitializer.ProductSampleCount -2).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
                 Type type = first.GetType();
                 string firstValue = type.GetProperty("color").GetValue(first);
@@ -186,7 +333,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(DataInitializer.ProductSampleCount-2).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
                 Type type = first.GetType();
                 int firstValue = type.GetProperty("productid").GetValue(first);
@@ -200,7 +347,7 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(firstValue, 1);
                 Assert.AreEqual(secondValue, 2);
                 Assert.AreEqual(lastValue, DataInitializer.ProductSampleCount);
-                Assert.AreEqual(preLastValue, DataInitializer.ProductSampleCount -1);
+                Assert.AreEqual(preLastValue, DataInitializer.ProductSampleCount - 1);
             }
         }
 
@@ -214,7 +361,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(DataInitializer.ProductSampleCount -2).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
                 Type type = first.GetType();
                 int firstValue = type.GetProperty("productid").GetValue(first);
@@ -226,7 +373,7 @@ namespace AutoQueryable.UnitTest
 
 
                 Assert.AreEqual(firstValue, DataInitializer.ProductSampleCount);
-                Assert.AreEqual(secondValue, DataInitializer.ProductSampleCount -1);
+                Assert.AreEqual(secondValue, DataInitializer.ProductSampleCount - 1);
                 Assert.AreEqual(lastValue, 1);
                 Assert.AreEqual(preLastValue, 2);
             }
@@ -242,7 +389,7 @@ namespace AutoQueryable.UnitTest
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
-                var preLast = query.Skip(DataInitializer.ProductSampleCount -2 ).First();
+                var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
                 Type type = first.GetType();
                 string firstValue = type.GetProperty("color").GetValue(first);
@@ -329,7 +476,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                var query = context.Product.AutoQueryable("top=50&select=name,SalesOrderDetail,productcategory", new AutoQueryableProfile {UnselectableProperties = new []{ "color" }}) as IQueryable<object>;
+                var query = context.Product.AutoQueryable("top=50&select=name,SalesOrderDetail,productcategory", new AutoQueryableProfile { UnselectableProperties = new[] { "color" } }) as IQueryable<object>;
                 PropertyInfo[] properties = query.First().GetType().GetProperties();
 
                 Assert.AreEqual(properties.Count(), 3);
@@ -349,16 +496,19 @@ namespace AutoQueryable.UnitTest
                 var query = context.Product.AutoQueryable("top=50&select=name,SalesOrderDetail.Product.ProductId,productcategory", new AutoQueryableProfile { UnselectableProperties = new[] { "color" } }) as IQueryable<object>;
                 var firstResult = query.First();
                 PropertyInfo[] properties = firstResult.GetType().GetProperties();
-
                 Assert.AreEqual(properties.Count(), 3);
-
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
-                Assert.IsTrue(properties.Any(p => p.Name == "SalesOrderDetailProductProductId"));
+                Assert.IsNotNull(properties.Any(p => p.Name == "SalesOrderDetail"));
                 Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
 
+                var salesOrderDetailProperty = properties.FirstOrDefault(p => p.Name == "SalesOrderDetail").PropertyType.GenericTypeArguments[0];
+                var productProperty = salesOrderDetailProperty.GetProperties().FirstOrDefault(x => x.Name == "Product");
+                Assert.IsNotNull(productProperty);
+                Assert.IsTrue(productProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductId"));
                 Assert.AreEqual(query.Count(), 50);
             }
         }
+
 
 
         [TestMethod]
@@ -371,7 +521,7 @@ namespace AutoQueryable.UnitTest
                     Name = p.Name
                 }).AutoQueryable("") as IQueryable<object>;
                 PropertyInfo[] properties = query.First().GetType().GetProperties();
-                Assert.AreEqual(properties.Count(), 1);
+                Assert.AreEqual(2, properties.Count());
 
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
 
@@ -397,9 +547,29 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(properties.Count(), 2);
 
                 Assert.IsTrue(properties.Any(p => p.Name == "name"));
-                Assert.IsTrue(properties.Any(p => p.Name == "categoryname"));
+                Assert.IsTrue(properties.Any(p => p.Name == "category"));
 
+                var categoryProperty = properties.FirstOrDefault(p => p.Name == "category");
+                Assert.IsTrue(categoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
                 Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+        [TestMethod]
+        public void SelectAllProductsWithSelectProjectionWithUnselectableProperty()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                var query = context.Product.AutoQueryable("select=name,productcategory.name,ProductCategory.ProductCategoryId", new AutoQueryableProfile { UnselectableProperties = new[] { "ProductCategory.ProductCategoryId" } }) as IQueryable<object>;
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+
+                Assert.AreEqual(properties.Count(), 2);
+
+                Assert.IsTrue(properties.Any(p => p.Name == "name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
+
+                var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsFalse(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
             }
         }
 
@@ -470,7 +640,7 @@ namespace AutoQueryable.UnitTest
             }
         }
 
-      
+
     }
-    
+
 }

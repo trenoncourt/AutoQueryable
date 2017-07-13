@@ -12,8 +12,14 @@ namespace AutoQueryable.Helpers
         {
             if (string.IsNullOrEmpty(queryString))
             {
+                if (profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any())
+                {
+                    // There is no query string & no unselectable properties, so return directly the query.
+                    return query;
+                }
+                // Get all columns without unselectable properties
                 IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile?.UnselectableProperties, entityType);
-                return query.Select(SelectHelper.GetSelector<TEntity>(string.Join(",", columns.ToArray())));
+                queryString = $"select={string.Join(",", columns.ToArray())}"; 
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 

@@ -55,8 +55,6 @@ In a filter, comma separator is used for OR (eg: color=red,black is translated b
 *For now select projection does not work with collection navigation properties*
 - Filter projection: [/products?**salesorderdetail.product.productid=1**](/products?salesorderdetail.product.productid=1)
 
-*For now filter projection only work with equal filter*
-
 ## Dto projection
 ```c#
 [HttpGet]

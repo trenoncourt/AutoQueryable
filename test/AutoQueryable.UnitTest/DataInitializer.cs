@@ -22,13 +22,29 @@ namespace AutoQueryable.UnitTest
                 {
                     return;
                 }
+                var fourthCategory = new ProductCategory
+                {
+                    Name = "fourth"
+                };
+                var thirdCategory = new ProductCategory
+                {
+                    Name = "third",
+                    ParentProductCategory = fourthCategory
+                };
+                var secondCategory = new ProductCategory
+                {
+                    Name = "second",
+                    ParentProductCategory = thirdCategory
+                };
                 var redCategory = new ProductCategory
                 {
-                    Name = "red"
+                    Name = "red",
+                    ParentProductCategory = secondCategory
                 };
                 var blackCategory = new ProductCategory
                 {
-                    Name = "black"
+                    Name = "black",
+                    ParentProductCategory = secondCategory
                 };
                 var model1 = new ProductModel
                 {
