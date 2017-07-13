@@ -231,9 +231,15 @@ namespace AutoQueryable.Helpers
                     {
                         if (!selectColumn.SubColumns.Any(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant()))
                         {
+                            var subColumnKey =  selectColumn.Key + "." + columnName;
+                            if (unselectableProperties != null && 
+                                unselectableProperties.Contains(subColumnKey, StringComparer.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
                             var column = new SelectColumn
                             {
-                                Key = selectColumn.Key + "." + columnName,
+                                Key = subColumnKey,
                                 Name = columnName,
                                 SubColumns = new List<SelectColumn>(),
                                 Type = selectColumn.Type.GetProperties().Single(x => x.Name == columnName).PropertyType,
