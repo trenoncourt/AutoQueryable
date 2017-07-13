@@ -173,6 +173,10 @@ namespace AutoQueryable.Helpers
                     var property = parentType.GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
                     if (property == null)
                     {
+                        if (key.EndsWith(".*")) {
+                            var inclusionColumn= allSelectColumns.FirstOrDefault(all => all.Key == key.Replace(".*",""));
+                            inclusionColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
+                        }
                         break;
                     }
                     bool isCollection = property.PropertyType.IsEnumerable();
@@ -231,7 +235,7 @@ namespace AutoQueryable.Helpers
         {
             foreach (var selectColumn in selectColumns)
             {
-                if (selectColumn.SubColumns.Any() && selectColumn.InclusionType != SelectInclusingType.Default)
+                if (selectColumn.InclusionType != SelectInclusingType.Default)
                 {
                     var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type, selectColumn.InclusionType);
                     foreach (var columnName in selectableColumns)
