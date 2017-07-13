@@ -132,7 +132,6 @@ namespace AutoQueryable.Helpers
 
         public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
         {
-
             if (selectClause == null)
             {
                 // TODO unselectable properties.
@@ -240,6 +239,7 @@ namespace AutoQueryable.Helpers
         public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
+            // Get all properties without navigation properties.
             if (selectInclusingType == SelectInclusingType.IncludeBaseProperties)
             {
                 columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -251,12 +251,14 @@ namespace AutoQueryable.Helpers
                     )
                     .Select(p => p.Name);
             }
+            // Get all properties.
             else if (selectInclusingType == SelectInclusingType.IncludeAllProperties)
             {
                 columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                    .Select(p => p.Name);
             }
 
+            // Remove unselectable properties.
             if (unselectableProperties != null)
             {
                 columns = columns?.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
