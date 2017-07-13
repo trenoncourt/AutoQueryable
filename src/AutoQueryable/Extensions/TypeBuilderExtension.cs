@@ -6,7 +6,7 @@ namespace AutoQueryable.Extensions
 {
     public static class TypeBuilderExtension
     {
-        private static void AddProperty(this TypeBuilder typeBuilder, string propName, PropertyAttributes attributes,Type propertyType) {
+        private static void AddProperty(this TypeBuilder typeBuilder, string propName, PropertyAttributes attributes, Type propertyType) {
             const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
 
             FieldBuilder field = typeBuilder.DefineField("_" + propName, propertyType, FieldAttributes.Private);
@@ -31,10 +31,12 @@ namespace AutoQueryable.Extensions
             property.SetGetMethod(getMethodBuilder);
             property.SetSetMethod(setMethodBuilder);
         }
+
         public static void AddProperty(this TypeBuilder typeBuilder, string propName, PropertyInfo propertyInfo)
         {
             typeBuilder.AddProperty(propName, propertyInfo.Attributes,propertyInfo.PropertyType); 
         }
+
         public static void AddProperty(this TypeBuilder typeBuilder, string propName, Type propertyType)
         {
 

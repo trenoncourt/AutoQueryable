@@ -1,66 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using AutoQueryable.Sample.EfCore.Contexts;
-using AutoQueryable.Sample.EfCore.Entities;
+using AutoQueryable.Sample.Nancy.Contexts;
+using AutoQueryable.Sample.Nancy.Entities;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Nancy.Owin;
 
-namespace AutoQueryable.Sample.EfCore
+namespace AutoQueryable.Sample.Nancy
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services
-                .AddMvcCore()
-                .AddJsonFormatters(settings =>
-                {
-                    settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    settings.NullValueHandling = NullValueHandling.Ignore;
-                    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                });
-
-            services.AddEntityFramework()
-                .AddDbContext<AutoQueryableContext>(options => options.UseInMemoryDatabase());
-        }
-        
         public void Configure(IApplicationBuilder app)
         {
-            var context = app.ApplicationServices.GetService<AutoQueryableContext>();
-            Seed(context);
+            app.UseOwin(x => x.UseNancy());
 
-            app.UseMvc();
+            using (var context = new AutoQueryableContext())
+                Seed(context);
         }
 
         private void Seed(AutoQueryableContext context)
         {
-            var fourthCategory = new ProductCategory
-            {
-                Name = "fourth"
-            };
-            var thirdCategory = new ProductCategory
-            {
-                Name = "third",
-                ParentProductCategory = fourthCategory
-            };
-            var secondCategory = new ProductCategory
-            {
-                Name = "second",
-                ParentProductCategory = thirdCategory
-            };
             var redCategory = new ProductCategory
             {
-                Name = "red",
-                ParentProductCategory = secondCategory
+                Name = "red"
             };
             var blackCategory = new ProductCategory
             {
-                Name = "black",
-                ParentProductCategory = secondCategory
+                Name = "black"
             };
             var model1 = new ProductModel
             {

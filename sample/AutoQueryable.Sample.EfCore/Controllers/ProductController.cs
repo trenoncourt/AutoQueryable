@@ -2,6 +2,7 @@
 using AutoQueryable.AspNetCore.Filter.FilterAttributes;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
+using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoQueryable.Sample.EfCore.Controllers
@@ -9,6 +10,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
     [Route("api/products")]
     public class ProductController
     {
+
         /// <summary>
         /// 
         /// </summary>
