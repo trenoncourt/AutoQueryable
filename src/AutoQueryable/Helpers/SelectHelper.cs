@@ -7,6 +7,8 @@ using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AutoQueryable.Helpers
 {
@@ -75,7 +77,18 @@ namespace AutoQueryable.Helpers
                 }
                 return current;
             });
-            return typeof(TEntity).FullName + fieldsKey;
+            return typeof(TEntity).FullName + getHash(fieldsKey);
+        }
+        private static string getHash(string text)
+        {
+            // SHA512 is disposable by inheritance.  
+            using (var sha256 = SHA256.Create())
+            {
+                // Send a sample text to hash.  
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+                // Get the hashed string.  
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
         }
     }
 
@@ -87,7 +100,7 @@ namespace AutoQueryable.Helpers
 
             ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
 
-            MemberInitExpression memberInit =  InitType<TEntity>(columns, parameter);
+            MemberInitExpression memberInit = InitType<TEntity>(columns, parameter);
             return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
 
         }
@@ -159,6 +172,10 @@ namespace AutoQueryable.Helpers
                     var property = parentType.GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
                     if (property == null)
                     {
+                        if (key.EndsWith(".*")) {
+                            var inclusionColumn= allSelectColumns.FirstOrDefault(all => all.Key == key.Replace(".*",""));
+                            inclusionColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
+                        }
                         break;
                     }
                     bool isCollection = property.PropertyType.IsEnumerable();
@@ -208,21 +225,39 @@ namespace AutoQueryable.Helpers
                     }
                 }
             }
+            ProcessInclusingType(unselectableProperties, selectColumns);
+
+            return selectColumns;
+        }
+
+        private static void ProcessInclusingType(string[] unselectableProperties, ICollection<SelectColumn> selectColumns)
+        {
             foreach (var selectColumn in selectColumns)
             {
-                if (selectColumn.SubColumns.Any() && selectColumn.InclusionType != SelectInclusingType.Default)
+                if (selectColumn.InclusionType != SelectInclusingType.Default)
                 {
                     var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type, selectColumn.InclusionType);
                     foreach (var columnName in selectableColumns)
                     {
                         if (!selectColumn.SubColumns.Any(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant()))
                         {
+                            var subColumnKey = selectColumn.Key + "." + columnName;
+                            if (unselectableProperties != null &&
+                                unselectableProperties.Contains(subColumnKey, StringComparer.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+                            var type = selectColumn.Type;
+                            if (selectColumn.Type.IsEnumerable())
+                            {
+                                type = selectColumn.Type.GetGenericArguments().FirstOrDefault();
+                            }
                             var column = new SelectColumn
                             {
-                                Key = selectColumn.Key + "." + columnName,
+                                Key = subColumnKey,
                                 Name = columnName,
                                 SubColumns = new List<SelectColumn>(),
-                                Type = selectColumn.Type.GetProperties().Single(x => x.Name == columnName).PropertyType,
+                                Type = type.GetProperties().Single(x => x.Name == columnName).PropertyType,
                                 ParentColumn = selectColumn
                             };
                             selectColumn.SubColumns.Add(column);
@@ -230,19 +265,24 @@ namespace AutoQueryable.Helpers
 
                     }
                 }
+                ProcessInclusingType(unselectableProperties, selectColumn.SubColumns);
 
             }
-
-            return selectColumns;
         }
 
         public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
+            bool isCollection = entityType.IsEnumerable();
+            var type = entityType;
+            if (isCollection)
+            {
+                type = entityType.GetGenericArguments().FirstOrDefault();
+            } 
             // Get all properties without navigation properties.
             if (selectInclusingType == SelectInclusingType.IncludeBaseProperties)
             {
-                columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                columns = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Where(p =>
                     (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
                     || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
@@ -254,7 +294,7 @@ namespace AutoQueryable.Helpers
             // Get all properties.
             else if (selectInclusingType == SelectInclusingType.IncludeAllProperties)
             {
-                columns = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                columns = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                    .Select(p => p.Name);
             }
 
@@ -286,7 +326,7 @@ namespace AutoQueryable.Helpers
                 return null;
             });
         }
-        
+
         public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node)
         {
             var expressions = new Dictionary<string, Expression>();
