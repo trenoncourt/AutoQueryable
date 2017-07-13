@@ -521,7 +521,7 @@ namespace AutoQueryable.UnitTest
                     Name = p.Name
                 }).AutoQueryable("") as IQueryable<object>;
                 PropertyInfo[] properties = query.First().GetType().GetProperties();
-                Assert.AreEqual(properties.Count(), 1);
+                Assert.AreEqual(2, properties.Count());
 
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
 

@@ -12,7 +12,7 @@ namespace AutoQueryable.Helpers
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                if (profile.UnselectableProperties != null && !profile.UnselectableProperties.Any())
+                if (profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any())
                 {
                     // There is no query string & no unselectable properties, so return directly the query.
                     return query;
