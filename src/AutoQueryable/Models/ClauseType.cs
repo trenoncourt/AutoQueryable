@@ -8,10 +8,9 @@
         Skip = 4,
         OrderBy = 5,
         OrderByDesc = 6,
-        Include = 7,
-        GroupBy = 8,
-        First = 9,
-        Last = 10,
-        WrapWith = 11
+        GroupBy = 7,
+        First = 8,
+        Last = 9,
+        WrapWith = 10
     }
 }
