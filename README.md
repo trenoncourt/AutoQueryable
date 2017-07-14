@@ -1,14 +1,25 @@
 # AutoQueryable
 AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black) with no effort.
 
-Install for **AspNet Core** [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter/):
+## Installing / Getting started
+
+Install without filters: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg)](https://www.nuget.org/packages/AutoQueryable)
+```powershell
+Install-Package AutoQueryable.AspNetCore.Filter
+```
+Install for **AspNet Core**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter)
 ```powershell
 Install-Package AutoQueryable.AspNetCore.Filter
 ```
 
-Install for **Web api 2** [NuGet](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter/):
+Install for **Web api 2**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter)
 ```powershell
 Install-Package AutoQueryable.AspNet.Filter
+```
+
+Install for **Nancy**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter)
+```powershell
+Install-Package AutoQueryable.Nancy.Filter
 ```
 
 **Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
@@ -26,13 +37,59 @@ public class ProductsController : Controller
     }
 }
 ```
+With this url: [**/products?select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product**](/products?top=1&select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product)
+
+You will get result like:
+```json
+[
+    {
+        "productId": 1,
+        "name": "Product 0",
+        "color": "red",
+        "productCategory": {
+            "name": "red"
+        },
+        "salesOrderDetail": [
+            {
+                "product": {
+                    "productId": 1,
+                    "name": "Product 0",
+                    "productNumber": "24bb9446-d540-4513-a3c6-be4323984112",
+                    "color": "red",
+                    "standardCost": 1,
+                    "listPrice": 0,
+                    "size": "L",
+                    "weight": 0,
+                    "productCategoryId": 1,
+                    "productModelId": 1,
+                    "sellStartDate": "2017-07-14T00:00:00+02:00",
+                    "rowguid": "f100e986-adeb-46b0-91de-9a1f8f3a4d11",
+                    "modifiedDate": "0001-01-01T00:00:00",
+                    "salesOrderDetail": []
+                },
+                "salesOrderId": 0,
+                "salesOrderDetailId": 1,
+                "orderQty": 5,
+                "productId": 1,
+                "unitPrice": 0,
+                "unitPriceDiscount": 0,
+                "lineTotal": 0,
+                "rowguid": "00000000-0000-0000-0000-000000000000",
+                "modifiedDate": "0001-01-01T00:00:00"
+            },
+            ...
+        ]
+    },
+    ...
+]
+
+```
 
 ## Api URL usage
 - Selectable columns: [/products?**select=name,color,toto**](/products?select=name,color,toto)
 - Top/Take, Skip: [/products?**take=5&skip=5**](/products?take=5&skip=5)
 - First, Last: [/products?**first=true**](/products?first=true)
 - OrderBy, OrderByDesc: [/products?**orderby=price,id**](/products?orderby=price,id)
-- Include (Only for EF core): [/products?**include=category**](/products?include=category)
 - Wrap with: [/products?wrapwith=**count,total-count,next-link**](/products?wrapwith=count,total-count,next-link)
 - Filtering: [/products?**nameContains=frame&color=red,black**](/products?nameContains=frame&color=red,black) 
 
@@ -49,10 +106,13 @@ In a filter, comma separator is used for OR (eg: color=red,black is translated b
 
 *Note that filters works with primitive types, string, datetime & guid*
 
-## Projection
-- Select projection: [/products?**select=name,color,toto,productcategory.name**](/products?select=name,color,toto,productcategory.name)
+## Selection
+- Select an object with all its value types: [/products?**select=productcategory**](/products?select=productcategory)
+- Select an object with all its values including navigation properties on the first level: [/products?**select=productcategory.\***](/products?select=productcategory.*)
 
-*For now select projection does not work with collection navigation properties*
+## Projection
+You can use projection in select & filters clauses with navigation properties (objects or collection of object)
+- Select projection: [/products?**select=name,color,toto,productcategory.name**](/products?select=name,color,toto,productcategory.name)
 - Filter projection: [/products?**salesorderdetail.product.productid=1**](/products?salesorderdetail.product.productid=1)
 
 ## Dto projection
@@ -67,7 +127,6 @@ public IQueryable Get([FromServices] AdventureWorksContext adventureWorksContext
     });
 }
 ```
-*Note that with Dto projection, you cannot use include keyword*
 
 ## Unselectable properties
 If you want some properties to be unselectable (eg: Id, Password, ...)
@@ -83,6 +142,7 @@ public class UsersController : Controller
     }
 }
 ```
+*Note that Dto projection is the best way to limit selectable properties*
 
 ## Use AutoQueryable without attribute 
 If you don't want to use autoqueryable attribute you could use AQ directry in your code by passing it the querystring. 
