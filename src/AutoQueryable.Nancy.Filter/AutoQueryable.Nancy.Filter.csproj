@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
+    <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Nancy.</Description>
+    <Authors>Thibaut Renoncourt</Authors>
+    <Company />
+    <PackageLicenseUrl>https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
+    <PackageTags>AutoQueryable;AutoQuery;OData;GraphQL</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

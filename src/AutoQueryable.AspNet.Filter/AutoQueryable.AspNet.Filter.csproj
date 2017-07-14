@@ -8,12 +8,13 @@
     <TargetFramework>net451</TargetFramework>
     <AssemblyName>AutoQueryable.AspNet.Filter</AssemblyName>
     <PackageId>AutoQueryable.AspNet.Filter</PackageId>
-    <PackageTags>AutoQueryable;AutoQuery;OData</PackageTags>
+    <PackageTags>AutoQueryable;AutoQuery;OData;GraphQL</PackageTags>
     <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE</PackageLicenseUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
