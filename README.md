@@ -181,15 +181,20 @@ Roadmap :
 - ~~Add simpler Attribute using OnActionExecuted~~
 - ~~Add Samples~~
 - ~~Add capability to use Dto projection~~
-- Add Demo
-- Add capability to include navigation properties on multiple levels
-- Add Unselectable navigations in include clause
+- ~~Add capability to include hierarchical data~~
+- ~~Add capability to include navigation properties on multiple levels~~
 - Add allowed clauses or not
 - Add allowed operators or not in where clause
+- Add maximum value on clauses (eg maximum top 999 or maximum depth 2)
+- Add Demo
+- Add Unselectable navigations in include clause
 - Add more date filters in where clause eg: yearEquals
 - Add capability to choose to ignore case or not (case is ignored for now)
 - Add capability to use Group by
-- Add capability to include hierarchical data
+- Add capability to set AutoQueryable options in headers
+- Add an option to not use dynamic objects (Use the type T provided by the IQueryable<T>)
+- Add .* selector to select all properties including navigation properties on the first level
+- Add Odata-v(x) & GraphQL as plugin (choose beetween AutoQueryable, Odata or GraphQL for query)
 
 ## Buy me a beer
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/trenoncourt/5)
