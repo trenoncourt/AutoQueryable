@@ -1,5 +1,8 @@
-﻿namespace AutoQueryable.Models.Enums
+﻿using System;
+
+namespace AutoQueryable.Models.Enums
 {
+    [Flags]
     public enum WrapperPartType : byte
     {
         Count = 1 << 1,

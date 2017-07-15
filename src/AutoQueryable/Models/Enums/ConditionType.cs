@@ -1,5 +1,8 @@
-﻿namespace AutoQueryable.Models.Enums
+﻿using System;
+
+namespace AutoQueryable.Models.Enums
 {
+    [Flags]
     public enum ConditionType : short
     {
         Equal = 1 << 1,
