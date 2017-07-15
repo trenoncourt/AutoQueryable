@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Helpers
 {

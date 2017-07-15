@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Collections;
 using System.Reflection;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Managers
 {
