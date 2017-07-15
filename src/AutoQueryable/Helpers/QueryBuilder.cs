@@ -53,6 +53,10 @@ namespace AutoQueryable.Helpers
             if (clauses.Top != null)
             {
                 int.TryParse(clauses.Top.Value, out int take);
+                if (profile?.MaxToTake != null && take > profile?.MaxToTake)
+                {
+                    take = profile.MaxToTake.Value;
+                }
                 queryProjection = queryProjection.Take(take);
             }
             else if (clauses.First != null)
@@ -62,6 +66,10 @@ namespace AutoQueryable.Helpers
             else if (clauses.Last != null)
             {
                 return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
+            }
+            else if (profile?.MaxToTake != null)
+            {
+                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
             }
             return new QueryResult { Result = queryProjection, TotalCount = totalCount };
         }
