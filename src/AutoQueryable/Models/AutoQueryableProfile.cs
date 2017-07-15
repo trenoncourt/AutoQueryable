@@ -17,17 +17,17 @@ namespace AutoQueryable.Models
         
         public string[] UnGroupableProperties { get; set; }
 
-        public ClauseType AllowedClauses { get; set; }
+        public ClauseType? AllowedClauses { get; set; }
         
-        public ClauseType DisAllowedClauses { get; set; }
+        public ClauseType? DisAllowedClauses { get; set; }
 
-        public ConditionType AllowedConditionType { get; set; }
+        public ConditionType? AllowedConditionType { get; set; }
         
-        public ConditionType DisAllowedConditionType { get; set; }
+        public ConditionType? DisAllowedConditionType { get; set; }
 
-        public WrapperPartType AllowedWrapperPartType { get; set; }
+        public WrapperPartType? AllowedWrapperPartType { get; set; }
         
-        public WrapperPartType DisAllowedWrapperPartType { get; set; }
+        public WrapperPartType? DisAllowedWrapperPartType { get; set; }
 
         public int? MaxToTake { get; set; }
 

@@ -75,6 +75,24 @@ namespace AutoQueryable.Helpers
             return new QueryResult { Result = queryProjection, TotalCount = totalCount };
         }
 
+        private static bool IsClauseAllowed(this AutoQueryableProfile profile, ClauseType clauseType)
+        {
+            bool isClauseAllowed = true;
+            bool? isAllowed = profile?.AllowedClauses?.HasFlag(ClauseType.Skip);
+            bool? isDisallowed = profile?.DisAllowedClauses?.HasFlag(ClauseType.Skip);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isClauseAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isClauseAllowed = false;
+            }
+            return isClauseAllowed;
+        }
+
         private static Expression MakeLambda(Expression parameter, Expression predicate)
         {
             var resultParameterVisitor = new ParameterVisitor();

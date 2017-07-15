@@ -14,6 +14,7 @@ namespace AutoQueryable.Models.Enums
         GroupBy = 1 << 8,
         First = 1 << 9,
         Last = 1 << 10,
-        WrapWith = 1 << 11
+        WrapWith = 1 << 11,
+        Filter = 1 << 12
     }
 }
