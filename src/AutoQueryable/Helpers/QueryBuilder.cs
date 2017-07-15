@@ -48,6 +48,10 @@ namespace AutoQueryable.Helpers
             if (clauses.Skip != null)
             {
                 int.TryParse(clauses.Skip.Value, out int skip);
+                if (profile?.MaxToSkip != null && skip > profile.MaxToSkip)
+                {
+                    skip = profile.MaxToSkip.Value;
+                }
                 queryProjection = queryProjection.Skip(skip);
             }
             if (clauses.Top != null)
