@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Helpers
 {
@@ -143,13 +144,12 @@ namespace AutoQueryable.Helpers
             return InitType<TEntity>(column.SubColumns, nextParent);
         }
 
-        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, string[] unselectableProperties, Type entityType)
+        public static IEnumerable<SelectColumn> GetSelectableColumns(Clause selectClause, AutoQueryableProfile profile, Type entityType)
         {
             if (selectClause == null)
             {
-                // TODO unselectable properties.
-                //return GetSelectableColumns(unselectableProperties, entityType);
-                return new List<SelectColumn>();
+                IEnumerable<string> columns = GetSelectableColumns(profile, entityType);
+                selectClause = new Clause { ClauseType = ClauseType.Select, Value = string.Join(",", columns.ToArray()) };
             }
             ICollection<SelectColumn> allSelectColumns = new List<SelectColumn>();
             ICollection<SelectColumn> selectColumns = new List<SelectColumn>();
@@ -190,7 +190,13 @@ namespace AutoQueryable.Helpers
                     SelectColumn column = allSelectColumns.FirstOrDefault(all => all.Key == key);
                     if (column == null)
                     {
-                        if (unselectableProperties != null && unselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
+                        // pass non selectable properties
+                        if (profile?.SelectableProperties != null && !profile.SelectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+                        // pass unselectable properties
+                        if (profile?.UnselectableProperties != null && profile.UnselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
                         {
                             continue;
                         }
@@ -225,25 +231,32 @@ namespace AutoQueryable.Helpers
                     }
                 }
             }
-            ProcessInclusingType(unselectableProperties, selectColumns);
+            ProcessInclusingType(profile, selectColumns);
 
             return selectColumns;
         }
 
-        private static void ProcessInclusingType(string[] unselectableProperties, ICollection<SelectColumn> selectColumns)
+        private static void ProcessInclusingType(AutoQueryableProfile profile, ICollection<SelectColumn> selectColumns)
         {
             foreach (var selectColumn in selectColumns)
             {
                 if (selectColumn.InclusionType != SelectInclusingType.Default)
                 {
-                    var selectableColumns = GetSelectableColumns(unselectableProperties, selectColumn.Type, selectColumn.InclusionType);
+                    var selectableColumns = GetSelectableColumns(profile, selectColumn.Type, selectColumn.InclusionType);
                     foreach (var columnName in selectableColumns)
                     {
-                        if (!selectColumn.SubColumns.Any(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant()))
+                        if (!selectColumn.SubColumns.Any(x => x.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase)))
                         {
                             var subColumnKey = selectColumn.Key + "." + columnName;
-                            if (unselectableProperties != null &&
-                                unselectableProperties.Contains(subColumnKey, StringComparer.OrdinalIgnoreCase))
+                            // pass non selectable properties.
+                            if (profile?.SelectableProperties != null &&
+                                !profile.SelectableProperties.Contains(subColumnKey, StringComparer.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+                            // pass unselectable properties.
+                            if (profile?.UnselectableProperties != null &&
+                                profile.UnselectableProperties.Contains(subColumnKey, StringComparer.OrdinalIgnoreCase))
                             {
                                 continue;
                             }
@@ -265,12 +278,12 @@ namespace AutoQueryable.Helpers
 
                     }
                 }
-                ProcessInclusingType(unselectableProperties, selectColumn.SubColumns);
+                ProcessInclusingType(profile, selectColumn.SubColumns);
 
             }
         }
 
-        public static IEnumerable<string> GetSelectableColumns(string[] unselectableProperties, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
+        public static IEnumerable<string> GetSelectableColumns(AutoQueryableProfile profile, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
             bool isCollection = entityType.IsEnumerable();
@@ -298,12 +311,18 @@ namespace AutoQueryable.Helpers
                    .Select(p => p.Name);
             }
 
-            // Remove unselectable properties.
-            if (unselectableProperties != null)
+            // Remove non selectable properties.
+            if (profile?.SelectableProperties != null)
             {
-                columns = columns?.Where(c => !unselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+                columns = columns?.Where(c => profile.SelectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
             }
-
+            
+            // Remove unselectable properties.
+            if (profile?.UnselectableProperties != null)
+            {
+                columns = columns?.Where(c => !profile.UnselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+            }
+            
             return columns?.ToList();
         }
 

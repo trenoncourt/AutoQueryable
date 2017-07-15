@@ -13,7 +13,7 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile?.UnselectableProperties, entityType);
+            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile, entityType);
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(clauses.OrderBy, profile?.UnselectableProperties, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(clauses.OrderByDesc, profile?.UnselectableProperties, entityType);
 
@@ -36,7 +36,7 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<object> queryProjection;
-            if (clauses.Select == null && profile?.UnselectableProperties == null)
+            if (clauses.Select == null && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
             {
                 queryProjection = query;
             }

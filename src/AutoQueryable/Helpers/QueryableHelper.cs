@@ -13,13 +13,13 @@ namespace AutoQueryable.Helpers
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                if (profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any())
+                if ((profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any()) && (profile?.SelectableProperties == null || !profile.SelectableProperties.Any()))
                 {
-                    // There is no query string & no unselectable properties, so return directly the query.
+                    // There is no query string & no selectable/unselectable properties, so return directly the query.
                     return query;
                 }
                 // Get all columns without unselectable properties
-                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile?.UnselectableProperties, entityType);
+                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile, entityType);
                 queryString = $"select={string.Join(",", columns.ToArray())}"; 
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
