@@ -25,19 +25,18 @@ namespace AutoQueryable.Helpers
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
             IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts).ToList();
-            IList<Clause> clauses = ClauseManager.GetClauses(queryStringParts).ToList();
+            Clauses clauses = ClauseManager.GetClauses(queryStringParts);
 
-            Clause wrapWithClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.WrapWith);
             var countAllRows = false;
             IEnumerable<WrapperPartType> wrapperParts = null;
-            if (wrapWithClause != null)
+            if (clauses.WrapWith != null)
             {
-                wrapperParts = WrapperManager.GetWrapperParts(wrapWithClause.Value.Split(',')).ToList();
+                wrapperParts = WrapperManager.GetWrapperParts(clauses.WrapWith.Value.Split(',')).ToList();
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
             QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile, countAllRows);
-            if (wrapWithClause == null)
+            if (clauses.WrapWith == null)
             {
                 return queryResult.Result;
             }

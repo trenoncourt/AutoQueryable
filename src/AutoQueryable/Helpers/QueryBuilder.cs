@@ -11,20 +11,12 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
-            Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
-            Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
-            Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
-            Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
-            Clause orderByClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderBy);
-            Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
-
             //List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
-            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(selectClause, profile?.UnselectableProperties, entityType);
-            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, profile?.UnselectableProperties, entityType);
-            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, profile?.UnselectableProperties, entityType);
+            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile?.UnselectableProperties, entityType);
+            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(clauses.OrderBy, profile?.UnselectableProperties, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(clauses.OrderByDesc, profile?.UnselectableProperties, entityType);
 
             if (criterias.Any())
             {
@@ -45,7 +37,7 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<object> queryProjection;
-            if (selectClause == null && profile?.UnselectableProperties == null)
+            if (clauses.Select == null && profile?.UnselectableProperties == null)
             {
                 queryProjection = query;
             }
@@ -54,21 +46,21 @@ namespace AutoQueryable.Helpers
                 queryProjection = query.Select(SelectHelper.GetSelector<T>(selectColumns));
             }
 
-            if (skipClause != null)
+            if (clauses.Skip != null)
             {
-                int.TryParse(skipClause.Value, out int skip);
+                int.TryParse(clauses.Skip.Value, out int skip);
                 queryProjection = queryProjection.Skip(skip);
             }
-            if (topClause != null)
+            if (clauses.Top != null)
             {
-                int.TryParse(topClause.Value, out int take);
+                int.TryParse(clauses.Top.Value, out int take);
                 queryProjection = queryProjection.Take(take);
             }
-            else if (firstClause != null)
+            else if (clauses.First != null)
             {
                 return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
             }
-            else if (lastClause != null)
+            else if (clauses.Last != null)
             {
                 return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
             }

@@ -10,52 +10,49 @@ namespace AutoQueryable.Managers
 {
     public static class ClauseManager
     {
-        public static IEnumerable<Clause> GetClauses(string[] queryStringParts)
+        public static Clauses GetClauses(string[] queryStringParts)
         {
+            var clauses = new Clauses();
             foreach (string q in queryStringParts)
             {
-                Clause clause = null;
                 if (q.Contains(ClauseAlias.Select, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.Select, ClauseType.Select);
+                    clauses.Select = GetClause(q, ClauseAlias.Select, ClauseType.Select);
                 }
                 else if (q.Contains(ClauseAlias.Top, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.Top, ClauseType.Top);
+                    clauses.Top = GetClause(q, ClauseAlias.Top, ClauseType.Top);
                 }
                 else if (q.Contains(ClauseAlias.Take, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.Take, ClauseType.Top);
+                    clauses.Top = GetClause(q, ClauseAlias.Take, ClauseType.Top);
                 }
                 else if (q.Contains(ClauseAlias.Skip, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.Skip, ClauseType.Skip);
+                    clauses.Skip = GetClause(q, ClauseAlias.Skip, ClauseType.Skip);
                 }
                 else if (q.Contains(ClauseAlias.First, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = new Clause {ClauseType = ClauseType.First};
+                    clauses.First = new Clause {ClauseType = ClauseType.First};
                 }
                 else if (q.Contains(ClauseAlias.Last, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = new Clause {ClauseType = ClauseType.Last};
+                    clauses.Last = new Clause {ClauseType = ClauseType.Last};
                 }
                 else if (q.Contains(ClauseAlias.OrderBy, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.OrderBy, ClauseType.OrderBy);
+                    clauses.OrderBy = GetClause(q, ClauseAlias.OrderBy, ClauseType.OrderBy);
                 }
                 else if (q.Contains(ClauseAlias.OrderByDesc, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.OrderByDesc, ClauseType.OrderByDesc);
+                    clauses.OrderByDesc = GetClause(q, ClauseAlias.OrderByDesc, ClauseType.OrderByDesc);
                 }
                 else if (q.Contains(ClauseAlias.WrapWith, StringComparison.OrdinalIgnoreCase))
                 {
-                    clause = GetClause(q, ClauseAlias.WrapWith, ClauseType.WrapWith);
-                }
-                if (clause != null)
-                {
-                    yield return clause;
+                    clauses.WrapWith = GetClause(q, ClauseAlias.WrapWith, ClauseType.WrapWith);
                 }
             }
+            return clauses;
         }
 
         private static Clause GetClause(string q, string clauseAlias, ClauseType clauseType)
