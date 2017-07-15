@@ -10,44 +10,44 @@ namespace AutoQueryable.Managers
 {
     public static class ClauseManager
     {
-        public static Clauses GetClauses(string[] queryStringParts)
+        public static Clauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile)
         {
             var clauses = new Clauses();
             foreach (string q in queryStringParts)
             {
-                if (q.Contains(ClauseAlias.Select, StringComparison.OrdinalIgnoreCase))
+                if (q.Contains(ClauseAlias.Select, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Select))
                 {
                     clauses.Select = GetClause(q, ClauseAlias.Select, ClauseType.Select);
                 }
-                else if (q.Contains(ClauseAlias.Top, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.Top, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Top))
                 {
                     clauses.Top = GetClause(q, ClauseAlias.Top, ClauseType.Top);
                 }
-                else if (q.Contains(ClauseAlias.Take, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.Take, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Top))
                 {
                     clauses.Top = GetClause(q, ClauseAlias.Take, ClauseType.Top);
                 }
-                else if (q.Contains(ClauseAlias.Skip, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.Skip, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Skip))
                 {
                     clauses.Skip = GetClause(q, ClauseAlias.Skip, ClauseType.Skip);
                 }
-                else if (q.Contains(ClauseAlias.First, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.First, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.First))
                 {
                     clauses.First = new Clause {ClauseType = ClauseType.First};
                 }
-                else if (q.Contains(ClauseAlias.Last, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.Last, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Last))
                 {
                     clauses.Last = new Clause {ClauseType = ClauseType.Last};
                 }
-                else if (q.Contains(ClauseAlias.OrderBy, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.OrderBy, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.OrderBy))
                 {
                     clauses.OrderBy = GetClause(q, ClauseAlias.OrderBy, ClauseType.OrderBy);
                 }
-                else if (q.Contains(ClauseAlias.OrderByDesc, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.OrderByDesc, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.OrderByDesc))
                 {
                     clauses.OrderByDesc = GetClause(q, ClauseAlias.OrderByDesc, ClauseType.OrderByDesc);
                 }
-                else if (q.Contains(ClauseAlias.WrapWith, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ClauseAlias.WrapWith, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.WrapWith))
                 {
                     clauses.WrapWith = GetClause(q, ClauseAlias.WrapWith, ClauseType.WrapWith);
                 }

@@ -13,7 +13,6 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            //List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
             IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile?.UnselectableProperties, entityType);
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(clauses.OrderBy, profile?.UnselectableProperties, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(clauses.OrderByDesc, profile?.UnselectableProperties, entityType);
@@ -65,24 +64,6 @@ namespace AutoQueryable.Helpers
                 return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
             }
             return new QueryResult { Result = queryProjection, TotalCount = totalCount };
-        }
-
-        private static bool IsClauseAllowed(this AutoQueryableProfile profile, ClauseType clauseType)
-        {
-            bool isClauseAllowed = true;
-            bool? isAllowed = profile?.AllowedClauses?.HasFlag(ClauseType.Skip);
-            bool? isDisallowed = profile?.DisAllowedClauses?.HasFlag(ClauseType.Skip);
-
-            if (isAllowed.HasValue && !isAllowed.Value)
-            {
-                isClauseAllowed = false;
-            }
-
-            if (isDisallowed.HasValue && isDisallowed.Value)
-            {
-                isClauseAllowed = false;
-            }
-            return isClauseAllowed;
         }
 
         private static Expression MakeLambda(Expression parameter, Expression predicate)

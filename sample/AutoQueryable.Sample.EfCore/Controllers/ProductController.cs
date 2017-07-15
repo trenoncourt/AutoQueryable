@@ -1,5 +1,8 @@
 ﻿using System.Linq;
 using AutoQueryable.AspNetCore.Filter.FilterAttributes;
+using AutoQueryable.Extensions;
+using AutoQueryable.Models;
+using AutoQueryable.Models.Enums;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
 using AutoQueryable.Sample.EfCore.Entities;
@@ -8,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AutoQueryable.Sample.EfCore.Controllers
 {
     [Route("api/products")]
-    public class ProductController
+    public class ProductController : ControllerBase
     {
 
         /// <summary>
@@ -43,6 +46,17 @@ namespace AutoQueryable.Sample.EfCore.Controllers
                     Name = p.ProductCategory.Name
                 }
             });
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        [HttpGet("disallow")]
+        public IQueryable GetWithNotAllowedClauses([FromServices] AutoQueryableContext context)
+        {
+            return context.Product.AutoQueryable(Request.QueryString.Value,
+                new AutoQueryableProfile {DisAllowedClauses = ClauseType.Select | ClauseType.Skip});
         }
     }
 }
