@@ -11,7 +11,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
             Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
             Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
@@ -22,9 +22,9 @@ namespace AutoQueryable.Helpers
             Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
 
             //List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
-            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType);
-            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
-            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
+            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(selectClause, profile?.UnselectableProperties, entityType);
+            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, profile?.UnselectableProperties, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, profile?.UnselectableProperties, entityType);
 
             if (criterias.Any())
             {
@@ -45,7 +45,7 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<object> queryProjection;
-            if (selectClause == null && unselectableProperties == null)
+            if (selectClause == null && profile?.UnselectableProperties == null)
             {
                 queryProjection = query;
             }

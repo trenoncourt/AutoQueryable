@@ -36,7 +36,7 @@ namespace AutoQueryable.Helpers
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
-            QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties, countAllRows);
+            QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile, countAllRows);
             if (wrapWithClause == null)
             {
                 return queryResult.Result;
