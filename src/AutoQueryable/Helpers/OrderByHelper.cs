@@ -8,16 +8,20 @@ namespace AutoQueryable.Helpers
 {
     public static class OrderByHelper
     {
-        public static IEnumerable<Column> GetOrderByColumns(Clause orderClause, string[] unselectableProperties, Type entityType)
+        public static IEnumerable<Column> GetOrderByColumns(AutoQueryableProfile profile, Clause orderClause, Type entityType)
         {
-            IEnumerable<PropertyInfo> properties = entityType.GetProperties();
-            if (unselectableProperties != null)
-            {
-                properties = properties.Where(c => !unselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
-            }
             if (orderClause == null)
             {
                 return null;
+            }
+            IEnumerable<PropertyInfo> properties = entityType.GetProperties();
+            if (profile?.SortableProperties != null)
+            {
+                properties = properties.Where(c => profile.SortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+            if (profile?.UnSortableProperties != null)
+            {
+                properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
             string[] columns = orderClause.Value.Split(',');
             properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));

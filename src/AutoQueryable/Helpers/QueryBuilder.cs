@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
+using AutoQueryable.Models.Constants;
 using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Helpers
@@ -14,8 +15,8 @@ namespace AutoQueryable.Helpers
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
             IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile, entityType);
-            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(clauses.OrderBy, profile?.UnselectableProperties, entityType);
-            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(clauses.OrderByDesc, profile?.UnselectableProperties, entityType);
+            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
             if (criterias.Any())
             {
@@ -178,42 +179,18 @@ namespace AutoQueryable.Helpers
         {
             foreach (Column column in columns)
             {
-                source = source.OrderBy(column.PropertyName);
+                source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
             }
             return source;
-        }
-
-        private static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string sortProperty)
-        {
-            var type = typeof(T);
-            var property = type.GetProperty(sortProperty);
-            var parameter = Expression.Parameter(type, "x");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            Expression lambda = Expression.Lambda(propertyAccess, parameter);
-            var resultExp = Expression.Call(typeof(Queryable), "OrderBy", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
-
-            return source.Provider.CreateQuery<T>(resultExp);
         }
 
         private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, IEnumerable<Column> columns)
         {
             foreach (Column column in columns)
             {
-                source = source.OrderByDesc(column.PropertyName);
+                source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
             }
             return source;
-        }
-
-        private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, string sortProperty)
-        {
-            var type = typeof(T);
-            var property = type.GetProperty(sortProperty);
-            var parameter = Expression.Parameter(type, "x");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            Expression lambda = Expression.Lambda(propertyAccess, parameter);
-            var resultExp = Expression.Call(typeof(Queryable), "OrderByDescending", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
-
-            return source.Provider.CreateQuery<T>(resultExp);
         }
     }
 }
