@@ -7,31 +7,32 @@ using System.Dynamic;
 using System.Linq;
 using System.Collections;
 using System.Reflection;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Managers
 {
     public class WrapperManager
     {
-        public static IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts)
+        public static IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts, AutoQueryableProfile profile)
         {
             foreach (string q in queryStringWrapperParts)
             {
-                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase))
+                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.Count))
                 {
                     yield return WrapperPartType.Count;
                 }
-                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase))
+                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.NextLink))
                 {
                     yield return WrapperPartType.NextLink;
                 }
-                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase))
+                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.TotalCount))
                 {
                     yield return WrapperPartType.TotalCount;
                 }
             }
         }
 
-        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, QueryResult queryResult, IList<Clause> clauses, string queryString)
+        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, QueryResult queryResult, Clauses clauses, string queryString)
         {
             dynamic wrapper = new ExpandoObject();
             wrapper.Result = (queryResult.Result as IQueryable<object>).ToList();
@@ -52,20 +53,18 @@ namespace AutoQueryable.Managers
                     case WrapperPartType.NextLink:
                         bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
 
-                        Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
-                        Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
-                        if (isResultEnumerableNextLink && topClause != null)
+                        if (isResultEnumerableNextLink && clauses.Top != null)
                         {
-                            int skip = skipClause == null ? 0 : Convert.ToInt32(skipClause.Value);
-                            int take = Convert.ToInt32(topClause.Value);
+                            int skip = clauses.Skip == null ? 0 : Convert.ToInt32(clauses.Skip.Value);
+                            int take = Convert.ToInt32(clauses.Top.Value);
                             skip += take;
                             if (wrapper.Result.Count < take)
                             {
                                 break;
                             }
-                            if (skipClause != null)
+                            if (clauses.Skip != null)
                             {
-                                wrapper.NextLink = queryString.ToLower().Replace($"{ClauseAlias.Skip}{skipClause.Value}", $"{ClauseAlias.Skip}{skip}");
+                                wrapper.NextLink = queryString.ToLower().Replace($"{ClauseAlias.Skip}{clauses.Skip.Value}", $"{ClauseAlias.Skip}{skip}");
                             }
                             else
                             {
