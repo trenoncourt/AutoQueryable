@@ -4,6 +4,7 @@ using System.Linq;
 using AutoQueryable.Managers;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Enums;
+using AutoQueryable.Extensions;
 
 namespace AutoQueryable.Helpers
 {
@@ -24,7 +25,7 @@ namespace AutoQueryable.Helpers
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
-            IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts, profile).ToList();
+            IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? CriteriaManager.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
             Clauses clauses = ClauseManager.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;

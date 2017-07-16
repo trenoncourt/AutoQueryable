@@ -57,7 +57,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         {
             return context.Product.AutoQueryable(Request.QueryString.Value,
                 new AutoQueryableProfile {
-                    AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith, 
+                    AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith | ClauseType.Filter, 
                     MaxToTake = 5, 
                     MaxToSkip = 5,
                     SelectableProperties = new[] { "name", "color" },

@@ -18,7 +18,7 @@ namespace AutoQueryable.Helpers
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
-            if (criterias.Any())
+            if (criterias != null && criterias.Any())
             {
                 query = query.Where(criterias);
             }
