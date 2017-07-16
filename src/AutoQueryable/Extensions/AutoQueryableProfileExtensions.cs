@@ -40,5 +40,23 @@ namespace AutoQueryable.Extensions
             }
             return isConditionAllowed;
         }
+        
+        public static bool IsWrapperPartAllowed(this AutoQueryableProfile profile, WrapperPartType wrapperPartType)
+        {
+            bool isWrapperPartAllowed = true;
+            bool? isAllowed = profile?.AllowedWrapperPartType?.HasFlag(wrapperPartType);
+            bool? isDisallowed = profile?.DisAllowedWrapperPartType?.HasFlag(wrapperPartType);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isWrapperPartAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isWrapperPartAllowed = false;
+            }
+            return isWrapperPartAllowed;
+        }
     }
 }

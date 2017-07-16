@@ -53,15 +53,17 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <param name="context"></param>
         /// <returns></returns>
         [HttpGet("disallow")]
-        public IQueryable GetWithNotAllowedClauses([FromServices] AutoQueryableContext context)
+        public dynamic GetWithNotAllowedClauses([FromServices] AutoQueryableContext context)
         {
             return context.Product.AutoQueryable(Request.QueryString.Value,
                 new AutoQueryableProfile {
-                    AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc, MaxToTake = 5, 
+                    AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith, 
+                    MaxToTake = 5, 
                     MaxToSkip = 5,
-//                    SelectableProperties = new []{ "name", "color" },
+                    SelectableProperties = new[] { "name", "color" },
                     DisAllowedConditions = ConditionType.Contains | ConditionType.Less,
-                    SortableProperties = new []{"color"}
+                    SortableProperties = new []{"color"},
+                    AllowedWrapperPartType = WrapperPartType.Count
                 });
         }
     }

@@ -13,19 +13,19 @@ namespace AutoQueryable.Managers
 {
     public class WrapperManager
     {
-        public static IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts)
+        public static IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts, AutoQueryableProfile profile)
         {
             foreach (string q in queryStringWrapperParts)
             {
-                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase))
+                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.Count))
                 {
                     yield return WrapperPartType.Count;
                 }
-                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase))
+                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.NextLink))
                 {
                     yield return WrapperPartType.NextLink;
                 }
-                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase))
+                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase) && profile.IsWrapperPartAllowed(WrapperPartType.TotalCount))
                 {
                     yield return WrapperPartType.TotalCount;
                 }

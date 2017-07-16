@@ -19,7 +19,7 @@ namespace AutoQueryable.Managers
             {
                 string q = WebUtility.UrlDecode(qPart);
                 Criteria criteria = null;
-                if (q.Contains(ConditionAlias.NotEqual, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.NotEqual))
+                if (q.Contains(ConditionAlias.NotEqual, StringComparison.OrdinalIgnoreCase) && profile.IsConditionAllowed(ConditionType.NotEqual))
                 {
                     criteria = GetCriteria(q, ConditionAlias.NotEqual, ConditionType.NotEqual, entityType);
                 }

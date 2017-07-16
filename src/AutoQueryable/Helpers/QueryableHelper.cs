@@ -31,12 +31,12 @@ namespace AutoQueryable.Helpers
             IEnumerable<WrapperPartType> wrapperParts = null;
             if (clauses.WrapWith != null)
             {
-                wrapperParts = WrapperManager.GetWrapperParts(clauses.WrapWith.Value.Split(',')).ToList();
+                wrapperParts = WrapperManager.GetWrapperParts(clauses.WrapWith.Value.Split(','), profile).ToList();
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
             QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile, countAllRows);
-            if (clauses.WrapWith == null)
+            if (clauses.WrapWith == null || !wrapperParts.Any())
             {
                 return queryResult.Result;
             }
