@@ -5,27 +5,20 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
+using AutoQueryable.Models.Constants;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, IList<Clause> clauses, IList<Criteria> criterias, string[] unselectableProperties, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            Clause selectClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Select);
-            Clause topClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Top);
-            Clause skipClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Skip);
-            Clause firstClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.First);
-            Clause lastClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.Last);
-            Clause orderByClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderBy);
-            Clause orderByDescClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.OrderByDesc);
+            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile, entityType);
+            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
+            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
-            //List<string> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType).ToList();
-            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(selectClause, unselectableProperties, entityType);
-            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(orderByClause, unselectableProperties, entityType);
-            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(orderByDescClause, unselectableProperties, entityType);
-
-            if (criterias.Any())
+            if (criterias != null && criterias.Any())
             {
                 query = query.Where(criterias);
             }
@@ -44,7 +37,7 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<object> queryProjection;
-            if (selectClause == null && unselectableProperties == null)
+            if (clauses.Select == null && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
             {
                 queryProjection = query;
             }
@@ -53,23 +46,35 @@ namespace AutoQueryable.Helpers
                 queryProjection = query.Select(SelectHelper.GetSelector<T>(selectColumns));
             }
 
-            if (skipClause != null)
+            if (clauses.Skip != null)
             {
-                int.TryParse(skipClause.Value, out int skip);
+                int.TryParse(clauses.Skip.Value, out int skip);
+                if (profile?.MaxToSkip != null && skip > profile.MaxToSkip)
+                {
+                    skip = profile.MaxToSkip.Value;
+                }
                 queryProjection = queryProjection.Skip(skip);
             }
-            if (topClause != null)
+            if (clauses.Top != null)
             {
-                int.TryParse(topClause.Value, out int take);
+                int.TryParse(clauses.Top.Value, out int take);
+                if (profile?.MaxToTake != null && take > profile?.MaxToTake)
+                {
+                    take = profile.MaxToTake.Value;
+                }
                 queryProjection = queryProjection.Take(take);
             }
-            else if (firstClause != null)
+            else if (clauses.First != null)
             {
                 return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
             }
-            else if (lastClause != null)
+            else if (clauses.Last != null)
             {
                 return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
+            }
+            else if (profile?.MaxToTake != null)
+            {
+                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
             }
             return new QueryResult { Result = queryProjection, TotalCount = totalCount };
         }
@@ -174,42 +179,18 @@ namespace AutoQueryable.Helpers
         {
             foreach (Column column in columns)
             {
-                source = source.OrderBy(column.PropertyName);
+                source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
             }
             return source;
-        }
-
-        private static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string sortProperty)
-        {
-            var type = typeof(T);
-            var property = type.GetProperty(sortProperty);
-            var parameter = Expression.Parameter(type, "x");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            Expression lambda = Expression.Lambda(propertyAccess, parameter);
-            var resultExp = Expression.Call(typeof(Queryable), "OrderBy", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
-
-            return source.Provider.CreateQuery<T>(resultExp);
         }
 
         private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, IEnumerable<Column> columns)
         {
             foreach (Column column in columns)
             {
-                source = source.OrderByDesc(column.PropertyName);
+                source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
             }
             return source;
-        }
-
-        private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, string sortProperty)
-        {
-            var type = typeof(T);
-            var property = type.GetProperty(sortProperty);
-            var parameter = Expression.Parameter(type, "x");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            Expression lambda = Expression.Lambda(propertyAccess, parameter);
-            var resultExp = Expression.Call(typeof(Queryable), "OrderByDescending", new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
-
-            return source.Provider.CreateQuery<T>(resultExp);
         }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Managers;
 using AutoQueryable.Models;
+using AutoQueryable.Models.Enums;
+using AutoQueryable.Extensions;
 
 namespace AutoQueryable.Helpers
 {
@@ -12,31 +14,30 @@ namespace AutoQueryable.Helpers
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                if (profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any())
+                if ((profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any()) && (profile?.SelectableProperties == null || !profile.SelectableProperties.Any()))
                 {
-                    // There is no query string & no unselectable properties, so return directly the query.
+                    // There is no query string & no selectable/unselectable properties, so return directly the query.
                     return query;
                 }
                 // Get all columns without unselectable properties
-                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile?.UnselectableProperties, entityType);
+                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile, entityType);
                 queryString = $"select={string.Join(",", columns.ToArray())}"; 
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
-            IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts).ToList();
-            IList<Clause> clauses = ClauseManager.GetClauses(queryStringParts).ToList();
+            IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? CriteriaManager.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
+            Clauses clauses = ClauseManager.GetClauses(queryStringParts, profile);
 
-            Clause wrapWithClause = clauses.FirstOrDefault(c => c.ClauseType == ClauseType.WrapWith);
             var countAllRows = false;
             IEnumerable<WrapperPartType> wrapperParts = null;
-            if (wrapWithClause != null)
+            if (clauses.WrapWith != null)
             {
-                wrapperParts = WrapperManager.GetWrapperParts(wrapWithClause.Value.Split(',')).ToList();
+                wrapperParts = WrapperManager.GetWrapperParts(clauses.WrapWith.Value.Split(','), profile).ToList();
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
-            QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile?.UnselectableProperties, countAllRows);
-            if (wrapWithClause == null)
+            QueryResult queryResult = QueryBuilder.Build(query, entityType, clauses, criterias, profile, countAllRows);
+            if (clauses.WrapWith == null || !wrapperParts.Any())
             {
                 return queryResult.Result;
             }

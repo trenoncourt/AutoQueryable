@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Models
 {
