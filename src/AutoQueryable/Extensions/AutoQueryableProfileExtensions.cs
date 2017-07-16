@@ -22,5 +22,23 @@ namespace AutoQueryable.Extensions
             }
             return isClauseAllowed;
         }
+        
+        public static bool IsConditionAllowed(this AutoQueryableProfile profile, ConditionType conditionType)
+        {
+            bool isConditionAllowed = true;
+            bool? isAllowed = profile?.AllowedConditions?.HasFlag(conditionType);
+            bool? isDisallowed = profile?.DisAllowedConditions?.HasFlag(conditionType);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isConditionAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isConditionAllowed = false;
+            }
+            return isConditionAllowed;
+        }
     }
 }

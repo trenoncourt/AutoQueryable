@@ -21,9 +21,9 @@ namespace AutoQueryable.Models
         
         public ClauseType? DisAllowedClauses { get; set; }
 
-        public ConditionType? AllowedConditionType { get; set; }
+        public ConditionType? AllowedConditions { get; set; }
         
-        public ConditionType? DisAllowedConditionType { get; set; }
+        public ConditionType? DisAllowedConditions { get; set; }
 
         public WrapperPartType? AllowedWrapperPartType { get; set; }
         

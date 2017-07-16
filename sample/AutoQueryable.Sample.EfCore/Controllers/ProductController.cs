@@ -60,6 +60,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
                     AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc, MaxToTake = 5, 
                     MaxToSkip = 5,
 //                    SelectableProperties = new []{ "name", "color" },
+                    DisAllowedConditions = ConditionType.Contains | ConditionType.Less,
                     SortableProperties = new []{"color"}
                 });
         }

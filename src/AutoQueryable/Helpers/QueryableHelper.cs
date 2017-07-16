@@ -24,7 +24,7 @@ namespace AutoQueryable.Helpers
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
-            IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts).ToList();
+            IList<Criteria> criterias = CriteriaManager.GetCriterias(entityType, queryStringParts, profile).ToList();
             Clauses clauses = ClauseManager.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;

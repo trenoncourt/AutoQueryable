@@ -13,49 +13,49 @@ namespace AutoQueryable.Managers
 {
     public static class CriteriaManager
     {
-        public static IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts)
+        public static IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts, AutoQueryableProfile profile)
         {
             foreach (string qPart in queryStringParts)
             {
                 string q = WebUtility.UrlDecode(qPart);
                 Criteria criteria = null;
-                if (q.Contains(ConditionAlias.NotEqual, StringComparison.OrdinalIgnoreCase))
+                if (q.Contains(ConditionAlias.NotEqual, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.NotEqual))
                 {
                     criteria = GetCriteria(q, ConditionAlias.NotEqual, ConditionType.NotEqual, entityType);
                 }
-                else if (q.Contains(ConditionAlias.LessEqual, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.LessEqual, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.LessEqual))
                 {
                     criteria = GetCriteria(q, ConditionAlias.LessEqual, ConditionType.LessEqual, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Less, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Less, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.Less))
                 {
                     criteria = GetCriteria(q, ConditionAlias.Less, ConditionType.Less, entityType);
                 }
-                else if (q.Contains(ConditionAlias.GreaterEqual, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.GreaterEqual, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.GreaterEqual))
                 {
                     criteria = GetCriteria(q, ConditionAlias.GreaterEqual, ConditionType.GreaterEqual, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Greater, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Greater, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.Greater))
                 {
                     criteria = GetCriteria(q, ConditionAlias.Greater, ConditionType.Greater, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Contains, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Contains, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.Contains))
                 {
                     criteria = GetCriteria(q, ConditionAlias.Contains, ConditionType.Contains, entityType);
                 }
-                else if (q.Contains(ConditionAlias.StartsWith, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.StartsWith, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.StartsWith))
                 {
                     criteria = GetCriteria(q, ConditionAlias.StartsWith, ConditionType.StartsWith, entityType);
                 }
-                else if (q.Contains(ConditionAlias.EndsWith, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.EndsWith, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.EndsWith))
                 {
                     criteria = GetCriteria(q, ConditionAlias.EndsWith, ConditionType.EndsWith, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Between, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Between, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.Between))
                 {
                     criteria = GetCriteria(q, ConditionAlias.Between, ConditionType.Between, entityType);
                 }
-                else if (q.Contains(ConditionAlias.Equal, StringComparison.OrdinalIgnoreCase))
+                else if (q.Contains(ConditionAlias.Equal, StringComparison.OrdinalIgnoreCase)  && profile.IsConditionAllowed(ConditionType.Equal))
                 {
                     criteria = GetCriteria(q, ConditionAlias.Equal, ConditionType.Equal, entityType);
                 }
