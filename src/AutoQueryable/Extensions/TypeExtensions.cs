@@ -59,5 +59,10 @@ namespace AutoQueryable.Extensions
             }
             return genericType.PropertyExist(propertyName);
         }
+
+        public static bool IsCustomObjectType(this Type type)
+        {
+            return type.GetTypeInfo().IsClass && type != typeof(string);
+        }
     }
 }

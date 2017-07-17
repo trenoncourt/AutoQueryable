@@ -60,7 +60,8 @@ namespace AutoQueryable.Sample.EfCore.Controllers
                     AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith | ClauseType.Filter, 
                     MaxToTake = 5, 
                     MaxToSkip = 5,
-                    SelectableProperties = new[] { "name", "color" },
+                    MaxDepth = 2,
+//                    SelectableProperties = new[] { "name", "color" },
                     DisAllowedConditions = ConditionType.Contains | ConditionType.Less,
                     SortableProperties = new []{"color"},
                     AllowedWrapperPartType = WrapperPartType.Count

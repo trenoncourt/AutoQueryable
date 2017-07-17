@@ -164,21 +164,32 @@ namespace AutoQueryable.Helpers
             foreach (string[] selectionColumnPath in selectionWithColumnPath)
             {
                 var parentType = entityType;
+                int? maxDepth = profile?.MaxDepth;
+                
                 for (int i = 0; i < selectionColumnPath.Length; i++)
                 {
+                    if (maxDepth.HasValue && i >= maxDepth.Value)
+                    {
+                        break;
+                    }
                     string key = string.Join(".", selectionColumnPath.Take(i + 1)).ToLowerInvariant();
 
                     var columnName = selectionColumnPath[i];
                     var property = parentType.GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
                     if (property == null)
                     {
-                        if (key.EndsWith(".*")) {
+                        if (key.EndsWith(".*") && (!maxDepth.HasValue || (i < maxDepth - 1))) {
                             var inclusionColumn= allSelectColumns.FirstOrDefault(all => all.Key == key.Replace(".*",""));
                             inclusionColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
                         }
                         break;
                     }
-                    bool isCollection = property.PropertyType.IsEnumerable();
+                    bool isCollection = property.PropertyType.IsEnumerableButNotString();
+                    // Max depth & collection or object
+                    if (maxDepth.HasValue && (i >= maxDepth - 1) && (isCollection || property.PropertyType.IsCustomObjectType()))
+                    {
+                        continue;
+                    }
                     if (isCollection)
                     {
                         parentType = property.PropertyType.GetGenericArguments().FirstOrDefault();
