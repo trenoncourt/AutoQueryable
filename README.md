@@ -5,7 +5,7 @@ AutoQueryable add auto querying functionality like OData on top of IQueryable wi
 
 Install without filters: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg)](https://www.nuget.org/packages/AutoQueryable)
 ```powershell
-Install-Package AutoQueryable.AspNetCore.Filter
+Install-Package AutoQueryable
 ```
 Install for **AspNet Core**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter)
 ```powershell
