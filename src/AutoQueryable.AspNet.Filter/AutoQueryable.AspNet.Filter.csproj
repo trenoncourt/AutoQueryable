@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net &gt;=4.5.1.</Description>
-    <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net &gt;=4.5.1.</AssemblyTitle>
+    <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net &gt;=4.6.</Description>
+    <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net &gt;=4.6.</AssemblyTitle>
     <VersionPrefix>1.1.0</VersionPrefix>
     <Authors>Thibaut Renoncourt</Authors>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <AssemblyName>AutoQueryable.AspNet.Filter</AssemblyName>
     <PackageId>AutoQueryable.AspNet.Filter</PackageId>
     <PackageTags>AutoQueryable;AutoQuery;OData;GraphQL</PackageTags>
@@ -17,7 +17,7 @@
     <Version>1.1.0</Version>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.3" />
     <Reference Include="System" />

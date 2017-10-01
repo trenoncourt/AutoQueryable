@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http.Filters;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Helpers;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {

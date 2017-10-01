@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Helpers;
-using AutoQueryable.Models;
 using Nancy;
 using Newtonsoft.Json;
 
