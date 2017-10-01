@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using AutoQueryable.Aliases;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Extensions;
+using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Providers;
 using AutoQueryable.Extensions;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
+using AutoQueryable.Providers.Default.Aliases;
 
-namespace AutoQueryable.Managers
+namespace AutoQueryable.Providers.Default
 {
-    public static class ClauseManager
+    public class DefaultClauseProvider : IClauseProvider
     {
-        public static Clauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile)
+        public Clauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile)
         {
             var clauses = new Clauses();
             foreach (string q in queryStringParts)

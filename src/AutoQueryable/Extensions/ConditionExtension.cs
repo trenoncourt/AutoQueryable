@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
+using AutoQueryable.Core.Enums;
 
 namespace AutoQueryable.Extensions
 {

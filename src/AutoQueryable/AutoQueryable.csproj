@@ -4,13 +4,13 @@
     <AssemblyTitle>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</AssemblyTitle>
     <VersionPrefix>1.2.0</VersionPrefix>
     <Authors>Thibaut Renoncourt</Authors>
-    <TargetFrameworks>netstandard1.3;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3</TargetFrameworks>
     <AssemblyName>AutoQueryable</AssemblyName>
     <PackageId>AutoQueryable</PackageId>
     <PackageTags>AutoQueryable;AutoQuery;OData</PackageTags>
     <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE</PackageLicenseUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.3' ">1.6.1</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -18,16 +18,13 @@
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+  <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
-    <Reference Include="System.Reflection.Emit" />
-    <Reference Include="System.Linq.Queryable" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
+  <ItemGroup>
+    <ProjectReference Include="..\AutoQueryable.Core\AutoQueryable.Core.csproj" />
   </ItemGroup>
 </Project>

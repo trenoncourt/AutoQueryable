@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Sample.Nancy", "sample\AutoQueryable.Sample.Nancy\AutoQueryable.Sample.Nancy.csproj", "{5D231472-9941-4E90-950B-3709583E832A}"
 
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Core", "src\AutoQueryable.Core\AutoQueryable.Core.csproj", "{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{5D231472-9941-4E90-950B-3709583E832A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D231472-9941-4E90-950B-3709583E832A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D231472-9941-4E90-950B-3709583E832A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,5 +80,6 @@ Global
 		{A65BC954-07A1-40D9-BBB8-46349273D84E} = {A9207ADA-C81F-4112-BC31-35EA2A8362F7}
 		{0B24F998-9851-4F28-9A00-9388D8BE398C} = {2EC34A81-603E-458D-B1EA-B0BA814DF61D}
 		{5D231472-9941-4E90-950B-3709583E832A} = {4AB59492-513F-40B7-8253-0BC7ED0E8A71}
+		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F} = {2EC34A81-603E-458D-B1EA-B0BA814DF61D}
 	EndGlobalSection
 EndGlobal

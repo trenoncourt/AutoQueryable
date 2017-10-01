@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoQueryable.Managers;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Extensions;
+using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Providers;
 using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
-using AutoQueryable.Extensions;
+using AutoQueryable.Providers;
+using AutoQueryable.Providers.Default;
 
 namespace AutoQueryable.Helpers
 {
@@ -25,14 +28,18 @@ namespace AutoQueryable.Helpers
             }
             string[] queryStringParts = queryString.Replace("?", "").Split('&');
 
-            IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? CriteriaManager.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
-            Clauses clauses = ClauseManager.GetClauses(queryStringParts, profile);
+            ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider();
+            IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? criteriaProvider.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
+
+            IClauseProvider clauseProvider = ProviderFactory.GetClauseProvider();
+            Clauses clauses = clauseProvider.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;
             IEnumerable<WrapperPartType> wrapperParts = null;
             if (clauses.WrapWith != null)
             {
-                wrapperParts = WrapperManager.GetWrapperParts(clauses.WrapWith.Value.Split(','), profile).ToList();
+                IWrapperProvider wrapperProvider = ProviderFactory.GetWrapperProvider();
+                wrapperParts = wrapperProvider.GetWrapperParts(clauses.WrapWith.Value.Split(','), profile).ToList();
                 countAllRows = wrapperParts.Contains(WrapperPartType.TotalCount);
             }
 
@@ -42,7 +49,7 @@ namespace AutoQueryable.Helpers
                 return queryResult.Result;
             }
 
-            return WrapperManager.GetWrappedResult(wrapperParts, queryResult, clauses, queryString);
+            return DefaultWrapperProvider.GetWrappedResult(wrapperParts, queryResult, clauses, queryString);
         }
     }
 }

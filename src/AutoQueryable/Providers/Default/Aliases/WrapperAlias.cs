@@ -1,4 +1,4 @@
-﻿namespace AutoQueryable.Aliases
+﻿namespace AutoQueryable.Providers.Default.Aliases
 {
     public class WrapperAlias
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AutoQueryable.Models.Enums
+namespace AutoQueryable.Core.Enums
 {
     [Flags]
     public enum WrapperPartType : byte

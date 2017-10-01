@@ -4,16 +4,18 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using AutoQueryable.Aliases;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Extensions;
+using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Providers;
 using AutoQueryable.Extensions;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
+using AutoQueryable.Providers.Default.Aliases;
 
-namespace AutoQueryable.Managers
+namespace AutoQueryable.Providers.Default
 {
-    public static class CriteriaManager
+    public class DefaultCriteriaProvider : ICriteriaProvider
     {
-        public static IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts, AutoQueryableProfile profile)
+        public IEnumerable<Criteria> GetCriterias(Type entityType, string[] queryStringParts, AutoQueryableProfile profile)
         {
             foreach (string qPart in queryStringParts)
             {

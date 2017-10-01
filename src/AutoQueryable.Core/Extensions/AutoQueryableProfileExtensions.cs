@@ -1,7 +1,7 @@
-﻿using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
+﻿using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 
-namespace AutoQueryable.Extensions
+namespace AutoQueryable.Core.Extensions
 {
     public static class AutoQueryableProfileExtensions
     {
