@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.Helpers
@@ -151,8 +152,8 @@ namespace AutoQueryable.Helpers
                 IEnumerable<string> columns = GetSelectableColumns(profile, entityType);
                 selectClause = new Clause { ClauseType = ClauseType.Select, Value = string.Join(",", columns.ToArray()) };
             }
-            ICollection<SelectColumn> allSelectColumns = new List<SelectColumn>();
-            ICollection<SelectColumn> selectColumns = new List<SelectColumn>();
+            List<SelectColumn> allSelectColumns = new List<SelectColumn>();
+            List<SelectColumn> selectColumns = new List<SelectColumn>();
             var selection = selectClause.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
             var selectionWithColumnPath = new List<string[]>();
             foreach (string selectionItem in selection)

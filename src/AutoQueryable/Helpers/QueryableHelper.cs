@@ -31,7 +31,7 @@ namespace AutoQueryable.Helpers
             ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider();
             IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? criteriaProvider.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
 
-            IClauseProvider clauseProvider = ProviderFactory.GetClauseProvider();
+            IClauseProvider clauseProvider = Activator.CreateInstance(profile.ClauseProviderType) as IClauseProvider ?? new DefaultClauseProvider();
             Clauses clauses = clauseProvider.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;

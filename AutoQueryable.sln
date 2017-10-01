@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Sample.Nancy"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Core", "src\AutoQueryable.Core\AutoQueryable.Core.csproj", "{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Providers.OData", "src\AutoQueryable.Providers.OData\AutoQueryable.Providers.OData.csproj", "{8335B90F-6465-4882-9DA0-460BE0EA8DF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8335B90F-6465-4882-9DA0-460BE0EA8DF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8335B90F-6465-4882-9DA0-460BE0EA8DF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8335B90F-6465-4882-9DA0-460BE0EA8DF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8335B90F-6465-4882-9DA0-460BE0EA8DF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,5 +87,6 @@ Global
 		{0B24F998-9851-4F28-9A00-9388D8BE398C} = {2EC34A81-603E-458D-B1EA-B0BA814DF61D}
 		{5D231472-9941-4E90-950B-3709583E832A} = {4AB59492-513F-40B7-8253-0BC7ED0E8A71}
 		{D8FBFF88-111D-41F8-A958-7C6FB66FAC9F} = {2EC34A81-603E-458D-B1EA-B0BA814DF61D}
+		{8335B90F-6465-4882-9DA0-460BE0EA8DF4} = {2EC34A81-603E-458D-B1EA-B0BA814DF61D}
 	EndGlobalSection
 EndGlobal

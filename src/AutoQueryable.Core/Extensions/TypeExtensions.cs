@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 
-namespace AutoQueryable.Extensions
+namespace AutoQueryable.Core.Extensions
 {
     public static class TypeExtensions
     {

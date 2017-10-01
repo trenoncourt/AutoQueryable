@@ -14,6 +14,8 @@ namespace AutoQueryable.Core.Enums
         First = 1 << 7,
         Last = 1 << 8,
         WrapWith = 1 << 9,
-        Filter = 1 << 10
+        Filter = 1 << 10,
+        Expand = 1 << 11,
+        Search = 1 << 11
     }
 }

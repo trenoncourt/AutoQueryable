@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AutoQueryable.Models
+namespace AutoQueryable.Core.Models
 {
     public enum SelectInclusingType
     {
