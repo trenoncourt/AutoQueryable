@@ -9,6 +9,7 @@ using AutoQueryable.UnitTest.Mock.Dtos;
 using AutoQueryable.UnitTest.Mock.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AutoQueryable.Helpers;
+using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.UnitTest
 {

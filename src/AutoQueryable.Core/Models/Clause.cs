@@ -1,6 +1,6 @@
-﻿using AutoQueryable.Models.Enums;
+﻿using AutoQueryable.Core.Enums;
 
-namespace AutoQueryable.Models
+namespace AutoQueryable.Core.Models
 {
     public class Clause
     {

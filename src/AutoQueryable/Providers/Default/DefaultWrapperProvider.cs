@@ -1,19 +1,21 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using AutoQueryable.Aliases;
-using AutoQueryable.Models;
-using AutoQueryable.Extensions;
 using System.Dynamic;
 using System.Linq;
-using System.Collections;
 using System.Reflection;
-using AutoQueryable.Models.Enums;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Extensions;
+using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Providers;
+using AutoQueryable.Models;
+using AutoQueryable.Providers.Default.Aliases;
 
-namespace AutoQueryable.Managers
+namespace AutoQueryable.Providers.Default
 {
-    public class WrapperManager
+    public class DefaultWrapperProvider : IWrapperProvider
     {
-        public static IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts, AutoQueryableProfile profile)
+        public IEnumerable<WrapperPartType> GetWrapperParts(string[] queryStringWrapperParts, AutoQueryableProfile profile)
         {
             foreach (string q in queryStringWrapperParts)
             {

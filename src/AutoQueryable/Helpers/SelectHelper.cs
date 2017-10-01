@@ -6,10 +6,10 @@ using System.Reflection.Emit;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text;
-using AutoQueryable.Models.Enums;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.Helpers
 {

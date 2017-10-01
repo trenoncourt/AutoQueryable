@@ -1,11 +1,10 @@
 ﻿using System.Linq;
 using AutoQueryable.AspNetCore.Filter.FilterAttributes;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
-using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoQueryable.Sample.EfCore.Controllers

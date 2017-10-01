@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Models;
 
 namespace AutoQueryable.Helpers

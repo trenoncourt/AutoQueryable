@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
-using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.Helpers
 {

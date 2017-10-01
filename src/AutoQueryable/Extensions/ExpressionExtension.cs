@@ -9,7 +9,7 @@ namespace AutoQueryable.Extensions
     {
         /// <summary>
         /// Create a select lambda expression called from another expression.
-        /// <ExistingExpression>.Select(x => x.Body)
+        /// <ExistingExpression>.Select(x => x.Body)</ExistingExpression>
         /// </summary>
         /// <param name="from">Existing expression to call select method on</param>
         /// <param name="body">The body inside the select expression: .Select(x => x.Body)</param>

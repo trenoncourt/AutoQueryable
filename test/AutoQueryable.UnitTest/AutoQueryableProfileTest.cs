@@ -1,11 +1,12 @@
 ﻿using AutoQueryable.Extensions;
-using AutoQueryable.Models.Enums;
 using AutoQueryable.UnitTest.Mock;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.UnitTest
 {
@@ -17,7 +18,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                var query = (context.Product.AutoQueryable("select=name&top=10", new Models.AutoQueryableProfile
+                var query = (context.Product.AutoQueryable("select=name&top=10", new AutoQueryableProfile
                 {
                     AllowedClauses = ClauseType.Select
                 }) as IEnumerable<dynamic>).ToList();
@@ -38,7 +39,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new Models.AutoQueryableProfile
+                var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile
                 {
                     AllowedClauses = ClauseType.Select | ClauseType.Top
                 }) as IEnumerable<dynamic>).ToList();

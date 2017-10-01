@@ -1,9 +1,9 @@
 ﻿using System;
+using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using AutoQueryable.Helpers;
-using AutoQueryable.Models;
-using AutoQueryable.Models.Enums;
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
