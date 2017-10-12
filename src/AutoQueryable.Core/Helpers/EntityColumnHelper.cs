@@ -9,9 +9,9 @@ namespace AutoQueryable.Core.Helpers
 {
     public class EntityColumnHelper
     {
-        public static IEnumerable<string> GetSelectableColumns(AutoQueryableProfile profile, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
+        public static IEnumerable<SelectColumn> GetSelectableColumns(AutoQueryableProfile profile, Type entityType, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
-            IEnumerable<string> columns = null;
+            IEnumerable<SelectColumn> columns = null;
             bool isCollection = entityType.IsEnumerable();
             var type = entityType;
             if (isCollection)
@@ -28,25 +28,35 @@ namespace AutoQueryable.Core.Helpers
                     || p.PropertyType.GetTypeInfo().IsArray
                     || p.PropertyType == typeof(string)
                     )
-                    .Select(p => p.Name);
+                    .Select(p => new SelectColumn
+                    {
+                        Key = p.Name,
+                        Name = p.Name,
+                        Type = p.PropertyType
+                    });
             }
             // Get all properties.
             else if (selectInclusingType == SelectInclusingType.IncludeAllProperties)
             {
                 columns = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                   .Select(p => p.Name);
+                    .Select(p => new SelectColumn
+                    {
+                        Key = p.Name,
+                        Name = p.Name,
+                        Type = p.PropertyType
+                    });
             }
 
             // Remove non selectable properties.
             if (profile?.SelectableProperties != null)
             {
-                columns = columns?.Where(c => profile.SelectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+                columns = columns?.Where(c => profile.SelectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
             
             // Remove unselectable properties.
             if (profile?.UnselectableProperties != null)
             {
-                columns = columns?.Where(c => !profile.UnselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+                columns = columns?.Where(c => !profile.UnselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
             
             return columns?.ToList();

@@ -5,9 +5,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Providers;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
+using AutoQueryable.Providers;
 
 namespace AutoQueryable.Helpers
 {
@@ -15,7 +17,9 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IEnumerable<SelectColumn> selectColumns = SelectHelper.GetSelectableColumns(clauses.Select, profile, entityType);
+            IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile.ProviderType);
+            IEnumerable<SelectColumn> selectColumns = columnProvider.GetSelectableColumns(clauses, profile, entityType);
+            
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
+using AutoQueryable.Core.Helpers;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Providers;
+using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Providers;
 using AutoQueryable.Providers.Default;
@@ -15,23 +17,19 @@ namespace AutoQueryable.Helpers
     {
         public static dynamic GetAutoQuery<TEntity>(string queryString, Type entityType, IQueryable<TEntity> query, AutoQueryableProfile profile) where TEntity : class
         {
+            // If query string empty select default entity properties.
             if (string.IsNullOrEmpty(queryString))
             {
-                if ((profile?.UnselectableProperties == null || !profile.UnselectableProperties.Any()) && (profile?.SelectableProperties == null || !profile.SelectableProperties.Any()))
-                {
-                    // There is no query string & no selectable/unselectable properties, so return directly the query.
-                    return query;
-                }
-                // Get all columns without unselectable properties
-                IEnumerable<string> columns = SelectHelper.GetSelectableColumns(profile, entityType);
-                queryString = $"select={string.Join(",", columns.ToArray())}"; 
+                IColumnProvider columnProvider = ProviderFactory.GetColumnProvider();
+                IEnumerable<SelectColumn> selectColumns = EntityColumnHelper.GetSelectableColumns(profile, entityType);
+                return query.Select(SelectHelper.GetSelector<TEntity>(selectColumns));
             }
-            string[] queryStringParts = queryString.Replace("?", "").Split('&');
-
-            ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider();
+            
+            // Get criteria & clauses from choosen provider (AQ, OData, ...)
+            string[] queryStringParts = queryString.GetParts();
+            ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider(profile.ProviderType);
             IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? criteriaProvider.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
-
-            IClauseProvider clauseProvider = Activator.CreateInstance(profile.ClauseProviderType) as IClauseProvider ?? new DefaultClauseProvider();
+            IClauseProvider clauseProvider = ProviderFactory.GetClauseProvider(profile.ProviderType);
             Clauses clauses = clauseProvider.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;

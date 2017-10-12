@@ -2,6 +2,7 @@
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Providers;
 using AutoQueryable.Providers.Default;
+using AutoQueryable.Providers.OData;
 
 namespace AutoQueryable.Providers
 {
@@ -14,9 +15,9 @@ namespace AutoQueryable.Providers
                 case ProviderType.Default:
                     return new DefaultClauseProvider();
                 case ProviderType.OData:
-                    return new DefaultClauseProvider(); // TODO
+                    return new ODataClauseProvider(); // TODO
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(providerType), providerType, null);
+                    return new DefaultClauseProvider();
             }
         }
         
@@ -29,7 +30,7 @@ namespace AutoQueryable.Providers
                 case ProviderType.OData:
                     return new DefaultCriteriaProvider(); // TODO
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(providerType), providerType, null);
+                    return new DefaultCriteriaProvider();
             }
         }
         
@@ -42,7 +43,20 @@ namespace AutoQueryable.Providers
                 case ProviderType.OData:
                     return new DefaultWrapperProvider(); // TODO
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(providerType), providerType, null);
+                    return new DefaultWrapperProvider();
+            }
+        }
+        
+        public static IColumnProvider GetColumnProvider(ProviderType providerType = ProviderType.Default)
+        {
+            switch (providerType)
+            {
+                case ProviderType.Default:
+                    return new DefaultColumnProvider();
+                case ProviderType.OData:
+                    return new ODataColumnProvider(); // TODO
+                default:
+                    return new DefaultColumnProvider();
             }
         }
     }

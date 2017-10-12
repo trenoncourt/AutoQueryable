@@ -49,10 +49,15 @@ namespace AutoQueryable.Providers.OData
 
         private static Clause GetClause(string q, string clauseAlias, ClauseType clauseType)
         {
-            string[] operands = Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase);
+            string res = Regex.Replace(
+                q,
+                Regex.Escape(clauseAlias),
+                "",
+                RegexOptions.IgnoreCase
+            );
             var criteria = new Clause
             {
-                Value = operands[1],
+                Value = res,
                 ClauseType = clauseType
             };
             return criteria;

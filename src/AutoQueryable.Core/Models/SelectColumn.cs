@@ -18,7 +18,7 @@ namespace AutoQueryable.Core.Models
 
         public string Name { get; set; }
 
-        public bool HasSubColumn => SubColumns.Any();
+        public bool HasSubColumn => SubColumns != null && SubColumns.Any();
 
         public ICollection<SelectColumn> SubColumns { get; set; }
 

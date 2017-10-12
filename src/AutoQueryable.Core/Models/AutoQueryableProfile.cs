@@ -35,6 +35,6 @@ namespace AutoQueryable.Core.Models
         
         public int? MaxDepth { get; set; }
 
-        public Type ClauseProviderType { get; set; }
+        public ProviderType ProviderType { get; set; }
     }
 }
