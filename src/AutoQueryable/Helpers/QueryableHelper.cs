@@ -27,9 +27,9 @@ namespace AutoQueryable.Helpers
             
             // Get criteria & clauses from choosen provider (AQ, OData, ...)
             string[] queryStringParts = queryString.GetParts();
-            ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider(profile.ProviderType);
+            ICriteriaProvider criteriaProvider = ProviderFactory.GetCriteriaProvider(profile?.ProviderType);
             IList<Criteria> criterias = profile.IsClauseAllowed(ClauseType.Filter) ? criteriaProvider.GetCriterias(entityType, queryStringParts, profile).ToList() : null;
-            IClauseProvider clauseProvider = ProviderFactory.GetClauseProvider(profile.ProviderType);
+            IClauseProvider clauseProvider = ProviderFactory.GetClauseProvider(profile?.ProviderType);
             Clauses clauses = clauseProvider.GetClauses(queryStringParts, profile);
 
             var countAllRows = false;

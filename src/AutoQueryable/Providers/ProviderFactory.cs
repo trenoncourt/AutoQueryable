@@ -8,7 +8,7 @@ namespace AutoQueryable.Providers
 {
     public class ProviderFactory
     {
-        public static IClauseProvider GetClauseProvider(ProviderType providerType = ProviderType.Default)
+        public static IClauseProvider GetClauseProvider(ProviderType? providerType = ProviderType.Default)
         {
             switch (providerType)
             {
@@ -21,7 +21,7 @@ namespace AutoQueryable.Providers
             }
         }
         
-        public static ICriteriaProvider GetCriteriaProvider(ProviderType providerType = ProviderType.Default)
+        public static ICriteriaProvider GetCriteriaProvider(ProviderType? providerType = ProviderType.Default)
         {
             switch (providerType)
             {
@@ -34,7 +34,7 @@ namespace AutoQueryable.Providers
             }
         }
         
-        public static IWrapperProvider GetWrapperProvider(ProviderType providerType = ProviderType.Default)
+        public static IWrapperProvider GetWrapperProvider(ProviderType? providerType = ProviderType.Default)
         {
             switch (providerType)
             {
@@ -47,7 +47,7 @@ namespace AutoQueryable.Providers
             }
         }
         
-        public static IColumnProvider GetColumnProvider(ProviderType providerType = ProviderType.Default)
+        public static IColumnProvider GetColumnProvider(ProviderType? providerType = ProviderType.Default)
         {
             switch (providerType)
             {

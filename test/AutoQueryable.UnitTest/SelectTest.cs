@@ -445,8 +445,10 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                Product product = context.Product.AutoQueryable("first=true");
-                Assert.IsTrue(product.ProductId == 1);
+                 var product = context.Product.AutoQueryable("first=true");
+                PropertyInfo[] properties = product.GetType().GetProperties();
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductId"));
+                Assert.AreEqual(1, properties.First(p => p.Name == "ProductId").GetValue(product));
             }
         }
 
@@ -455,8 +457,10 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                Product product = context.Product.AutoQueryable("last=true");
-                Assert.IsTrue(product.ProductId == DataInitializer.ProductSampleCount);
+                var product = context.Product.AutoQueryable("last=true");
+                PropertyInfo[] properties = product.GetType().GetProperties();
+
+                Assert.IsTrue(properties.First(p => p.Name == "ProductId").GetValue(product) == DataInitializer.ProductSampleCount);
             }
         }
 
@@ -467,8 +471,10 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
-                Product product = context.Product.AutoQueryable("first=true&orderbydesc=productid");
-                Assert.IsTrue(product.ProductId == DataInitializer.ProductSampleCount);
+                var product = context.Product.AutoQueryable("first=true&orderbydesc=productid");
+
+                PropertyInfo[] properties = product.GetType().GetProperties();
+                Assert.IsTrue(properties.First(p => p.Name == "ProductId").GetValue(product) == DataInitializer.ProductSampleCount);
             }
         }
 
@@ -522,7 +528,7 @@ namespace AutoQueryable.UnitTest
                     Name = p.Name
                 }).AutoQueryable("") as IQueryable<object>;
                 PropertyInfo[] properties = query.First().GetType().GetProperties();
-                Assert.AreEqual(2, properties.Count());
+                Assert.AreEqual(1, properties.Count());
 
                 Assert.IsTrue(properties.Any(p => p.Name == "Name"));
 

@@ -17,7 +17,7 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile.ProviderType);
+            IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile?.ProviderType);
             IEnumerable<SelectColumn> selectColumns = columnProvider.GetSelectableColumns(clauses, profile, entityType);
             
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
