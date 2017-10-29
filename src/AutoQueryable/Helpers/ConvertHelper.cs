@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Reflection;
 
 namespace AutoQueryable.Helpers
@@ -25,6 +26,9 @@ namespace AutoQueryable.Helpers
 
             if (Equals(type.GetTypeInfo(), typeof(Guid).GetTypeInfo()))
                 return Guid.Parse(value);
+
+            if (Equals(type.GetTypeInfo(), typeof(DateTime).GetTypeInfo()))
+                return DateTime.Parse(value.Replace(" ", "+"), null, DateTimeStyles.RoundtripKind);
 
             return System.Convert.ChangeType(value, type);
         }
