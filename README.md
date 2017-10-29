@@ -168,6 +168,13 @@ public class UsersController
 ```
 
 Roadmap :
+- Add Demo
+- Add more date filters in where clause eg: yearEquals
+- Add capability to use Group by
+- Add capability to set AutoQueryable options in headers
+- Add capability to choose to ignore case or not (case is ignored for now)
+- Add an option to not use dynamic objects (Use the type T provided by the IQueryable<T>)
+- Add Odata-v(x) & others as plugin (choose beetween AutoQueryable, Odata or others for query)
 - ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
 - ~~Add capability to include navidation properties (aka expand in OData)~~
 - ~~Add capability to select properties (columns in table)~~
@@ -189,14 +196,8 @@ Roadmap :
 - ~~Add maximum value on clauses (eg maximum top 999)~~
 - ~~Add Sortable/unsortable properties~~
 - ~~Add Allowed/Disallowed wrapper parts~~
-- Add Max depth
-- Add Demo
-- Add more date filters in where clause eg: yearEquals
-- Add capability to choose to ignore case or not (case is ignored for now)
-- Add capability to use Group by
-- Add capability to set AutoQueryable options in headers
-- Add an option to not use dynamic objects (Use the type T provided by the IQueryable<T>)
-- Add Odata-v(x) & GraphQL as plugin (choose beetween AutoQueryable, Odata or GraphQL for query)
+- ~~Add Max depth~~
+- ~~Add Datetime operations~~
 
 ## Buy me a beer
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/trenoncourt/5)
