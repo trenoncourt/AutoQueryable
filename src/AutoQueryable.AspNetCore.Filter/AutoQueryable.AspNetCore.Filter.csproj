@@ -3,7 +3,8 @@
   <PropertyGroup>
     <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</AssemblyTitle>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
+    <Version>1.3.0</Version>
     <Authors>Thibaut Renoncourt</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>AutoQueryable.AspNetCore.Filter</AssemblyName>
@@ -15,7 +16,6 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
