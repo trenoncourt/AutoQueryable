@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AutoQueryable.Models
+namespace AutoQueryable.Core.Models
 {
     public enum SelectInclusingType
     {
@@ -18,7 +18,7 @@ namespace AutoQueryable.Models
 
         public string Name { get; set; }
 
-        public bool HasSubColumn => SubColumns.Any();
+        public bool HasSubColumn => SubColumns != null && SubColumns.Any();
 
         public ICollection<SelectColumn> SubColumns { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using AutoQueryable.Core.Enums;
+﻿using System;
+using AutoQueryable.Core.Enums;
 
 namespace AutoQueryable.Core.Models
 {
@@ -33,5 +34,7 @@ namespace AutoQueryable.Core.Models
         public int? MaxToSkip { get; set; }
         
         public int? MaxDepth { get; set; }
+
+        public ProviderType ProviderType { get; set; } = ProviderType.Default;
     }
 }

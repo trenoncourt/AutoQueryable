@@ -13,11 +13,11 @@ namespace AutoQueryable.UnitTest
     {
         public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
         public static readonly int ProductSampleCount = 1000;
-        [AssemblyInitialize()] 
-        public static void InitializeSeed(TestContext testContext)
+        //[AssemblyInitialize()] 
+        public static void InitializeSeed(AutoQueryableContext context)
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
-            {
+            //using (AutoQueryableContext context = new AutoQueryableContext())
+            //{
                 if (context.Product.Any())
                 {
                     return;
@@ -81,11 +81,12 @@ namespace AutoQueryable.UnitTest
                                 UnitPrice = i + i,
                                 UnitPriceDiscount = i + i / 2
                             }
-                        }
+                        },
+                        ProductExtension = i % 2 == 0 ? new ProductExtension { Name = "ext" } : new ProductExtension { Name = "ext", IsDeleted = true }
                     });
                 }
                 context.SaveChanges();
-            }
+            //}
         }
     }
 }

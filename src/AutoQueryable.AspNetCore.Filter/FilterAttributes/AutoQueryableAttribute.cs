@@ -38,6 +38,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         public int? MaxToSkip { get; set; }
 
         public int? MaxDepth { get; set; }
+        
+        public ProviderType ProviderType { get; set; }
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
@@ -62,7 +64,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
                 DisAllowedWrapperPartType = DisAllowedWrapperPartType,
                 MaxToTake = MaxToTake,
                 MaxToSkip = MaxToSkip,
-                MaxDepth = MaxDepth
+                MaxDepth = MaxDepth,
+                ProviderType = ProviderType
             }));
         }
     }

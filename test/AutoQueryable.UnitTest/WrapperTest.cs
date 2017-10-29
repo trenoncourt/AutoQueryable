@@ -19,6 +19,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable("wrapwith=count") as object;
             }
         }
@@ -28,6 +29,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("wrapwith=total-count") as ExpandoObject;
                 var totalCount = query.TotalCount;
                 Assert.AreEqual(totalCount, DataInitializer.ProductSampleCount);
@@ -39,6 +41,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("top=20&wrapwith=next-link") as ExpandoObject;
                 string nextLink = query.NextLink;
                 Assert.IsTrue(nextLink.Contains("skip=20"));
@@ -50,6 +53,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("top=20&skip=20&wrapwith=next-link") as ExpandoObject;
                 string nextLink = query.NextLink;
                 Assert.IsTrue(nextLink.Contains("skip=40"));
@@ -61,6 +65,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 string nextLink = "top=20&wrapwith=next-link";
                 int i = 0;
                 while(!string.IsNullOrEmpty(nextLink))

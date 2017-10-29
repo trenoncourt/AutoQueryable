@@ -1,6 +1,6 @@
 using System;
 
-namespace AutoQueryable.Extensions
+namespace AutoQueryable.Core.Extensions
 {
     public static class StringExtensions
     {

@@ -28,5 +28,11 @@ namespace AutoQueryable.Core.Models
         public Clause Last { get; set; }
         
         public Clause WrapWith { get; set; }
+        
+        public Clause Filter { get; set; }
+        
+        public Clause Expand { get; set; }
+        
+        public Clause Search { get; set; }
     }
 }

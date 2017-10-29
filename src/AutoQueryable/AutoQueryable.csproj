@@ -26,5 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoQueryable.Core\AutoQueryable.Core.csproj" />
+    <ProjectReference Include="..\AutoQueryable.Providers.OData\AutoQueryable.Providers.OData.csproj" />
   </ItemGroup>
 </Project>
