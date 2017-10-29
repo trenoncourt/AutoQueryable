@@ -14,12 +14,18 @@ namespace AutoQueryable.UnitTest.Mock
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(consoleLoggerProvider);
             optionsBuilder.UseLoggerFactory(loggerFactory);
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder.UseInMemoryDatabase("test");
         }
-        
-        public virtual DbSet<Product> Product { get; set; }
-        public virtual DbSet<ProductCategory> ProductCategory { get; set; }
-        public virtual DbSet<ProductModel> ProductModel { get; set; }
-        public virtual DbSet<SalesOrderDetail> SalesOrderDetail { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<ProductExtension>().HasQueryFilter(b => !b.IsDeleted);
+        }
+
+
+        public DbSet<Product> Product { get; set; }
+        public DbSet<ProductCategory> ProductCategory { get; set; }
+        public DbSet<ProductModel> ProductModel { get; set; }
+        public DbSet<SalesOrderDetail> SalesOrderDetail { get; set; }
     }
 }

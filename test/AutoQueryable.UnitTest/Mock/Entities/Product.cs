@@ -29,6 +29,7 @@ namespace AutoQueryable.UnitTest.Mock.Entities
         public DateTime ModifiedDate { get; set; }
 
         public virtual ICollection<SalesOrderDetail> SalesOrderDetail { get; set; }
+        public virtual ProductExtension ProductExtension { get; set; }
         public virtual ProductCategory ProductCategory { get; set; }
         public virtual ProductModel ProductModel { get; set; }
     }

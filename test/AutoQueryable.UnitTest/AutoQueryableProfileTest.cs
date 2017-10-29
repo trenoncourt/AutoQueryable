@@ -18,6 +18,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=name&top=10", new AutoQueryableProfile
                 {
                     AllowedClauses = ClauseType.Select
@@ -39,6 +40,7 @@ namespace AutoQueryable.UnitTest
         {
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
+                DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile
                 {
                     AllowedClauses = ClauseType.Select | ClauseType.Top
