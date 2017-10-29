@@ -164,7 +164,65 @@ namespace AutoQueryable.UnitTest
                 var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId=1") as IEnumerable<dynamic>;
                 Assert.AreEqual(query.Count(), 1);
             }
-        } 
- 
+        }
+
+        [TestMethod]
+        public void DateEquals()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = (context.Product.AutoQueryable($"SellStartDate={DateTime.Today.AddHours(8*2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(query.Count(), 1);
+                var first = query.First();
+                int id = first.GetType().GetProperty("ProductId").GetValue(first);
+                Assert.IsTrue(id == 3);
+            }
+        }
+
+        [TestMethod]
+        public void DateLessThan()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = (context.Product.AutoQueryable($"SellStartDate<{DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(2, query.Count());
+            }
+        }
+
+        [TestMethod]
+        public void DateLessThanEquals()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = (context.Product.AutoQueryable($"SellStartDate<={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(3, query.Count());
+            }
+        }
+
+        [TestMethod]
+        public void DateGreaterThan()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = (context.Product.AutoQueryable($"SellStartDate>{DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(DataInitializer.ProductSampleCount - 3, query.Count());
+            }
+        }
+
+        [TestMethod]
+        public void DateGreaterThanEquals()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = (context.Product.AutoQueryable($"SellStartDate>={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                Assert.AreEqual(DataInitializer.ProductSampleCount - 2, query.Count());
+            }
+        }
+
     }
 }
