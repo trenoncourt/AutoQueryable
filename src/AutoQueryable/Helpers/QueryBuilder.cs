@@ -149,11 +149,11 @@ namespace AutoQueryable.Helpers
             var childProperty = parameter.Type.GetProperty(properties[0]);
             MemberExpression memberExpression = Expression.Property(parameter, childProperty);
             Expression orExpression = null;
-            foreach (var d in values)
+            foreach (var value in values)
             {
-                var tt = ConvertHelper.Convert(d, childProperty.PropertyType);
-                ConstantExpression val = Expression.Constant(tt, childProperty.PropertyType);
-                Expression newExpression = conditionType.ToBinaryExpression(memberExpression, val); //MakeLambda(parameter, conditionType.ToBinaryExpression(memberExpression, val));
+                var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType);
+                ConstantExpression val = Expression.Constant(convertedValue, childProperty.PropertyType);
+                Expression newExpression = conditionType.ToBinaryExpression(memberExpression, val);
 
                 if (orExpression == null)
                     orExpression = newExpression;
