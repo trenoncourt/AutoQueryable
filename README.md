@@ -163,6 +163,22 @@ public class UsersController : Controller
 ```
 *Note that Dto projection is the best way to limit selectable properties*
 
+## Use base type instead of dynamic types
+AQ uses dynamic types per default to ensure that the final flow will be as small as possible. In some cases you may not want to use dynamic types, there is a property for this:
+```c#
+[Route("api/[controller]")]
+public class UsersController : Controller
+{
+    [HttpGet]
+    [AutoQueryable(UseBaseType = true)]
+    public IQueryable<User> Get([FromServices] myDbContext dbContext)
+    {
+        return dbContext.User;
+    }
+}
+```
+*Note that final flow will include null and default values but you can escape them with serializer settings for exemple*
+
 ## Use AutoQueryable without attribute 
 If you don't want to use autoqueryable attribute you could use AQ directry in your code by passing it the querystring. 
 First install the Autoqueryable package
@@ -192,8 +208,8 @@ public class UsersController
 - Add capability to use Group by
 - Add capability to set AutoQueryable options in headers
 - Add capability to choose to ignore case or not (case is ignored for now)
-- Add an option to not use dynamic objects (Use the type T provided by the IQueryable<T>)
 - Add Odata-v(x) & others as plugin (choose beetween AutoQueryable, Odata or others for query)
+- ~~Add an option to not use dynamic objects (Use the type T provided by the IQueryable\<T>)~~
 - ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
 - ~~Add capability to include navidation properties (aka expand in OData)~~
 - ~~Add capability to select properties (columns in table)~~
