@@ -6,6 +6,7 @@ using AutoQueryable.Extensions;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using AutoQueryable.Sample.EfCore.Entities;
 
 namespace AutoQueryable.Sample.EfCore.Controllers
 {
@@ -20,7 +21,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <example>http://localhost:5000/api/products?select=name&top=50&skip=10</example>
         /// <param name="context"></param>
         /// <returns></returns>
-        [AutoQueryable]
+        [AutoQueryable(UseBaseType = true)]
         [HttpGet]
         public IQueryable Get([FromServices] AutoQueryableContext context)
         {

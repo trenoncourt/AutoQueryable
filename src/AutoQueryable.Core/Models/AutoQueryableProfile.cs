@@ -36,5 +36,7 @@ namespace AutoQueryable.Core.Models
         public int? MaxDepth { get; set; }
 
         public ProviderType ProviderType { get; set; } = ProviderType.Default;
+
+        public bool UseBaseType { get; set; }
     }
 }

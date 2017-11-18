@@ -22,7 +22,11 @@ namespace AutoQueryable.Helpers
             {
                 IColumnProvider columnProvider = ProviderFactory.GetColumnProvider();
                 IEnumerable<SelectColumn> selectColumns = EntityColumnHelper.GetSelectableColumns(profile, entityType);
-                return query.Select(SelectHelper.GetSelector<TEntity>(selectColumns));
+                if (profile.UseBaseType)
+                {
+                    return query.Select(SelectHelper.GetSelector<TEntity, TEntity>(selectColumns, profile));
+                }
+                return query.Select(SelectHelper.GetSelector<TEntity, object>(selectColumns, profile));
             }
             
             // Get criteria & clauses from choosen provider (AQ, OData, ...)
