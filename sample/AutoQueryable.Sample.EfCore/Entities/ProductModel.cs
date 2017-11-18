@@ -16,6 +16,6 @@ namespace AutoQueryable.Sample.EfCore.Entities
         public Guid Rowguid { get; set; }
         public DateTime ModifiedDate { get; set; }
 
-        public virtual ICollection<Product> Product { get; set; }
+        public virtual IEnumerable<Product> Product { get; set; }
     }
 }

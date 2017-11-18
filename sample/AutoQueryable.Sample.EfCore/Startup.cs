@@ -20,7 +20,6 @@ namespace AutoQueryable.Sample.EfCore
                 .AddJsonFormatters(settings =>
                 {
                     settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
 

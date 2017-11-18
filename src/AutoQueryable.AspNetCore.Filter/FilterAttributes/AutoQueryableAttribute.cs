@@ -41,6 +41,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         
         public ProviderType ProviderType { get; set; }
 
+        public bool UseBaseType { get; set; }
+
         public override void OnActionExecuted(ActionExecutedContext context)
         {
             dynamic query = ((ObjectResult)context.Result).Value;
@@ -65,7 +67,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
                 MaxToTake = MaxToTake,
                 MaxToSkip = MaxToSkip,
                 MaxDepth = MaxDepth,
-                ProviderType = ProviderType
+                ProviderType = ProviderType,
+                UseBaseType = UseBaseType
             }));
         }
     }

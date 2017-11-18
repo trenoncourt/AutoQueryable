@@ -29,7 +29,13 @@ namespace AutoQueryable.Helpers
 
         internal static Type GetRuntimeType<TEntity>(IDictionary<string, object> fields)
         {
-            string typeKey = GetTypeKey<TEntity>(fields);
+            return GetRuntimeType(typeof(TEntity), fields);
+        }
+
+        internal static Type GetRuntimeType(Type entityType, IDictionary<string, object> fields)
+        {
+
+            string typeKey = GetTypeKey(entityType, fields);
             if (!builtTypes.ContainsKey(typeKey))
             {
                 lock (moduleBuilder)
@@ -66,6 +72,11 @@ namespace AutoQueryable.Helpers
 
         private static string GetTypeKey<TEntity>(IEnumerable<KeyValuePair<string, object>> fields)
         {
+            return GetTypeKey(typeof(TEntity), fields);
+        }
+
+        private static string GetTypeKey(Type entityType, IEnumerable<KeyValuePair<string, object>> fields)
+        {
 
             var fieldsKey = fields.Aggregate(string.Empty, (current, field) =>
             {
@@ -79,7 +90,7 @@ namespace AutoQueryable.Helpers
                 }
                 return current;
             });
-            return typeof(TEntity).FullName + getHash(fieldsKey);
+            return entityType.FullName + getHash(fieldsKey);
         }
         private static string getHash(string text)
         {
@@ -96,18 +107,17 @@ namespace AutoQueryable.Helpers
 
     public static class SelectHelper
     {
-        public static Expression<Func<TEntity, object>> GetSelector<TEntity>(IEnumerable<SelectColumn> columns)
+        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(IEnumerable<SelectColumn> columns, AutoQueryableProfile profile)
         {
             Dictionary<string, Expression> memberExpressions = new Dictionary<string, Expression>();
 
             ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "p");
 
-            MemberInitExpression memberInit = InitType<TEntity>(columns, parameter);
-            return Expression.Lambda<Func<TEntity, object>>(memberInit, parameter);
-
+            MemberInitExpression memberInit = InitType<TEntity>(columns, parameter, profile);
+            return Expression.Lambda<Func<TEntity, TResult>>(memberInit, parameter);
         }
 
-        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, bool isLambdaBody = false)
+        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, AutoQueryableProfile profile, bool isLambdaBody = false)
         {
             bool isCollection = parent.Type.IsEnumerableButNotString();
             // If the current column has no sub column, return the final property.
@@ -133,7 +143,7 @@ namespace AutoQueryable.Helpers
                 if (ex.Type.IsEnumerableButNotString())
                 {
                     ParameterExpression param = ex.CreateParameterFromGenericType();
-                    Expression lambdaBody = GetMemberExpression<TEntity>(param, column, true);
+                    Expression lambdaBody = GetMemberExpression<TEntity>(param, column, profile, true);
                     return ex.CreateSelect(lambdaBody, param);
                 }
                 else
@@ -142,7 +152,7 @@ namespace AutoQueryable.Helpers
                 }
             }
 
-            return InitType<TEntity>(column.SubColumns, nextParent);
+            return InitType<TEntity>(column.SubColumns, nextParent, profile);
         }
 
         
@@ -167,20 +177,28 @@ namespace AutoQueryable.Helpers
             });
         }
 
-        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node)
+        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node, AutoQueryableProfile profile)
         {
             var expressions = new Dictionary<string, Expression>();
             foreach (SelectColumn subColumn in columns)
             {
-                Expression ex = GetMemberExpression<TEntity>(node, subColumn);
+                Expression ex = GetMemberExpression<TEntity>(node, subColumn, profile);
                 expressions.Add(subColumn.Name, ex);
             }
 
-            var properties = GetTypeProperties(expressions);
+            Type type = null;
+            if (profile.UseBaseType)
+            {
+                type = node.Type;
+            }
+            else
+            {
+                var properties = GetTypeProperties(expressions);
+                type = RuntimeTypeBuilder.GetRuntimeType(node.Type, properties);
+            }
+            NewExpression ctor = Expression.New(type);
 
-            Type dynamicType = RuntimeTypeBuilder.GetRuntimeType<TEntity>(properties);
-            NewExpression ctor = Expression.New(dynamicType);
-            return Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(dynamicType.GetProperty(p.Key), p.Value)));
+            return Expression.MemberInit(ctor, expressions.Select(p => Expression.Bind(type.GetProperty(p.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance), p.Value)));
         }
     }
 }

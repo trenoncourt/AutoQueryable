@@ -48,7 +48,14 @@ namespace AutoQueryable.Helpers
             }
             else
             {
-                queryProjection = query.Select(SelectHelper.GetSelector<T>(selectColumns));
+                if (profile.UseBaseType)
+                {
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile));
+                }
+                else
+                {
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
+                }
             }
 
             if (clauses.Skip != null)
