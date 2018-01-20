@@ -107,6 +107,8 @@ In a filter, comma separator is used for OR (eg: color=red,black is translated b
 *Note that filters works with primitive types, string, datetime & guid*
 
 ## Selection
+- Select all properties of level zero without relations: [/products?**select=_**](/products?**select=_)
+- Select all properties of level zero with relations: [/products?**select=\***](/products?**select=\*)
 - Select an object with all its value types: [/products?**select=productcategory**](/products?select=productcategory)
 - Select an object with all its values including navigation properties on the first level: [/products?**select=productcategory.\***](/products?select=productcategory.*)
 
