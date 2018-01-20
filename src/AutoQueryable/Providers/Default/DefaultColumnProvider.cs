@@ -21,6 +21,13 @@ namespace AutoQueryable.Providers.Default
             List<SelectColumn> allSelectColumns = new List<SelectColumn>();
             List<SelectColumn> selectColumns = new List<SelectColumn>();
             var selection = clauses.Select.Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+            var basePropertySelection = selection.Find(s => s == "_");
+            if (basePropertySelection != null)
+            {
+                selection.Remove(basePropertySelection);
+                selection.AddRange(GetSelectableColumns(profile, entityType).Where(c => !selection.Contains(c, StringComparer.OrdinalIgnoreCase)));
+            }
+
             var selectionWithColumnPath = new List<string[]>();
             foreach (string selectionItem in selection)
             {
