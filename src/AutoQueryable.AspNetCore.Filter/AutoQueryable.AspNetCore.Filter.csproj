@@ -3,8 +3,8 @@
   <PropertyGroup>
     <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</AssemblyTitle>
-    <VersionPrefix>1.4.0</VersionPrefix>
-    <Version>1.4.0</Version>
+    <VersionPrefix>1.5.0</VersionPrefix>
+    <Version>1.5.0</Version>
     <Authors>Thibaut Renoncourt</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>AutoQueryable.AspNetCore.Filter</AssemblyName>
@@ -19,12 +19,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="1.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.2" />
+    <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>
 
 </Project>
