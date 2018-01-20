@@ -27,6 +27,12 @@ namespace AutoQueryable.Providers.Default
                 selection.Remove(basePropertySelection);
                 selection.AddRange(GetSelectableColumns(profile, entityType).Where(c => !selection.Contains(c, StringComparer.OrdinalIgnoreCase)));
             }
+            var allPropertySelection = selection.Find(s => s == "*");
+            if (allPropertySelection != null)
+            {
+                selection.Remove(basePropertySelection);
+                selection.AddRange(GetSelectableColumns(profile, entityType, SelectInclusingType.IncludeAllProperties).Where(c => !selection.Contains(c, StringComparer.OrdinalIgnoreCase)));
+            }
 
             var selectionWithColumnPath = new List<string[]>();
             foreach (string selectionItem in selection)
