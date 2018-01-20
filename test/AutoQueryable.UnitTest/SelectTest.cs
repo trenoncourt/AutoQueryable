@@ -692,6 +692,73 @@ namespace AutoQueryable.UnitTest
                 Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
             }
         }
+
+        [TestMethod]
+        public void SelectAllPropertiesWithoutRelations()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable("select=_") as IQueryable<object>;
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+
+                Assert.AreEqual(17, properties.Count());
+
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductNumber"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Color"));
+                Assert.IsTrue(properties.Any(p => p.Name == "StandardCost"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ListPrice"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Size"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Weight"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductCategoryId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductModelId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SellStartDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SellEndDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "DiscontinuedDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ThumbNailPhoto"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ThumbnailPhotoFileName"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Rowguid"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ModifiedDate"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
+
+        [TestMethod]
+        public void SelectAllPropertiesWithOneRelation()
+        {
+            using (AutoQueryableContext context = new AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable("select=_,ProductModel") as IQueryable<object>;
+                PropertyInfo[] properties = query.First().GetType().GetProperties();
+
+                Assert.AreEqual(18, properties.Count());
+
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Name"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductNumber"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Color"));
+                Assert.IsTrue(properties.Any(p => p.Name == "StandardCost"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ListPrice"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Size"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Weight"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductCategoryId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductModelId"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SellStartDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "SellEndDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "DiscontinuedDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ThumbNailPhoto"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ThumbnailPhotoFileName"));
+                Assert.IsTrue(properties.Any(p => p.Name == "Rowguid"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ModifiedDate"));
+                Assert.IsTrue(properties.Any(p => p.Name == "ProductModel"));
+
+                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+            }
+        }
     }
 
 }
