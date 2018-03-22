@@ -41,7 +41,7 @@ namespace AutoQueryable.Helpers
                 query = query.OrderByDesc(orderDescColumns);
             }
 
-            IQueryable<object> queryProjection;
+            IQueryable<dynamic> queryProjection;
             if (clauses.Select == null && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
             {
                 queryProjection = query;
@@ -65,7 +65,15 @@ namespace AutoQueryable.Helpers
                 {
                     skip = profile.MaxToSkip.Value;
                 }
-                queryProjection = queryProjection.Skip(skip);
+
+                if (profile.UseBaseType)
+                {
+                    queryProjection = ((IQueryable<T>)queryProjection).Skip<T>(skip);
+                }
+                else
+                {
+                    queryProjection = queryProjection.Skip(skip);
+                }
             }
             if (clauses.Top != null)
             {
@@ -74,9 +82,17 @@ namespace AutoQueryable.Helpers
                 {
                     take = profile.MaxToTake.Value;
                 }
-                queryProjection = queryProjection.Take(take);
+
+                if (profile.UseBaseType)
+                {
+                    queryProjection = ((IQueryable<T>)queryProjection).Take(take);
+                }
+                else
+                {
+                    queryProjection = queryProjection.Take(take);
+                }
             }
-            else if (clauses.First != null)
+            if (clauses.First != null)
             {
                 return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
             }
