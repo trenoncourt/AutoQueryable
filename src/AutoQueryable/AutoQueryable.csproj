@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</AssemblyTitle>
-    <VersionPrefix>1.5.0</VersionPrefix>
+    <VersionPrefix>1.5.1</VersionPrefix>
     <Authors>Thibaut Renoncourt</Authors>
     <TargetFrameworks>netstandard1.3</TargetFrameworks>
     <AssemblyName>AutoQueryable</AssemblyName>
@@ -14,9 +14,9 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.5.0</Version>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.5.1</Version>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <FileVersion>1.5.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
