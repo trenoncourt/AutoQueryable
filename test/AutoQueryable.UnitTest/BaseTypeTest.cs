@@ -17,7 +17,7 @@ namespace AutoQueryable.UnitTest
             using (AutoQueryableContext context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("", new AutoQueryableProfile {UseBaseType = true});
+                var query = context.Product.AutoQueryable("?skip=1&take=1", new AutoQueryableProfile {UseBaseType = true});
                 IEnumerable<Product> pp = query as IEnumerable<Product>;
                 Assert.AreEqual(pp.Count(), DataInitializer.ProductSampleCount);
             }

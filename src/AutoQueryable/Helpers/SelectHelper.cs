@@ -194,7 +194,7 @@ namespace AutoQueryable.Helpers
             else
             {
                 var properties = GetTypeProperties(expressions);
-                type = RuntimeTypeBuilder.GetRuntimeType(node.Type, properties);
+                type = RuntimeTypeBuilder.GetRuntimeType(node.Type.Name + Guid.NewGuid(), properties);
             }
             NewExpression ctor = Expression.New(type);
 
