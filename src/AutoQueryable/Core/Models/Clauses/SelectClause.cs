@@ -10,7 +10,7 @@ namespace AutoQueryable.Core.Models.Clauses
     public class SelectClause : Clause
     {
         private const string BasePropertiesSelector = "_"; 
-        private const string AllPropertiesSelector = "_"; 
+        private const string AllPropertiesSelector = "*"; 
         private List<string> _rawSelection;
         
         public SelectClause(AutoQueryableContext context) : base(context)
@@ -40,66 +40,44 @@ namespace AutoQueryable.Core.Models.Clauses
             {
                 var parentType = Context.EntityType;
                 int? maxDepth = Context.Profile?.MaxDepth;
-                for (int i = 0; i < selectionColumnPath.Length; i++)
+                SelectColumn ParentColumn = null;
+                for (int depth = 0; depth < selectionColumnPath.Length; depth++)
                 {
-                    if (maxDepth.HasValue && i >= maxDepth.Value)
-                    {
-                        break;
-                    }
-                    string key = string.Join(".", selectionColumnPath.Take(i + 1)).ToLowerInvariant();
-
-                    var columnName = selectionColumnPath[i];
-                    var property = parentType.GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
+                    if (IsGreaterThenMaxDepth(depth)) break;
+                    
+                    string columnName = selectionColumnPath[depth];
+                    PropertyInfo property = parentType.GetProperty(columnName, BindingFlags.IgnoreCase);
+                    
+                    string key = string.Join(".", selectionColumnPath.Take(depth + 1)).ToLowerInvariant();
                     if (property == null)
                     {
-                        if (key.EndsWith(".*") && (!maxDepth.HasValue || (i < maxDepth - 1))) {
-                            SelectColumn inclusionColumn= allSelectColumns.FirstOrDefault(all => all.Key == key.Replace(".*",""));
-                            inclusionColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
+                        if (CanIncludeAll(key, depth)) {
+                            if (ParentColumn != null)
+                                ParentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
                         }
                         break;
                     }
-                    bool isCollection = property.PropertyType.IsEnumerableButNotString();
                     // Max depth & collection or object
-                    if (maxDepth.HasValue && (i >= maxDepth - 1) && (isCollection || property.PropertyType.IsCustomObjectType()))
-                    {
+                    if (IsGreaterThanMaxDepth(property, depth))
                         continue;
-                    }
-                    if (isCollection)
+                    parentType = property.PropertyType.GetParentType();
+                    
+                    if (allSelectColumns.Any(all => all.Key == key))
                     {
-                        parentType = property.PropertyType.GetGenericArguments().FirstOrDefault();
-                    }
-                    else
-                    {
-                        parentType = property.PropertyType;
-                    }
-                    SelectColumn column = allSelectColumns.FirstOrDefault(all => all.Key == key);
-                    if (column == null)
-                    {
-                        // pass non selectable properties
-                        if (profile?.SelectableProperties != null && !profile.SelectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
-                        {
+                        // pass non selectable & unselectable properties
+                        if (IsNotSelectableProperty(key) || IsUnselectableProperty(key))
                             continue;
-                        }
-                        // pass unselectable properties
-                        if (profile?.UnselectableProperties != null && profile.UnselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
-                        {
-                            continue;
-                        }
-                        column = new SelectColumn
-                        {
-                            Key = key,
-                            Name = columnName,
-                            SubColumns = new List<SelectColumn>(),
-                            Type = property.PropertyType
-                        };
+
+                        var column = new SelectColumn(columnName, key, property.PropertyType);
+                        
                         allSelectColumns.Add(column);
-                        if (i == 0)
+                        if (depth == 0)
                         {
                             selectColumns.Add(column);
                         }
                         else
                         {
-                            string parentKey = string.Join(".", selectionColumnPath.Take(i)).ToLowerInvariant();
+                            string parentKey = string.Join(".", selectionColumnPath.Take(depth)).ToLowerInvariant();
                             SelectColumn parentColumn = allSelectColumns.FirstOrDefault(all => all.Key == parentKey);
                             if (selection.Contains(parentKey + ".*", StringComparer.OrdinalIgnoreCase))
                             {
@@ -113,9 +91,39 @@ namespace AutoQueryable.Core.Models.Clauses
                             column.ParentColumn = parentColumn;
                             parentColumn.SubColumns.Add(column);
                         }
+
+                        ParentColumn = column;
                     }
                 }
             }
+        }
+
+        private bool IsGreaterThenMaxDepth(int depth)
+        {
+            return Context.Profile.MaxDepth.HasValue && depth > Context.Profile.MaxDepth.Value;
+        }
+
+        private bool IsGreaterThanMaxDepth(PropertyInfo property, int depth)
+        {
+            return IsGreaterThenMaxDepth(depth + 1) && (property.PropertyType.IsEnumerableButNotString() ||
+                                                        property.PropertyType.IsCustomObjectType());
+        }
+
+        private bool IsUnselectableProperty(string key)
+        {
+            return Context.Profile?.UnselectableProperties != null &&
+                   Context.Profile.UnselectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private bool IsNotSelectableProperty(string key)
+        {
+            return Context.Profile?.SelectableProperties != null &&
+                   !Context.Profile.SelectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public bool CanIncludeAll(string key, int depth)
+        {
+            return key.EndsWith($".{AllPropertiesSelector}") && !IsGreaterThenMaxDepth(depth + 1);
         }
 
         /// <summary>

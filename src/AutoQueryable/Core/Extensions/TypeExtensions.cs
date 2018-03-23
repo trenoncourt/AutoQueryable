@@ -29,6 +29,13 @@ namespace AutoQueryable.Core.Extensions
             return typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string);
         }
 
+        public static Type GetParentType(this Type type)
+        {
+            if (type.IsEnumerableButNotString())
+                return type.GetGenericArguments().FirstOrDefault();
+            return type;
+        }
+
         /// <summary>
         /// Check if a type own a property by a propertyname.
         /// </summary>

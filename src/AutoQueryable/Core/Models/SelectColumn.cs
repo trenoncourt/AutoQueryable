@@ -13,6 +13,14 @@ namespace AutoQueryable.Core.Models
     
     public class SelectColumn
     {
+        public SelectColumn(string name, string key, Type type, List<SelectColumn> subColumns = null)
+        {
+            Name = name;
+            Key = key;
+            Type = type;
+            SubColumns = subColumns ?? new List<SelectColumn>();
+        }
+        
         public string Key { get; set; }
         public Type Type;
         public SelectInclusingType InclusionType { get; set; }
