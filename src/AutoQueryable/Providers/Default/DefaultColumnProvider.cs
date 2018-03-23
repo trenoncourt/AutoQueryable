@@ -5,18 +5,19 @@ using System.Reflection;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Models.Clauses;
 using AutoQueryable.Core.Providers;
 
 namespace AutoQueryable.Providers.Default
 {
     public class DefaultColumnProvider : IColumnProvider
     {
-        public IEnumerable<SelectColumn> GetSelectableColumns(Clauses clauses, AutoQueryableProfile profile, Type entityType)
+        public IEnumerable<SelectColumn> GetSelectableColumns(AllClauses clauses, AutoQueryableProfile profile, Type entityType)
         {
             if (clauses.Select == null)
             {
                 IEnumerable<string> columns = GetSelectableColumns(profile, entityType);
-                clauses.Select = new Clause { ClauseType = ClauseType.Select, Value = string.Join(",", columns.ToArray()) };
+                clauses.Select = new SelectClause { Value = string.Join(",", columns.ToArray()) };
             }
             List<SelectColumn> allSelectColumns = new List<SelectColumn>();
             List<SelectColumn> selectColumns = new List<SelectColumn>();

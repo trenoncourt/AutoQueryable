@@ -2,7 +2,6 @@
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Providers;
 using AutoQueryable.Providers.Default;
-using AutoQueryable.Providers.OData;
 
 namespace AutoQueryable.Providers
 {
@@ -14,8 +13,6 @@ namespace AutoQueryable.Providers
             {
                 case ProviderType.Default:
                     return new DefaultClauseProvider();
-                case ProviderType.OData:
-                    return new ODataClauseProvider(); // TODO
                 default:
                     return new DefaultClauseProvider();
             }
@@ -27,8 +24,6 @@ namespace AutoQueryable.Providers
             {
                 case ProviderType.Default:
                     return new DefaultCriteriaProvider();
-                case ProviderType.OData:
-                    return new DefaultCriteriaProvider(); // TODO
                 default:
                     return new DefaultCriteriaProvider();
             }
@@ -40,8 +35,6 @@ namespace AutoQueryable.Providers
             {
                 case ProviderType.Default:
                     return new DefaultWrapperProvider();
-                case ProviderType.OData:
-                    return new DefaultWrapperProvider(); // TODO
                 default:
                     return new DefaultWrapperProvider();
             }
@@ -53,8 +46,6 @@ namespace AutoQueryable.Providers
             {
                 case ProviderType.Default:
                     return new DefaultColumnProvider();
-                case ProviderType.OData:
-                    return new ODataColumnProvider(); // TODO
                 default:
                     return new DefaultColumnProvider();
             }

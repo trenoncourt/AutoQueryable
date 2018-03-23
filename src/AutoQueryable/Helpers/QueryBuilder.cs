@@ -15,7 +15,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
             IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile?.ProviderType);
             IEnumerable<SelectColumn> selectColumns = columnProvider.GetSelectableColumns(clauses, profile, entityType);

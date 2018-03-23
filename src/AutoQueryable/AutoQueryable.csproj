@@ -25,7 +25,6 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoQueryable.Core\AutoQueryable.Core.csproj" />
-    <ProjectReference Include="..\AutoQueryable.Providers.OData\AutoQueryable.Providers.OData.csproj" />
+    <Folder Include="Core\Models\Clause" />
   </ItemGroup>
 </Project>

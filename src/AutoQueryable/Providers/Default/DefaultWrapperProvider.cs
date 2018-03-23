@@ -34,7 +34,7 @@ namespace AutoQueryable.Providers.Default
             }
         }
 
-        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, QueryResult queryResult, Clauses clauses, string queryString)
+        public static dynamic GetWrappedResult(IEnumerable<WrapperPartType> wrapperParts, QueryResult queryResult, AllClauses clauses, string queryString)
         {
             dynamic wrapper = new ExpandoObject();
             wrapper.Result = (queryResult.Result as IQueryable<object>).ToList();

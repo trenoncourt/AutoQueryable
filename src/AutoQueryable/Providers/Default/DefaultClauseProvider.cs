@@ -11,9 +11,9 @@ namespace AutoQueryable.Providers.Default
 {
     public class DefaultClauseProvider : IClauseProvider
     {
-        public Clauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile)
+        public AllClauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile)
         {
-            var clauses = new Clauses();
+            var clauses = new AllClauses();
             foreach (string q in queryStringParts)
             {
                 if (q.Contains(ClauseAlias.Select, StringComparison.OrdinalIgnoreCase) && profile.IsClauseAllowed(ClauseType.Select))
