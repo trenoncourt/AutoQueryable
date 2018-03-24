@@ -48,7 +48,7 @@ namespace AutoQueryable.Core.Models.Clauses
                     if (IsGreaterThenMaxDepth(depth)) break;
                     
                     string columnName = selectionColumnPath[depth];
-                    PropertyInfo property = parentColumn.Type.GetProperty(columnName, BindingFlags.IgnoreCase);
+                    PropertyInfo property = parentColumn.Type.GetTypeOrGenericType().GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
                     
                     string key = string.Join(".", selectionColumnPath.Take(depth + 1)).ToLowerInvariant();
                     if (property == null)
@@ -61,8 +61,13 @@ namespace AutoQueryable.Core.Models.Clauses
                     // Max depth & collection or object
                     if (IsGreaterThanMaxDepth(property, depth))
                         continue;
-                   
-                    if (allSelectColumns.Any(all => all.Key == key))
+
+                    SelectColumn currentColumn = allSelectColumns.FirstOrDefault(all => all.Key == key);
+                    if (currentColumn != null)
+                    {
+                        parentColumn = currentColumn;
+                    }
+                    else
                     {
                         // pass non selectable & unselectable properties
                         if (IsNotSelectableProperty(key) || IsUnselectableProperty(key))
@@ -89,7 +94,6 @@ namespace AutoQueryable.Core.Models.Clauses
                             column.ParentColumn = parentColumn;
                             parentColumn.SubColumns.Add(column);
                         }
-
                         parentColumn = column;
                     }
                 }
