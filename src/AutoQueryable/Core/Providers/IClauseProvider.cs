@@ -4,6 +4,6 @@ namespace AutoQueryable.Core.Providers
 {
     public interface IClauseProvider
     {
-        AllClauses GetClauses(string[] queryStringParts, AutoQueryableProfile profile);
+        AllClauses GetClauses(string[] queryStringParts, AutoQueryableContext context);
     }
 }

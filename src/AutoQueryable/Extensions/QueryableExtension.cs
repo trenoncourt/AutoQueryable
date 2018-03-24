@@ -12,8 +12,8 @@ namespace AutoQueryable.Extensions
         public static dynamic AutoQueryable<TEntity>(this IQueryable<TEntity> query, string queryString, AutoQueryableProfile profile = null) where TEntity : class
         {
             profile = profile ?? new AutoQueryableProfile();
-            Type entityType = typeof(TEntity);
-            return QueryableHelper.GetAutoQuery(queryString, entityType, query, profile);
+            var context = AutoQueryableContext.Create(query, queryString, profile);
+            return context.GetAutoQuery();
         }
 
         public static IQueryable<T> Call<T>(this IQueryable<T> source, string method, string propertyName)

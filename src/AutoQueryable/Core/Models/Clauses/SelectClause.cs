@@ -12,6 +12,8 @@ namespace AutoQueryable.Core.Models.Clauses
         private const string BasePropertiesSelector = "_"; 
         private const string AllPropertiesSelector = "*"; 
         private List<string> _rawSelection;
+
+        public ICollection<SelectColumn> SelectColumns { get; set; }
         
         public SelectClause(AutoQueryableContext context) : base(context)
         {
@@ -29,39 +31,37 @@ namespace AutoQueryable.Core.Models.Clauses
             
             List<string[]> selectionWithColumnPath = GetRawColumnPath(_rawSelection);
             
-            un(selectionWithColumnPath);
+            SelectColumns = un(selectionWithColumnPath);
+            
+            ProcessInclusingType(SelectColumns);
         }
 
-        private void un(List<string[]> selectionWithColumnPath)
+        private ICollection<SelectColumn> un(List<string[]> selectionWithColumnPath)
         {
             List<SelectColumn> allSelectColumns = new List<SelectColumn>();
             List<SelectColumn> selectColumns = new List<SelectColumn>();
             foreach (string[] selectionColumnPath in selectionWithColumnPath)
             {
-                var parentType = Context.EntityType;
-                int? maxDepth = Context.Profile?.MaxDepth;
-                SelectColumn ParentColumn = null;
+                SelectColumn parentColumn = new RootColumn(Context.EntityType);
                 for (int depth = 0; depth < selectionColumnPath.Length; depth++)
                 {
                     if (IsGreaterThenMaxDepth(depth)) break;
                     
                     string columnName = selectionColumnPath[depth];
-                    PropertyInfo property = parentType.GetProperty(columnName, BindingFlags.IgnoreCase);
+                    PropertyInfo property = parentColumn.Type.GetProperty(columnName, BindingFlags.IgnoreCase);
                     
                     string key = string.Join(".", selectionColumnPath.Take(depth + 1)).ToLowerInvariant();
                     if (property == null)
                     {
                         if (CanIncludeAll(key, depth)) {
-                            if (ParentColumn != null)
-                                ParentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
+                            parentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
                         }
                         break;
                     }
                     // Max depth & collection or object
                     if (IsGreaterThanMaxDepth(property, depth))
                         continue;
-                    parentType = property.PropertyType.GetParentType();
-                    
+                   
                     if (allSelectColumns.Any(all => all.Key == key))
                     {
                         // pass non selectable & unselectable properties
@@ -77,13 +77,11 @@ namespace AutoQueryable.Core.Models.Clauses
                         }
                         else
                         {
-                            string parentKey = string.Join(".", selectionColumnPath.Take(depth)).ToLowerInvariant();
-                            SelectColumn parentColumn = allSelectColumns.FirstOrDefault(all => all.Key == parentKey);
-                            if (selection.Contains(parentKey + ".*", StringComparer.OrdinalIgnoreCase))
+                            if (_rawSelection.Contains(parentColumn.Key + ".*", StringComparer.OrdinalIgnoreCase))
                             {
                                 parentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
                             }
-                            else if (selection.Contains(parentKey, StringComparer.OrdinalIgnoreCase))
+                            else if (_rawSelection.Contains(parentColumn.Key, StringComparer.OrdinalIgnoreCase))
                             {
                                 parentColumn.InclusionType = SelectInclusingType.IncludeBaseProperties;
                             }
@@ -92,9 +90,41 @@ namespace AutoQueryable.Core.Models.Clauses
                             parentColumn.SubColumns.Add(column);
                         }
 
-                        ParentColumn = column;
+                        parentColumn = column;
                     }
                 }
+            }
+
+            return selectColumns;
+        }
+        
+        private void ProcessInclusingType(IEnumerable<SelectColumn> selectColumns)
+        {
+            foreach (var selectColumn in selectColumns)
+            {
+                if (selectColumn.InclusionType != SelectInclusingType.Default)
+                {
+                    IEnumerable<string> selectableColumns = selectColumn.GetRawSelection(Context.Profile);
+                    foreach (string columnName in selectableColumns)
+                    {
+                        if (!selectColumn.SubColumns.Any(x => x.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var subColumnKey = selectColumn.Key + "." + columnName;
+                            
+                            var type = selectColumn.Type;
+                            if (selectColumn.Type.IsEnumerable())
+                            {
+                                type = selectColumn.Type.GetGenericArguments().FirstOrDefault();
+                            }
+
+                            var column = new SelectColumn(columnName, subColumnKey,
+                                type.GetProperties().Single(x => x.Name == columnName).PropertyType, selectColumn);
+                            selectColumn.SubColumns.Add(column);
+                        }
+
+                    }
+                }
+                ProcessInclusingType(selectColumn.SubColumns);
             }
         }
 

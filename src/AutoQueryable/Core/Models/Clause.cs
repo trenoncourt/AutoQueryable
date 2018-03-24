@@ -1,8 +1,9 @@
 ﻿using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models.Clauses;
 
 namespace AutoQueryable.Core.Models
 {
-    public abstract class Clause
+    public class Clause
     {
         protected readonly AutoQueryableContext Context;
 
@@ -15,12 +16,12 @@ namespace AutoQueryable.Core.Models
 
         public string Value { get; set; }
 
-        public abstract void Parse();
+        public virtual void Parse() {}
     }
 
     public class AllClauses
     {
-        public Clause Select { get; set; }
+        public SelectClause Select { get; set; }
         
         public Clause Top { get; set; }
         

@@ -14,7 +14,7 @@ namespace AutoQueryable.UnitTest
         [TestMethod]
         public void SelectAllProducts()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (Mock.AutoQueryableContext context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable("?skip=1&take=1", new AutoQueryableProfile {UseBaseType = true});

@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.Models.Abstractions;
 
 namespace AutoQueryable.Core.Models
 {
@@ -38,5 +39,27 @@ namespace AutoQueryable.Core.Models
         public ProviderType ProviderType { get; set; } = ProviderType.Default;
 
         public bool UseBaseType { get; set; }
+
+        public static AutoQueryableProfile From(IFilterProfile filterProfile)
+        {
+            return new AutoQueryableProfile
+            {
+                SelectableProperties = filterProfile.SelectableProperties,
+                UnselectableProperties = filterProfile.UnselectableProperties,
+                SortableProperties = filterProfile.SortableProperties,
+                UnSortableProperties = filterProfile.UnSortableProperties,
+                GroupableProperties = filterProfile.GroupableProperties,
+                UnGroupableProperties = filterProfile.UnGroupableProperties,
+                AllowedClauses = filterProfile.AllowedClauses,
+                DisAllowedClauses = filterProfile.DisAllowedClauses,
+                AllowedConditions = filterProfile.AllowedConditions,
+                DisAllowedConditions = filterProfile.DisAllowedConditions,
+                AllowedWrapperPartType = filterProfile.AllowedWrapperPartType,
+                DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType,
+                MaxToTake = filterProfile.MaxToTake,
+                MaxToSkip = filterProfile.MaxToSkip,
+                MaxDepth = filterProfile.MaxDepth
+            };
+        }
     }
 }

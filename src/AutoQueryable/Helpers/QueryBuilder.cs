@@ -17,9 +17,6 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile?.ProviderType);
-            IEnumerable<SelectColumn> selectColumns = columnProvider.GetSelectableColumns(clauses, profile, entityType);
-            
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
@@ -50,11 +47,11 @@ namespace AutoQueryable.Helpers
             {
                 if (profile.UseBaseType)
                 {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile));
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(clauses?.Select?.SelectColumns, profile));
                 }
                 else
                 {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(clauses?.Select?.SelectColumns, profile));
                 }
             }
 

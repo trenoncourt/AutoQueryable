@@ -39,16 +39,5 @@ namespace AutoQueryable.Providers
                     return new DefaultWrapperProvider();
             }
         }
-        
-        public static IColumnProvider GetColumnProvider(ProviderType? providerType = ProviderType.Default)
-        {
-            switch (providerType)
-            {
-                case ProviderType.Default:
-                    return new DefaultColumnProvider();
-                default:
-                    return new DefaultColumnProvider();
-            }
-        }
     }
 }

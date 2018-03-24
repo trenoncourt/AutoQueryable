@@ -29,7 +29,7 @@ namespace AutoQueryable.Core.Extensions
             return typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string);
         }
 
-        public static Type GetParentType(this Type type)
+        public static Type GetTypeOrGenericType(this Type type)
         {
             if (type.IsEnumerableButNotString())
                 return type.GetGenericArguments().FirstOrDefault();
@@ -112,6 +112,48 @@ namespace AutoQueryable.Core.Extensions
             if (profile?.UnselectableProperties != null)
             {
                 columns = columns?.Where(c => !profile.UnselectableProperties.Contains(c, StringComparer.OrdinalIgnoreCase));
+            }
+            
+            return columns?.ToList();
+        }
+        
+        public static ICollection<SelectColumn> GetSelectableColumns(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
+        {
+            IEnumerable<SelectColumn> columns = null;
+            bool isCollection = type.IsEnumerable();
+            if (isCollection)
+            {
+                type = type.GetGenericArguments().FirstOrDefault();
+            } 
+            // Get all properties without navigation properties.
+            if (selectInclusingType == SelectInclusingType.IncludeBaseProperties)
+            {
+                columns = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p =>
+                    (p.PropertyType.GetTypeInfo().IsGenericType && p.PropertyType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
+                    || (!p.PropertyType.GetTypeInfo().IsClass && !p.PropertyType.GetTypeInfo().IsGenericType)
+                    || p.PropertyType.GetTypeInfo().IsArray
+                    || p.PropertyType == typeof(string)
+                    )
+                    .Select(p => new SelectColumn(p.Name, p.Name, p.PropertyType));
+            }
+            // Get all properties.
+            else if (selectInclusingType == SelectInclusingType.IncludeAllProperties)
+            {
+                columns = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Select(p => new SelectColumn(p.Name, p.Name, p.PropertyType));
+            }
+
+            // Remove non selectable properties.
+            if (profile?.SelectableProperties != null)
+            {
+                columns = columns?.Where(c => profile.SelectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+            
+            // Remove unselectable properties.
+            if (profile?.UnselectableProperties != null)
+            {
+                columns = columns?.Where(c => !profile.UnselectableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
             
             return columns?.ToList();
