@@ -71,13 +71,15 @@ namespace AutoQueryable.Core.Extensions
 
         public static bool IsCustomObjectType(this Type type)
         {
-            return type.GetTypeInfo().IsClass && type != typeof(string);
+            if (typeof(IEnumerable).IsAssignableFrom(type) && !type.GetTypeInfo().IsGenericType)
+                return false;
+            return type.GetTypeOrGenericType().GetTypeInfo().IsClass && type != typeof(string);
         }
 
         public static IEnumerable<string> GetRawSelection(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
-            bool isCollection = type.IsEnumerable();
+            bool isCollection = type.IsEnumerableButNotString();
             Type genericType = type;
             if (isCollection)
             {

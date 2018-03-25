@@ -65,7 +65,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
 
                 var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
-                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Name"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Rowguid"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ModifiedDate"));
@@ -122,7 +122,7 @@ namespace AutoQueryable.UnitTest
                 Assert.IsTrue(properties.Any(p => p.Name == "productcategory"));
 
                 var productcategoryProperty = properties.FirstOrDefault(p => p.Name == "productcategory");
-                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "name"));
+                Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Name"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ProductCategoryId"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "Rowguid"));
                 Assert.IsTrue(productcategoryProperty.PropertyType.GetProperties().Any(x => x.Name == "ModifiedDate"));

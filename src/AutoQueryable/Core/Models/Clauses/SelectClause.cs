@@ -12,17 +12,19 @@ namespace AutoQueryable.Core.Models.Clauses
         private const string BasePropertiesSelector = "_"; 
         private const string AllPropertiesSelector = "*"; 
         private List<string> _rawSelection;
+        private readonly ICollection<SelectColumn> _allSelectColumns = new List<SelectColumn>();
 
-        public ICollection<SelectColumn> SelectColumns { get; set; }
-        
+        public ICollection<SelectColumn> SelectColumns { get; }
+
         public SelectClause(AutoQueryableContext context) : base(context)
         {
             ClauseType = ClauseType.Select;
+            SelectColumns = new List<SelectColumn>();
         }
-
-        public bool HasBasePropertiesSelector => _rawSelection.Any(s => s == BasePropertiesSelector);
-        public bool HasAllPropertiesSelector => _rawSelection.Any(s => s == AllPropertiesSelector);
-
+        
+        /// <summary>
+        /// Parse Select clause to get Select Columns tree
+        /// </summary>
         public override void Parse()
         {
             _rawSelection = GetRawSelection(Value);
@@ -31,15 +33,14 @@ namespace AutoQueryable.Core.Models.Clauses
             
             List<string[]> selectionWithColumnPath = GetRawColumnPath(_rawSelection);
             
-            SelectColumns = un(selectionWithColumnPath);
-            
-            ProcessInclusingType(SelectColumns);
+            ParseColumns(selectionWithColumnPath);
         }
 
-        private ICollection<SelectColumn> un(List<string[]> selectionWithColumnPath)
+        private bool HasBasePropertiesSelector => _rawSelection.Any(s => s == BasePropertiesSelector);
+        private bool HasAllPropertiesSelector => _rawSelection.Any(s => s == AllPropertiesSelector);
+
+        private void ParseColumns(List<string[]> selectionWithColumnPath)
         {
-            List<SelectColumn> allSelectColumns = new List<SelectColumn>();
-            List<SelectColumn> selectColumns = new List<SelectColumn>();
             foreach (string[] selectionColumnPath in selectionWithColumnPath)
             {
                 SelectColumn parentColumn = new RootColumn(Context.EntityType);
@@ -50,19 +51,11 @@ namespace AutoQueryable.Core.Models.Clauses
                     string columnName = selectionColumnPath[depth];
                     PropertyInfo property = parentColumn.Type.GetTypeOrGenericType().GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
                     
-                    string key = string.Join(".", selectionColumnPath.Take(depth + 1)).ToLowerInvariant();
-                    if (property == null)
-                    {
-                        if (CanIncludeAll(key, depth)) {
-                            parentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
-                        }
+                    if (property == null || IsGreaterThanMaxDepth(property, depth))
                         break;
-                    }
-                    // Max depth & collection or object
-                    if (IsGreaterThanMaxDepth(property, depth))
-                        continue;
 
-                    SelectColumn currentColumn = allSelectColumns.FirstOrDefault(all => all.Key == key);
+                    string key = string.Join(".", selectionColumnPath.Take(depth + 1)).ToLowerInvariant();
+                    SelectColumn currentColumn = _allSelectColumns.FirstOrDefault(all => all.Key == key);
                     if (currentColumn != null)
                     {
                         parentColumn = currentColumn;
@@ -74,61 +67,50 @@ namespace AutoQueryable.Core.Models.Clauses
                             continue;
 
                         var column = new SelectColumn(columnName, key, property.PropertyType);
-                        
-                        allSelectColumns.Add(column);
-                        if (depth == 0)
-                        {
-                            selectColumns.Add(column);
-                        }
-                        else
-                        {
-                            if (_rawSelection.Contains(parentColumn.Key + ".*", StringComparer.OrdinalIgnoreCase))
-                            {
-                                parentColumn.InclusionType = SelectInclusingType.IncludeAllProperties;
-                            }
-                            else if (_rawSelection.Contains(parentColumn.Key, StringComparer.OrdinalIgnoreCase))
-                            {
-                                parentColumn.InclusionType = SelectInclusingType.IncludeBaseProperties;
-                            }
 
-                            column.ParentColumn = parentColumn;
-                            parentColumn.SubColumns.Add(column);
+                        if (_rawSelection.Contains(column.Key + ".*", StringComparer.OrdinalIgnoreCase))
+                        {
+                            column.InclusionType = SelectInclusingType.IncludeAllProperties;
+                            ProcessInclusingType(column);
                         }
+                        else if (property.PropertyType.IsCustomObjectType() && _rawSelection.Contains(column.Key, StringComparer.OrdinalIgnoreCase))
+                        {
+                            column.InclusionType = SelectInclusingType.IncludeBaseProperties;
+                            ProcessInclusingType(column);
+                        }
+                        _allSelectColumns.Add(column);
+                        if (depth == 0)
+                            SelectColumns.Add(column);
+
+                        column.ParentColumn = parentColumn;
+                        parentColumn.SubColumns.Add(column);
                         parentColumn = column;
                     }
                 }
             }
-
-            return selectColumns;
         }
-        
-        private void ProcessInclusingType(IEnumerable<SelectColumn> selectColumns)
+
+        private void ProcessInclusingType(SelectColumn selectColumn)
         {
-            foreach (var selectColumn in selectColumns)
+            IEnumerable<string> selectableColumns = selectColumn.GetRawSelection(Context.Profile);
+            foreach (string columnName in selectableColumns)
             {
-                if (selectColumn.InclusionType != SelectInclusingType.Default)
+                if (!selectColumn.SubColumns.Any(x => x.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    IEnumerable<string> selectableColumns = selectColumn.GetRawSelection(Context.Profile);
-                    foreach (string columnName in selectableColumns)
+                    var subColumnKey = (selectColumn.Key + "." + columnName).ToLowerInvariant();
+
+                    var type = selectColumn.Type;
+                    if (selectColumn.Type.IsEnumerable())
                     {
-                        if (!selectColumn.SubColumns.Any(x => x.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            var subColumnKey = selectColumn.Key + "." + columnName;
-                            
-                            var type = selectColumn.Type;
-                            if (selectColumn.Type.IsEnumerable())
-                            {
-                                type = selectColumn.Type.GetGenericArguments().FirstOrDefault();
-                            }
-
-                            var column = new SelectColumn(columnName, subColumnKey,
-                                type.GetProperties().Single(x => x.Name == columnName).PropertyType, selectColumn);
-                            selectColumn.SubColumns.Add(column);
-                        }
-
+                        type = selectColumn.Type.GetGenericArguments().FirstOrDefault();
                     }
+
+                    var column = new SelectColumn(columnName, subColumnKey,
+                        type.GetProperties().Single(x => x.Name == columnName).PropertyType, selectColumn);
+                    selectColumn.SubColumns.Add(column);
+                    _allSelectColumns.Add(column);
                 }
-                ProcessInclusingType(selectColumn.SubColumns);
+
             }
         }
 
@@ -204,8 +186,9 @@ namespace AutoQueryable.Core.Models.Clauses
         {
             if (HasBasePropertiesSelector)
             {
+                IEnumerable<string> selection = Context.EntityType.GetRawSelection(Context.Profile).Where(c => !_rawSelection.Contains(c, StringComparer.OrdinalIgnoreCase));
                 _rawSelection.Remove(BasePropertiesSelector);
-                _rawSelection.AddRange(Context.EntityType.GetRawSelection(Context.Profile).Where(c => !_rawSelection.Contains(c, StringComparer.OrdinalIgnoreCase)));
+                AddBaseColumns(selection);
             }
         }
 
@@ -213,8 +196,25 @@ namespace AutoQueryable.Core.Models.Clauses
         {
             if (HasAllPropertiesSelector)
             {
+                IEnumerable<string> selection = Context.EntityType.GetRawSelection(Context.Profile, SelectInclusingType.IncludeAllProperties).Where(c => !_rawSelection.Contains(c, StringComparer.OrdinalIgnoreCase));
                 _rawSelection.Remove(AllPropertiesSelector);
-                _rawSelection.AddRange(Context.EntityType.GetRawSelection(Context.Profile, SelectInclusingType.IncludeAllProperties).Where(c => !_rawSelection.Contains(c, StringComparer.OrdinalIgnoreCase)));
+                AddBaseColumns(selection);
+            }
+        }
+
+        private void AddBaseColumns(IEnumerable<string> selection)
+        {
+            foreach (var columnName in selection)
+            {
+                PropertyInfo property = Context.EntityType.GetTypeOrGenericType().GetProperties().FirstOrDefault(x => x.Name.ToLowerInvariant() == columnName.ToLowerInvariant());
+
+                if (property == null || IsGreaterThanMaxDepth(property, 0))
+                    continue;
+
+                var column = new SelectColumn(columnName, columnName, property.PropertyType);
+                _allSelectColumns.Add(column);
+                SelectColumns.Add(column);
+
             }
         }
     }
