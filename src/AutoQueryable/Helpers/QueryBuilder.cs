@@ -5,11 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Core.Providers;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
-using AutoQueryable.Providers;
 
 namespace AutoQueryable.Helpers
 {

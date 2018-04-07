@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using AutoQueryable.Core.Aliases;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Models;
-using AutoQueryable.Providers.Default.Aliases;
 
 namespace AutoQueryable.Core.Models.Clauses
 {

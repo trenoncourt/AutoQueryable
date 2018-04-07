@@ -4,15 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using AutoQueryable.Core.Aliases;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models.Clauses;
-using AutoQueryable.Core.Providers;
 using AutoQueryable.Helpers;
 using AutoQueryable.Models;
-using AutoQueryable.Providers;
-using AutoQueryable.Providers.Default;
-using AutoQueryable.Providers.Default.Aliases;
 
 namespace AutoQueryable.Core.Models
 {

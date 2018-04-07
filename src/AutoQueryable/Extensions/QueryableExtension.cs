@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Helpers;
 
 namespace AutoQueryable.Extensions
 {

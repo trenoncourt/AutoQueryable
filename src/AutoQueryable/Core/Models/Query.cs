@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AutoQueryable.Core.Models
+﻿namespace AutoQueryable.Core.Models
 {
     public class Query
     {

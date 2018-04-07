@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using AutoQueryable.Core.Extensions;
-using AutoQueryable.Core.Models;
-
-namespace AutoQueryable.Core.Helpers
+﻿namespace AutoQueryable.Core.Helpers
 {
 //    public class EntityColumnHelper
 //    {

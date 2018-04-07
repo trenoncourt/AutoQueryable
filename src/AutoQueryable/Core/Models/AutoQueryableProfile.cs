@@ -1,5 +1,4 @@
-﻿using System;
-using AutoQueryable.Core.Enums;
+﻿using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models.Abstractions;
 
 namespace AutoQueryable.Core.Models
