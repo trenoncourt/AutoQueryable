@@ -16,7 +16,7 @@ namespace AutoQueryable.UnitTest
         [TestMethod]
         public void AllowOnlyOneClause()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (Mock.AutoQueryableContext context = new UnitTest.Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=name&top=10", new AutoQueryableProfile
@@ -38,7 +38,7 @@ namespace AutoQueryable.UnitTest
         [TestMethod]
         public void AllowMultipleClauses()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (Mock.AutoQueryableContext context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile

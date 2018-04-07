@@ -1,4 +1,4 @@
-﻿namespace AutoQueryable.Providers.Default.Aliases
+﻿namespace AutoQueryable.Core.Aliases
 {
     public class ClauseAlias
     {

@@ -24,18 +24,18 @@ namespace AutoQueryable.Sample.EfCore
                 });
 
             services.AddEntityFramework()
-                .AddDbContext<AutoQueryableContext>(options => options.UseInMemoryDatabase());
+                .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase());
         }
         
         public void Configure(IApplicationBuilder app)
         {
-            var context = app.ApplicationServices.GetService<AutoQueryableContext>();
+            var context = app.ApplicationServices.GetService<AutoQueryableDbContext>();
             Seed(context);
 
             app.UseMvc();
         }
 
-        private void Seed(AutoQueryableContext context)
+        private void Seed(AutoQueryableDbContext context)
         {
             var fourthCategory = new ProductCategory
             {

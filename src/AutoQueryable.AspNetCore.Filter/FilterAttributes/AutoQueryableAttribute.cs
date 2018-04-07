@@ -1,13 +1,14 @@
 ﻿using System;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Models.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using AutoQueryable.Helpers;
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
-    public class AutoQueryableAttribute : ActionFilterAttribute
+    public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
         public string[] SelectableProperties { get; set; }
 
@@ -21,24 +22,30 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 
         public string[] UnGroupableProperties { get; set; }
 
-        public ClauseType? AllowedClauses { get; set; }
+        public ClauseType AllowedClauses { get; set; }
 
-        public ClauseType? DisAllowedClauses { get; set; }
+        public ClauseType DisAllowedClauses { get; set; }
 
-        public ConditionType? AllowedConditions { get; set; }
+        public ConditionType AllowedConditions { get; set; }
 
-        public ConditionType? DisAllowedConditions { get; set; }
+        public ConditionType DisAllowedConditions { get; set; }
 
-        public WrapperPartType? AllowedWrapperPartType { get; set; }
+        public WrapperPartType AllowedWrapperPartType { get; set; }
 
-        public WrapperPartType? DisAllowedWrapperPartType { get; set; }
+        public WrapperPartType DisAllowedWrapperPartType { get; set; }
 
-        public int? MaxToTake { get; set; }
-
-        public int? MaxToSkip { get; set; }
-
-        public int? MaxDepth { get; set; }
+        public int MaxToTake { get; set; }
         
+        public int DefaultToTake { get; set; }
+
+        public int MaxToSkip { get; set; }
+
+        public int MaxDepth { get; set; }
+        
+        public string DefaultOrderBy { get; set; }
+        
+        public string DefaultOrderByDesc { get; set; }
+
         public ProviderType ProviderType { get; set; }
 
         public bool UseBaseType { get; set; }
@@ -47,29 +54,11 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         {
             dynamic query = ((ObjectResult)context.Result).Value;
             if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-            Type entityType = query.GetType().GenericTypeArguments[0];
-
-            string queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;
-            context.Result = new OkObjectResult(QueryableHelper.GetAutoQuery(queryString, entityType, query, new AutoQueryableProfile
-            {
-                SelectableProperties = SelectableProperties,
-                UnselectableProperties = UnselectableProperties,
-                SortableProperties = SortableProperties,
-                UnSortableProperties = UnSortableProperties,
-                GroupableProperties = GroupableProperties,
-                UnGroupableProperties = UnGroupableProperties,
-                AllowedClauses = AllowedClauses,
-                DisAllowedClauses = DisAllowedClauses,
-                AllowedConditions = AllowedConditions,
-                DisAllowedConditions = DisAllowedConditions,
-                AllowedWrapperPartType = AllowedWrapperPartType,
-                DisAllowedWrapperPartType = DisAllowedWrapperPartType,
-                MaxToTake = MaxToTake,
-                MaxToSkip = MaxToSkip,
-                MaxDepth = MaxDepth,
-                ProviderType = ProviderType,
-                UseBaseType = UseBaseType
-            }));
+                
+            string queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;;
+            AutoQueryableContext autoQueryableContext =
+                AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
+            context.Result = new OkObjectResult(autoQueryableContext.GetAutoQuery());
         }
     }
 }
