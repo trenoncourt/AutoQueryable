@@ -5,21 +5,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Core.Providers;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
-using AutoQueryable.Providers;
 
 namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, Clauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, ICollection<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IColumnProvider columnProvider = ProviderFactory.GetColumnProvider(profile?.ProviderType);
-            IEnumerable<SelectColumn> selectColumns = columnProvider.GetSelectableColumns(clauses, profile, entityType);
-            
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
@@ -50,11 +45,11 @@ namespace AutoQueryable.Helpers
             {
                 if (profile.UseBaseType)
                 {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile));
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(clauses?.Select?.SelectColumns, profile));
                 }
                 else
                 {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
+                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(clauses?.Select?.SelectColumns, profile));
                 }
             }
 
@@ -186,7 +181,7 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private static IQueryable<T> Where<T>(this IQueryable<T> source, IList<Criteria> criterias)
+        private static IQueryable<T> Where<T>(this IQueryable<T> source, ICollection<Criteria> criterias)
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;

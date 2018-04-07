@@ -24,7 +24,9 @@ namespace AutoQueryable.Nancy.Filter
                 {
                     using (var writer = new StreamWriter(stream))
                     {
-                        var result = QueryableHelper.GetAutoQuery(queryString, entityType, query, profile);
+                        profile = profile ?? new AutoQueryableProfile();
+                        var autoQueryableContext = AutoQueryableContext.Create(query, queryString, profile);
+                        var result = autoQueryableContext.GetAutoQuery();
                         writer.Write(JsonConvert.SerializeObject(result));
                     }
                 };

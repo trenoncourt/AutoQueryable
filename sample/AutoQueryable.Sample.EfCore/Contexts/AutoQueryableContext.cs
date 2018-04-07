@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AutoQueryable.Sample.EfCore.Contexts
 {
-    public class AutoQueryableContext : DbContext
+    public class AutoQueryableDbContext : DbContext
     {
-        public AutoQueryableContext(DbContextOptions<AutoQueryableContext> options)
+        public AutoQueryableDbContext(DbContextOptions<AutoQueryableDbContext> options)
             : base(options)
         {
             

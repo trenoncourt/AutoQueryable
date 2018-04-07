@@ -19,7 +19,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <returns></returns>
         [AutoQueryable(ProviderType = ProviderType.OData)]
         [HttpGet]
-        public IQueryable Get([FromServices] AutoQueryableContext context)
+        public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
             return context.Product;
         }

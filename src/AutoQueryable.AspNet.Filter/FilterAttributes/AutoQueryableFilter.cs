@@ -4,11 +4,12 @@ using System.Net.Http.Formatting;
 using System.Web.Http.Filters;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Models.Abstractions;
 using AutoQueryable.Helpers;
 
 namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {
-    public class AutoQueryableAttribute : ActionFilterAttribute
+    public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
         public string[] SelectableProperties { get; set; }
 
@@ -48,25 +49,11 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
             {
                 dynamic query = content.Value;
                 if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-                Type entityType = query.GetType().GenericTypeArguments[0];
+                
                 string queryString = context.Request.RequestUri.Query;
-                var result = QueryableHelper.GetAutoQuery(queryString, entityType, query, new AutoQueryableProfile {
-                    SelectableProperties = SelectableProperties,
-                    UnselectableProperties = UnselectableProperties,
-                    SortableProperties = SortableProperties,
-                    UnSortableProperties = UnSortableProperties,
-                    GroupableProperties = GroupableProperties,
-                    UnGroupableProperties = UnGroupableProperties,
-                    AllowedClauses = AllowedClauses,
-                    DisAllowedClauses = DisAllowedClauses,
-                    AllowedConditions = AllowedConditions,
-                    DisAllowedConditions = DisAllowedConditions,
-                    AllowedWrapperPartType = AllowedWrapperPartType,
-                    DisAllowedWrapperPartType = DisAllowedWrapperPartType,
-                    MaxToTake = MaxToTake,
-                    MaxToSkip = MaxToSkip,
-                    MaxDepth = MaxDepth
-                });
+                AutoQueryableContext autoQueryableContext =
+                    AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
+                var result = autoQueryableContext.GetAutoQuery();
                 context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
             }
         }

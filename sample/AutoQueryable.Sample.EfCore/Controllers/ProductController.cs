@@ -23,7 +23,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <returns></returns>
         [AutoQueryable(UseBaseType = true)]
         [HttpGet]
-        public IQueryable Get([FromServices] AutoQueryableContext context)
+        public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
             return context.Product;
         }
@@ -36,7 +36,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <returns></returns>
         [AutoQueryable]
         [HttpGet("with_dto_projection")]
-        public IQueryable GetWithDtoProjection([FromServices] AutoQueryableContext context)
+        public IQueryable GetWithDtoProjection([FromServices] AutoQueryableDbContext context)
         {
             return context.Product.Select(p => new ProductDto
             {
@@ -53,7 +53,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <param name="context"></param>
         /// <returns></returns>
         [HttpGet("disallow")]
-        public dynamic GetWithNotAllowedClauses([FromServices] AutoQueryableContext context)
+        public dynamic GetWithNotAllowedClauses([FromServices] AutoQueryableDbContext context)
         {
             return context.Product.AutoQueryable(Request.QueryString.Value,
                 new AutoQueryableProfile {
