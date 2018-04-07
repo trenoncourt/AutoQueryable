@@ -5,6 +5,7 @@ namespace AutoQueryable.Core.Enums
     [Flags]
     public enum ConditionType : short
     {
+        None = 0,
         Equal = 1 << 1,
         NotEqual = 1 << 2,
         Less = 1 << 3,

@@ -35,8 +35,6 @@ namespace AutoQueryable.Core.Models
         
         public int? MaxDepth { get; set; }
 
-        public ProviderType ProviderType { get; set; } = ProviderType.Default;
-
         public bool UseBaseType { get; set; }
 
         public static AutoQueryableProfile From(IFilterProfile filterProfile)
@@ -49,15 +47,15 @@ namespace AutoQueryable.Core.Models
                 UnSortableProperties = filterProfile.UnSortableProperties,
                 GroupableProperties = filterProfile.GroupableProperties,
                 UnGroupableProperties = filterProfile.UnGroupableProperties,
-                AllowedClauses = filterProfile.AllowedClauses,
-                DisAllowedClauses = filterProfile.DisAllowedClauses,
-                AllowedConditions = filterProfile.AllowedConditions,
-                DisAllowedConditions = filterProfile.DisAllowedConditions,
-                AllowedWrapperPartType = filterProfile.AllowedWrapperPartType,
-                DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType,
-                MaxToTake = filterProfile.MaxToTake,
-                MaxToSkip = filterProfile.MaxToSkip,
-                MaxDepth = filterProfile.MaxDepth
+                AllowedClauses = filterProfile.AllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.AllowedClauses,
+                DisAllowedClauses = filterProfile.DisAllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.DisAllowedClauses,
+                AllowedConditions = filterProfile.AllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.AllowedConditions,
+                DisAllowedConditions = filterProfile.DisAllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.DisAllowedConditions,
+                AllowedWrapperPartType = filterProfile.AllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.AllowedWrapperPartType,
+                DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.DisAllowedWrapperPartType,
+                MaxToTake = filterProfile.MaxToTake == 0 ? null : (int?)filterProfile.MaxToTake,
+                MaxToSkip = filterProfile.MaxToSkip == 0 ? null : (int?)filterProfile.MaxToSkip,
+                MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
             };
         }
     }

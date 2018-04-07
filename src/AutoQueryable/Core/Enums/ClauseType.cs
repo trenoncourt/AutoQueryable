@@ -5,6 +5,7 @@ namespace AutoQueryable.Core.Enums
     [Flags]
     public enum ClauseType : short
     {
+        None = 0,
         Select = 1 << 1,
         Top = 1 << 2,
         Skip = 1 << 3,
