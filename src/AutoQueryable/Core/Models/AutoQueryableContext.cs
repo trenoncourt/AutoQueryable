@@ -37,7 +37,7 @@ namespace AutoQueryable.Core.Models
             return new AutoQueryableContext<TEntity>
             {
                 Query = query,
-                QueryString = Uri.UnescapeDataString(queryString),
+                QueryString = Uri.UnescapeDataString(queryString ?? ""),
                 EntityType = entityType,
                 Profile = profile
             };
@@ -220,6 +220,11 @@ namespace AutoQueryable.Core.Models
         private dynamic GetDefaultSelectableQuery()
         {
             ICollection<SelectColumn> selectColumns = EntityType.GetSelectableColumns(Profile);
+            
+            if (Profile.MaxToTake.HasValue)
+            {
+                Query = Query.Take(Profile.MaxToTake.Value);
+            }
             if (Profile.UseBaseType)
             {
                 return Query.Select(SelectHelper.GetSelector<TEntity, TEntity>(selectColumns, Profile));
