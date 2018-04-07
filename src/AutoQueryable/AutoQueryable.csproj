@@ -24,7 +24,4 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\Models\Clause" />
-  </ItemGroup>
 </Project>

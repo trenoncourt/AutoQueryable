@@ -15,29 +15,27 @@ namespace AutoQueryable.Core.Models
         public ClauseType ClauseType { get; set; }
 
         public string Value { get; set; }
-
-        public virtual void Parse() {}
     }
 
     public class AllClauses
     {
         public SelectClause Select { get; set; }
         
-        public Clause Top { get; set; }
+        public TopClause Top { get; set; }
         
-        public Clause Skip { get; set; }
+        public SkipClause Skip { get; set; }
         
-        public Clause OrderBy { get; set; }
+        public OrderByClause OrderBy { get; set; }
         
-        public Clause OrderByDesc { get; set; }
+        public OrderByDescClause OrderByDesc { get; set; }
         
-        public Clause GroupBy { get; set; }
+        public GroupByClause GroupBy { get; set; }
         
-        public Clause First { get; set; }
+        public FirstClause First { get; set; }
         
-        public Clause Last { get; set; }
+        public LastClause Last { get; set; }
         
-        public Clause WrapWith { get; set; }
+        public WrapWithClause WrapWith { get; set; }
         
         public Clause Filter { get; set; }
         

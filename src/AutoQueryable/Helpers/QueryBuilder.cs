@@ -15,7 +15,7 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, IList<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
+        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, ICollection<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
             IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
             IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
@@ -183,7 +183,7 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private static IQueryable<T> Where<T>(this IQueryable<T> source, IList<Criteria> criterias)
+        private static IQueryable<T> Where<T>(this IQueryable<T> source, ICollection<Criteria> criterias)
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;

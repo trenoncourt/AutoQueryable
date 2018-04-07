@@ -25,7 +25,7 @@ namespace AutoQueryable.Core.Models.Clauses
         /// <summary>
         /// Parse Select clause to get Select Columns tree
         /// </summary>
-        public override void Parse()
+        public void Parse()
         {
             _rawSelection = GetRawSelection(Value);
             ParseBasePropertiesSelection();
