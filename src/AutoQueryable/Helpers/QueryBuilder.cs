@@ -87,6 +87,28 @@ namespace AutoQueryable.Helpers
                     queryProjection = queryProjection.Take(take);
                 }
             }
+            else if (profile.DefaultToTake.HasValue)
+            {
+                if (profile.UseBaseType)
+                {
+                    queryProjection = ((IQueryable<T>)queryProjection).Take(profile.DefaultToTake.Value);
+                }
+                else
+                {
+                    queryProjection = queryProjection.Take(profile.DefaultToTake.Value);
+                }
+            }
+            else if (profile.MaxToTake.HasValue)
+            {
+                if (profile.UseBaseType)
+                {
+                    queryProjection = ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value);
+                }
+                else
+                {
+                    queryProjection = queryProjection.Take(profile.MaxToTake.Value);
+                }
+            }
             if (clauses.First != null)
             {
                 return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };

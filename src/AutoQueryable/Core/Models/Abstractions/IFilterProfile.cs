@@ -29,6 +29,8 @@ namespace AutoQueryable.Core.Models.Abstractions
         WrapperPartType DisAllowedWrapperPartType { get; set; }
 
         int MaxToTake { get; set; }
+        
+        int DefaultToTake { get; set; }
 
         int MaxToSkip { get; set; }
 

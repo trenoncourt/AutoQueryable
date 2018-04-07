@@ -36,6 +36,8 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
         public WrapperPartType DisAllowedWrapperPartType { get; set; }
 
         public int MaxToTake { get; set; }
+        
+        public int DefaultToTake { get; set; }
 
         public int MaxToSkip { get; set; }
 

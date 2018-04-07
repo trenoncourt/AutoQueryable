@@ -221,7 +221,11 @@ namespace AutoQueryable.Core.Models
         {
             ICollection<SelectColumn> selectColumns = EntityType.GetSelectableColumns(Profile);
             
-            if (Profile.MaxToTake.HasValue)
+            if (Profile.DefaultToTake.HasValue)
+            {
+                Query = Query.Take(Profile.DefaultToTake.Value);
+            }
+            else if (Profile.MaxToTake.HasValue)
             {
                 Query = Query.Take(Profile.MaxToTake.Value);
             }
