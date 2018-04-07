@@ -42,6 +42,10 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 
         public int MaxDepth { get; set; }
         
+        public string DefaultOrderBy { get; set; }
+        
+        public string DefaultOrderByDesc { get; set; }
+
         public ProviderType ProviderType { get; set; }
 
         public bool UseBaseType { get; set; }

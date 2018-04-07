@@ -110,6 +110,12 @@ namespace AutoQueryable.Core.Models
                     clauses.WrapWith.Parse();
                 }
             }
+            
+            if (clauses.OrderBy == null && clauses.OrderByDesc == null && !string.IsNullOrEmpty(Profile.DefaultOrderBy))
+                clauses.OrderBy = new OrderByClause(this) { Value = Profile.DefaultOrderBy };
+            
+            if (clauses.OrderBy == null && clauses.OrderByDesc == null && !string.IsNullOrEmpty(Profile.DefaultOrderByDesc))
+                clauses.OrderByDesc = new OrderByDescClause(this) { Value = Profile.DefaultOrderByDesc };
             return clauses;
         }
         

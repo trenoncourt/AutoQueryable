@@ -35,5 +35,11 @@ namespace AutoQueryable.Core.Models.Abstractions
         int MaxToSkip { get; set; }
 
         int MaxDepth { get; set; }
+
+        string DefaultOrderBy { get; set; }
+        
+        string DefaultOrderByDesc { get; set; }
+
+        bool UseBaseType { get; set; }
     }
 }

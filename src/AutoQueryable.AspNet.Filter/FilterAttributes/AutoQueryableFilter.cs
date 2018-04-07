@@ -42,6 +42,12 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
         public int MaxToSkip { get; set; }
 
         public int MaxDepth { get; set; }
+        
+        public string DefaultOrderBy { get; set; }
+        
+        public string DefaultOrderByDesc { get; set; }
+        
+        public bool UseBaseType { get; set; }
 
 
         public override void OnActionExecuted(HttpActionExecutedContext context)
