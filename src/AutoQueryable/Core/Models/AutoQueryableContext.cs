@@ -10,6 +10,7 @@ using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models.Clauses;
 using AutoQueryable.Helpers;
+using Serilog;
 
 namespace AutoQueryable.Core.Models
 {
@@ -30,7 +31,7 @@ namespace AutoQueryable.Core.Models
         /// Create AutoQueryable context typed with default entity type
         /// </summary>
         public static AutoQueryableContext Create<TEntity>(IQueryable<TEntity> query, string queryString,
-            AutoQueryableProfile profile) where TEntity : class 
+            AutoQueryableProfile profile, ILogger logger) where TEntity : class 
         {
             var entityType = query.GetType().GenericTypeArguments[0];
             
@@ -39,7 +40,8 @@ namespace AutoQueryable.Core.Models
                 Query = query,
                 QueryString = Uri.UnescapeDataString(queryString ?? ""),
                 EntityType = entityType,
-                Profile = profile
+                Profile = profile,
+                Logger = logger
             };
         }
     }
@@ -47,6 +49,8 @@ namespace AutoQueryable.Core.Models
     public class AutoQueryableContext<TEntity> : AutoQueryableContext where TEntity : class 
     {
         public IQueryable<TEntity> Query { get; set; }
+
+        public ILogger Logger { get; set; }
         
         public override dynamic GetAutoQuery()
         {
@@ -84,6 +88,10 @@ namespace AutoQueryable.Core.Models
                 {
                     clauses.Top = new TopClause(this) { Value = GetOperandValue(q, ClauseAlias.Take)};
                 }
+                else if (q.Contains(ClauseAlias.PageSize, StringComparison.OrdinalIgnoreCase) && this.Profile.IsClauseAllowed(ClauseType.Top))
+                {
+                    clauses.Top = new TopClause(this) { Value = GetOperandValue(q, ClauseAlias.PageSize) };
+                }
                 else if (q.Contains(ClauseAlias.Skip, StringComparison.OrdinalIgnoreCase) && this.Profile.IsClauseAllowed(ClauseType.Skip))
                 {
                     clauses.Skip = new SkipClause(this) { Value = GetOperandValue(q, ClauseAlias.Skip)};
@@ -109,8 +117,21 @@ namespace AutoQueryable.Core.Models
                     clauses.WrapWith = new WrapWithClause(this) { Value = GetOperandValue(q, ClauseAlias.WrapWith)};
                     clauses.WrapWith.Parse();
                 }
+                else if (q.Contains(ClauseAlias.Page, StringComparison.OrdinalIgnoreCase) && this.Profile.IsClauseAllowed(ClauseType.Page))
+                {
+                    clauses.Page = new PageClause(this) { Value = GetOperandValue(q, ClauseAlias.Page) };
+                }
             }
-            
+
+            if (clauses.Page != null)
+            {
+                this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
+                // Calculate skip from page if page query param was set
+                var page = int.Parse(clauses.Page.Value);
+                var take = clauses.Top != null ? int.Parse(clauses.Top.Value) : this.Profile.DefaultToTake;
+                clauses.Skip = new SkipClause(this){ Value = (page*take).ToString()};
+            }
+
             if (clauses.OrderBy == null && clauses.OrderByDesc == null && !string.IsNullOrEmpty(this.Profile.DefaultOrderBy))
                 clauses.OrderBy = new OrderByClause(this) { Value = this.Profile.DefaultOrderBy };
             
@@ -194,11 +215,9 @@ namespace AutoQueryable.Core.Models
         {
             var selectColumns = this.EntityType.GetSelectableColumns(this.Profile);
             
-            if (this.Profile.DefaultToTake.HasValue)
-            {
-                this.Query = this.Query.Take(this.Profile.DefaultToTake.Value);
-            }
-            else if (this.Profile.MaxToTake.HasValue)
+            this.Query = this.Query.Take(this.Profile.DefaultToTake);
+
+            if (this.Profile.MaxToTake.HasValue)
             {
                 this.Query = this.Query.Take(this.Profile.MaxToTake.Value);
             }

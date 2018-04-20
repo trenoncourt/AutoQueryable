@@ -61,7 +61,7 @@ namespace AutoQueryable.Helpers
                     skip = profile.MaxToSkip.Value;
                 }
 
-                if (profile.UseBaseType)
+                if (profile != null && profile.UseBaseType)
                 {
                     queryProjection = ((IQueryable<T>)queryProjection).Skip<T>(skip);
                 }
@@ -73,12 +73,12 @@ namespace AutoQueryable.Helpers
             if (clauses.Top != null)
             {
                 int.TryParse(clauses.Top.Value, out var take);
-                if (profile?.MaxToTake != null && take > profile?.MaxToTake)
+                if (profile?.MaxToTake != null && take > profile.MaxToTake)
                 {
                     take = profile.MaxToTake.Value;
                 }
 
-                if (profile.UseBaseType)
+                if (profile != null && profile.UseBaseType)
                 {
                     queryProjection = ((IQueryable<T>)queryProjection).Take(take);
                 }
@@ -87,18 +87,7 @@ namespace AutoQueryable.Helpers
                     queryProjection = queryProjection.Take(take);
                 }
             }
-            else if (profile.DefaultToTake.HasValue)
-            {
-                if (profile.UseBaseType)
-                {
-                    queryProjection = ((IQueryable<T>)queryProjection).Take(profile.DefaultToTake.Value);
-                }
-                else
-                {
-                    queryProjection = queryProjection.Take(profile.DefaultToTake.Value);
-                }
-            }
-            else if (profile.MaxToTake.HasValue)
+            else if (profile?.MaxToTake != null)
             {
                 if (profile.UseBaseType)
                 {

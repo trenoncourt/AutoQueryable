@@ -36,7 +36,9 @@ namespace AutoQueryable.Core.Models
         public LastClause Last { get; set; }
         
         public WrapWithClause WrapWith { get; set; }
-        
+        public PageClause Page { get; set; }
+        public PageSizeClause PageSize { get; set; }
+
         public Clause Filter { get; set; }
         
         public Clause Expand { get; set; }

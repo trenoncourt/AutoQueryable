@@ -31,7 +31,7 @@ namespace AutoQueryable.Core.Models
 
         public int? MaxToTake { get; set; }
 
-        public int? DefaultToTake { get; set; }
+        public int DefaultToTake { get; set; } = 10;
 
         public int? MaxToSkip { get; set; }
         
@@ -58,7 +58,7 @@ namespace AutoQueryable.Core.Models
             AllowedWrapperPartType = filterProfile.AllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.AllowedWrapperPartType,
             DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.DisAllowedWrapperPartType,
             MaxToTake = filterProfile.MaxToTake == 0 ? null : (int?)filterProfile.MaxToTake,
-            DefaultToTake = filterProfile.DefaultToTake == 0 ? null : (int?)filterProfile.DefaultToTake,
+            DefaultToTake = filterProfile.DefaultToTake,
             MaxToSkip = filterProfile.MaxToSkip == 0 ? null : (int?)filterProfile.MaxToSkip,
             MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
             DefaultOrderBy = filterProfile.DefaultOrderBy,
