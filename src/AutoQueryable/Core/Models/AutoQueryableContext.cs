@@ -31,7 +31,7 @@ namespace AutoQueryable.Core.Models
         /// Create AutoQueryable context typed with default entity type
         /// </summary>
         public static AutoQueryableContext Create<TEntity>(IQueryable<TEntity> query, string queryString,
-            AutoQueryableProfile profile, ILogger logger) where TEntity : class 
+            AutoQueryableProfile profile) where TEntity : class 
         {
             var entityType = query.GetType().GenericTypeArguments[0];
             
@@ -40,8 +40,7 @@ namespace AutoQueryable.Core.Models
                 Query = query,
                 QueryString = Uri.UnescapeDataString(queryString ?? ""),
                 EntityType = entityType,
-                Profile = profile,
-                Logger = logger
+                Profile = profile
             };
         }
     }
@@ -50,13 +49,13 @@ namespace AutoQueryable.Core.Models
     {
         public IQueryable<TEntity> Query { get; set; }
 
-        public ILogger Logger { get; set; }
-        
         public override dynamic GetAutoQuery()
         {
             // No query string, get only selectable columns
             if (string.IsNullOrEmpty(this.QueryString))
+            {
                 return this.GetDefaultSelectableQuery();
+            }
 
             this.Clauses = this.GetClauses(this.QueryStringParts);
             var criterias = this.Profile.IsClauseAllowed(ClauseType.Filter) ? this.GetCriterias().ToList() : null;
@@ -125,7 +124,7 @@ namespace AutoQueryable.Core.Models
 
             if (clauses.Page != null)
             {
-                this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
+                //this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
                 // Calculate skip from page if page query param was set
                 var page = int.Parse(clauses.Page.Value);
                 var take = clauses.Top != null ? int.Parse(clauses.Top.Value) : this.Profile.DefaultToTake;
@@ -133,10 +132,15 @@ namespace AutoQueryable.Core.Models
             }
 
             if (clauses.OrderBy == null && clauses.OrderByDesc == null && !string.IsNullOrEmpty(this.Profile.DefaultOrderBy))
+            {
                 clauses.OrderBy = new OrderByClause(this) { Value = this.Profile.DefaultOrderBy };
-            
+            }
+
             if (clauses.OrderBy == null && clauses.OrderByDesc == null && !string.IsNullOrEmpty(this.Profile.DefaultOrderByDesc))
+            {
                 clauses.OrderByDesc = new OrderByDescClause(this) { Value = this.Profile.DefaultOrderByDesc };
+            }
+
             return clauses;
         }
         

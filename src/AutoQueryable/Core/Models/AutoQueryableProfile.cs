@@ -1,10 +1,13 @@
 ﻿using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models.Abstractions;
+using Serilog;
 
 namespace AutoQueryable.Core.Models
 {
     public class AutoQueryableProfile
     {
+        public ILogger Logger { get; }
+
         public string[] SelectableProperties { get; set; }
         
         public string[] UnselectableProperties { get; set; }
