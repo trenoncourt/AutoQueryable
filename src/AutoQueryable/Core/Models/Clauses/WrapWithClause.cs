@@ -17,32 +17,32 @@ namespace AutoQueryable.Core.Models.Clauses
             
         public WrapWithClause(AutoQueryableContext context) : base(context)
         {
-            ClauseType = ClauseType.WrapWith;
+            this.ClauseType = ClauseType.WrapWith;
         }
 
         public bool CountAllRows { get; private set; }
 
-        public bool Any => _wrapperPartTypes.Any();
+        public bool Any => this._wrapperPartTypes.Any();
 
         public void Parse()
         {
-            string[] wrapperParts = Value.Split(',');
-            _wrapperPartTypes = new List<WrapperPartType>();
+            var wrapperParts = this.Value.Split(',');
+            this._wrapperPartTypes = new List<WrapperPartType>();
             
-            foreach (string q in wrapperParts)
+            foreach (var q in wrapperParts)
             {
-                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase) && Context.Profile.IsWrapperPartAllowed(WrapperPartType.Count))
+                if (q.Equals(WrapperAlias.Count, StringComparison.OrdinalIgnoreCase) && this.Context.Profile.IsWrapperPartAllowed(WrapperPartType.Count))
                 {
-                    _wrapperPartTypes.Add(WrapperPartType.Count);
+                    this._wrapperPartTypes.Add(WrapperPartType.Count);
                 }
-                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase) && Context.Profile.IsWrapperPartAllowed(WrapperPartType.NextLink))
+                else if (q.Equals(WrapperAlias.NextLink, StringComparison.OrdinalIgnoreCase) && this.Context.Profile.IsWrapperPartAllowed(WrapperPartType.NextLink))
                 {
-                    _wrapperPartTypes.Add(WrapperPartType.NextLink);
+                    this._wrapperPartTypes.Add(WrapperPartType.NextLink);
                 }
-                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase) && Context.Profile.IsWrapperPartAllowed(WrapperPartType.TotalCount))
+                else if (q.Equals(WrapperAlias.TotalCount, StringComparison.OrdinalIgnoreCase) && this.Context.Profile.IsWrapperPartAllowed(WrapperPartType.TotalCount))
                 {
-                    CountAllRows = true;
-                    _wrapperPartTypes.Add(WrapperPartType.TotalCount);
+                    this.CountAllRows = true;
+                    this._wrapperPartTypes.Add(WrapperPartType.TotalCount);
                 }
             }
         }
@@ -51,12 +51,12 @@ namespace AutoQueryable.Core.Models.Clauses
         {
             dynamic wrapper = new ExpandoObject();
             wrapper.Result = (queryResult.Result as IQueryable<object>).ToList();
-            foreach (var part in _wrapperPartTypes)
+            foreach (var part in this._wrapperPartTypes)
             {
                 switch (part)
                 {
                     case WrapperPartType.Count:
-                        bool isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
+                        var isResultEnumerableCount = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
                         if (isResultEnumerableCount)
                         {
                             wrapper.Count = wrapper.Result.Count;
@@ -66,24 +66,24 @@ namespace AutoQueryable.Core.Models.Clauses
                         wrapper.TotalCount = queryResult.TotalCount;
                         break;
                     case WrapperPartType.NextLink:
-                        bool isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
+                        var isResultEnumerableNextLink = typeof(IEnumerable).IsAssignableFrom((Type)queryResult.Result.GetType());
 
-                        if (isResultEnumerableNextLink && Context.Clauses.Top != null)
+                        if (isResultEnumerableNextLink && this.Context.Clauses.Top != null)
                         {
-                            int skip = Context.Clauses.Skip == null ? 0 : Convert.ToInt32(Context.Clauses.Skip.Value);
-                            int take = Convert.ToInt32(Context.Clauses.Top.Value);
+                            var skip = this.Context.Clauses.Skip == null ? 0 : Convert.ToInt32(this.Context.Clauses.Skip.Value);
+                            var take = Convert.ToInt32(this.Context.Clauses.Top.Value);
                             skip += take;
                             if (wrapper.Result.Count < take)
                             {
                                 break;
                             }
-                            if (Context.Clauses.Skip != null)
+                            if (this.Context.Clauses.Skip != null)
                             {
-                                wrapper.NextLink = Context.QueryString.ToLower().Replace($"{ClauseAlias.Skip}{Context.Clauses.Skip.Value}", $"{ClauseAlias.Skip}{skip}");
+                                wrapper.NextLink = this.Context.QueryString.ToLower().Replace($"{ClauseAlias.Skip}{this.Context.Clauses.Skip.Value}", $"{ClauseAlias.Skip}{skip}");
                             }
                             else
                             {
-                                wrapper.NextLink = $"{Context.QueryString.ToLower()}&{ClauseAlias.Skip}{skip}";
+                                wrapper.NextLink = $"{this.Context.QueryString.ToLower()}&{ClauseAlias.Skip}{skip}";
                             }
 
                         }

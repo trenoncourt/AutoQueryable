@@ -16,19 +16,19 @@ namespace AutoQueryable.Core.Models
     {
         public SelectColumn(string name, string key, Type type, List<SelectColumn> subColumns = null)
         {
-            Name = name;
-            Key = key;
-            Type = type;
-            SubColumns = subColumns ?? new List<SelectColumn>();
+            this.Name = name;
+            this.Key = key;
+            this.Type = type;
+            this.SubColumns = subColumns ?? new List<SelectColumn>();
         }
         
         public SelectColumn(string name, string key, Type type, SelectColumn parentColumn, List<SelectColumn> subColumns = null)
         {
-            Name = name;
-            Key = key;
-            Type = type;
-            ParentColumn = parentColumn;
-            SubColumns = subColumns ?? new List<SelectColumn>();
+            this.Name = name;
+            this.Key = key;
+            this.Type = type;
+            this.ParentColumn = parentColumn;
+            this.SubColumns = subColumns ?? new List<SelectColumn>();
         }
         
         public string Name { get; set; }
@@ -39,13 +39,13 @@ namespace AutoQueryable.Core.Models
         public SelectInclusingType InclusionType { get; set; }
 
 
-        public bool HasSubColumn => SubColumns != null && SubColumns.Any();
+        public bool HasSubColumn => this.SubColumns != null && this.SubColumns.Any();
 
 
 
         public IEnumerable<string> GetRawSelection(AutoQueryableProfile profile)
         {
-            return Type.GetRawSelection(profile, InclusionType);
+            return this.Type.GetRawSelection(profile, this.InclusionType);
         }
     }
 }

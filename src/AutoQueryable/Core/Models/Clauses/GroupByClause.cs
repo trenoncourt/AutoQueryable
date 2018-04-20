@@ -6,7 +6,7 @@ namespace AutoQueryable.Core.Models.Clauses
     {
         public GroupByClause(AutoQueryableContext context) : base(context)
         {
-            ClauseType = ClauseType.GroupBy;
+            this.ClauseType = ClauseType.GroupBy;
         }
     }
 }

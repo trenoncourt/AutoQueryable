@@ -24,7 +24,7 @@ namespace AutoQueryable.Helpers
             {
                 properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
-            string[] columns = orderClause.Value.Split(',');
+            var columns = orderClause.Value.Split(',');
             properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
 
             return properties.Select(v => new Column

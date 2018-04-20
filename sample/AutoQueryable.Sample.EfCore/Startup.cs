@@ -30,7 +30,7 @@ namespace AutoQueryable.Sample.EfCore
         public void Configure(IApplicationBuilder app)
         {
             var context = app.ApplicationServices.GetService<AutoQueryableDbContext>();
-            Seed(context);
+            this.Seed(context);
 
             app.UseMvc();
         }
@@ -65,7 +65,7 @@ namespace AutoQueryable.Sample.EfCore
             {
                 Name = "Model 1"
             };
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 context.Product.Add(new Product
                 {

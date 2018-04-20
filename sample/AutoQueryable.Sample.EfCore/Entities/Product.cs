@@ -7,7 +7,7 @@ namespace AutoQueryable.Sample.EfCore.Entities
     {
         public Product()
         {
-            SalesOrderDetail = new HashSet<SalesOrderDetail>();
+            this.SalesOrderDetail = new HashSet<SalesOrderDetail>();
         }
 
         public int ProductId { get; set; }

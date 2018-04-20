@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using AutoQueryable.Core.Enums;
+using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
@@ -15,8 +15,8 @@ namespace AutoQueryable.Helpers
     {
         public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, ICollection<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
         {
-            IEnumerable<Column> orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
-            IEnumerable<Column> orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
+            var orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
+            var orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
 
             if (criterias != null && criterias.Any())
             {
@@ -55,7 +55,7 @@ namespace AutoQueryable.Helpers
 
             if (clauses.Skip != null)
             {
-                int.TryParse(clauses.Skip.Value, out int skip);
+                int.TryParse(clauses.Skip.Value, out var skip);
                 if (profile?.MaxToSkip != null && skip > profile.MaxToSkip)
                 {
                     skip = profile.MaxToSkip.Value;
@@ -72,7 +72,7 @@ namespace AutoQueryable.Helpers
             }
             if (clauses.Top != null)
             {
-                int.TryParse(clauses.Top.Value, out int take);
+                int.TryParse(clauses.Top.Value, out var take);
                 if (profile?.MaxToTake != null && take > profile?.MaxToTake)
                 {
                     take = profile.MaxToTake.Value;
@@ -113,11 +113,13 @@ namespace AutoQueryable.Helpers
             {
                 return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
             }
-            else if (clauses.Last != null)
+
+            if (clauses.Last != null)
             {
                 return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
             }
-            else if (profile?.MaxToTake != null)
+
+            if (profile?.MaxToTake != null)
             {
                 queryProjection = queryProjection.Take(profile.MaxToTake.Value);
             }
@@ -141,7 +143,7 @@ namespace AutoQueryable.Helpers
             }
             protected override Expression VisitParameter(ParameterExpression node)
             {
-                Parameter = node;
+                this.Parameter = node;
                 return node;
             }
         }
@@ -154,11 +156,11 @@ namespace AutoQueryable.Helpers
             return Expression.Call(anyMethod, parameter, lambdaPredicate);
         }
 
-        private static Expression BuildWhereExpression(Expression parameter, ConditionType conditionType, dynamic[] values, params string[] properties)
+        private static Expression BuildWhereExpression(Expression parameter, Criteria criteria, params string[] properties)
         {
             Type childType = null;
 
-            if (properties.Count() > 1)
+            if (properties.Length > 1)
             {
                 //build path
                 parameter = Expression.Property(parameter, properties[0]);
@@ -176,7 +178,7 @@ namespace AutoQueryable.Helpers
                 }
                 //skip current property and get navigation property expression recursivly
                 var innerProperties = properties.Skip(1).ToArray();
-                Expression predicate = BuildWhereExpression(childParameter, conditionType, values, innerProperties);
+                var predicate = BuildWhereExpression(childParameter, criteria, innerProperties);
                 if (isCollection)
                 {
                     //build subquery
@@ -187,34 +189,32 @@ namespace AutoQueryable.Helpers
             }
             //build final predicate
             var childProperty = parameter.Type.GetProperty(properties[0]);
-            MemberExpression memberExpression = Expression.Property(parameter, childProperty);
+            var memberExpression = Expression.Property(parameter, childProperty);
             Expression orExpression = null;
-            foreach (var value in values)
+            foreach (var value in criteria.Values)
             {
-                var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType);
+                var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType, criteria.Filter.FormatProvider);
                 ConstantExpression val = Expression.Constant(convertedValue, childProperty.PropertyType);
-                Expression newExpression = conditionType.ToBinaryExpression(memberExpression, val);
 
-                if (orExpression == null)
-                    orExpression = newExpression;
-                else
-                    orExpression = Expression.OrElse(orExpression, newExpression);
+                var filter = CriteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria);
+                if (filter != null)
+                {
+                    var newExpression = filter.Filter(memberExpression, val);
+                    orExpression = orExpression == null ? newExpression : Expression.OrElse(orExpression, newExpression);
+                }
             }
             return orExpression;
         }
 
-        private static IQueryable<T> Where<T>(this IQueryable<T> source, ICollection<Criteria> criterias)
+        private static IQueryable<T> Where<T>(this IQueryable<T> source, IEnumerable<Criteria> criterias)
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;
             foreach (var c in criterias)
             {
+                var expression = BuildWhereExpression(parentEntity, c, c.ColumnPath.ToArray());
 
-                Expression expression = BuildWhereExpression(parentEntity, c.ConditionType, c.Values, c.ColumnPath.ToArray());
-                if (whereExpression == null)
-                    whereExpression = expression;
-                else
-                    whereExpression = Expression.AndAlso(whereExpression, expression); 
+                whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
             }
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
@@ -222,7 +222,7 @@ namespace AutoQueryable.Helpers
 
         private static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<Column> columns)
         {
-            foreach (Column column in columns)
+            foreach (var column in columns)
             {
                 source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
             }
@@ -231,7 +231,7 @@ namespace AutoQueryable.Helpers
 
         private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, IEnumerable<Column> columns)
         {
-            foreach (Column column in columns)
+            foreach (var column in columns)
             {
                 source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
             }

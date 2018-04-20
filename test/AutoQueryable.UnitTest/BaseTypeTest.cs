@@ -1,25 +1,24 @@
 ﻿using System.Linq;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
-using AutoQueryable.UnitTest.Mock;
 using AutoQueryable.UnitTest.Mock.Entities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using FluentAssertions;
+using Xunit;
 
 namespace AutoQueryable.UnitTest
 {
-    [TestClass]
     public class BaseTypeTest
     {
-        [TestMethod]
+        [Fact]
         public void SelectAllProducts()
         {
-            using (Mock.AutoQueryableContext context = new Mock.AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("", new AutoQueryableProfile {UseBaseType = true});
-                IEnumerable<Product> pp = query as IEnumerable<Product>;
-                Assert.AreEqual(pp.Count(), DataInitializer.ProductSampleCount);
+                var query = context.Product.AutoQueryable("", new AutoQueryableProfile { UseBaseType = true });
+                var pp = query as IEnumerable<Product>;
+                pp.Count().Should().Be(DataInitializer.ProductSampleCount);
             }
         }
     }

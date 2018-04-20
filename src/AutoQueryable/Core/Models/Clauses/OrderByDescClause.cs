@@ -6,7 +6,7 @@ namespace AutoQueryable.Core.Models.Clauses
     {
         public OrderByDescClause(AutoQueryableContext context) : base(context)
         {
-            ClauseType = ClauseType.OrderByDesc;
+            this.ClauseType = ClauseType.OrderByDesc;
         }
     }
 }

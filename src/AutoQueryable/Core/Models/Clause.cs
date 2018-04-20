@@ -9,7 +9,7 @@ namespace AutoQueryable.Core.Models
 
         public Clause(AutoQueryableContext context)
         {
-            Context = context;
+            this.Context = context;
         }
         
         public ClauseType ClauseType { get; set; }

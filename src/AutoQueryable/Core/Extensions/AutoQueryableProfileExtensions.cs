@@ -7,9 +7,9 @@ namespace AutoQueryable.Core.Extensions
     {
         public static bool IsClauseAllowed(this AutoQueryableProfile profile, ClauseType clauseType)
         {
-            bool isClauseAllowed = true;
-            bool? isAllowed = profile?.AllowedClauses?.HasFlag(clauseType);
-            bool? isDisallowed = profile?.DisAllowedClauses?.HasFlag(clauseType);
+            var isClauseAllowed = true;
+            var isAllowed = profile?.AllowedClauses?.HasFlag(clauseType);
+            var isDisallowed = profile?.DisAllowedClauses?.HasFlag(clauseType);
 
             if (isAllowed.HasValue && !isAllowed.Value)
             {
@@ -25,9 +25,9 @@ namespace AutoQueryable.Core.Extensions
         
         public static bool IsConditionAllowed(this AutoQueryableProfile profile, ConditionType conditionType)
         {
-            bool isConditionAllowed = true;
-            bool? isAllowed = profile?.AllowedConditions?.HasFlag(conditionType);
-            bool? isDisallowed = profile?.DisAllowedConditions?.HasFlag(conditionType);
+            var isConditionAllowed = true;
+            var isAllowed = profile?.AllowedConditions?.HasFlag(conditionType);
+            var isDisallowed = profile?.DisAllowedConditions?.HasFlag(conditionType);
 
             if (isAllowed.HasValue && !isAllowed.Value)
             {
@@ -43,9 +43,9 @@ namespace AutoQueryable.Core.Extensions
         
         public static bool IsWrapperPartAllowed(this AutoQueryableProfile profile, WrapperPartType wrapperPartType)
         {
-            bool isWrapperPartAllowed = true;
-            bool? isAllowed = profile?.AllowedWrapperPartType?.HasFlag(wrapperPartType);
-            bool? isDisallowed = profile?.DisAllowedWrapperPartType?.HasFlag(wrapperPartType);
+            var isWrapperPartAllowed = true;
+            var isAllowed = profile?.AllowedWrapperPartType?.HasFlag(wrapperPartType);
+            var isDisallowed = profile?.DisAllowedWrapperPartType?.HasFlag(wrapperPartType);
 
             if (isAllowed.HasValue && !isAllowed.Value)
             {

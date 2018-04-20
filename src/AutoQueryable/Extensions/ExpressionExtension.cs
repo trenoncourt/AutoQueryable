@@ -18,7 +18,7 @@ namespace AutoQueryable.Extensions
         public static MethodCallExpression CreateSelect(this Expression from, Expression body, ParameterExpression param = null)
         {
             // input eg: Product.SalesOrderDetail (type IList<SalesOrderDetail>), output: type SalesOrderDetail
-            Type enumerableType = from.Type.GetGenericArguments().SingleOrDefault();
+            var enumerableType = from.Type.GetGenericArguments().SingleOrDefault();
 
             if (param == null)
             {

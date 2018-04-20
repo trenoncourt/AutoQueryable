@@ -4,7 +4,6 @@ using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using AutoQueryable.Helpers;
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
@@ -55,7 +54,7 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
             dynamic query = ((ObjectResult)context.Result).Value;
             if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
                 
-            string queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;;
+            var queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;;
             AutoQueryableContext autoQueryableContext =
                 AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
             context.Result = new OkObjectResult(autoQueryableContext.GetAutoQuery());
