@@ -6,7 +6,7 @@ namespace AutoQueryable.Core.Models.Clauses
     {
         public FirstClause(AutoQueryableContext context) : base(context)
         {
-            ClauseType = ClauseType.First;
+            this.ClauseType = ClauseType.First;
         }
     }
 }

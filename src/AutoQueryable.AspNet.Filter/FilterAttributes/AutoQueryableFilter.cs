@@ -5,7 +5,6 @@ using System.Web.Http.Filters;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Abstractions;
-using AutoQueryable.Helpers;
 
 namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {
@@ -58,7 +57,7 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
                 dynamic query = content.Value;
                 if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
                 
-                string queryString = context.Request.RequestUri.Query;
+                var queryString = context.Request.RequestUri.Query;
                 AutoQueryableContext autoQueryableContext =
                     AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
                 var result = autoQueryableContext.GetAutoQuery();

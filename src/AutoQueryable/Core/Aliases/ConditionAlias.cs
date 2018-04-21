@@ -2,15 +2,19 @@
 {
     public static class ConditionAlias
     {
-        public const string Equal = "=";
+        public const string Equal = "==";
         public const string NotEqual = "!=";
-        public const string Less = "<";
-        public const string LessEqual = "<=";
-        public const string Greater = ">";
-        public const string GreaterEqual = ">=";
+        public const string LessThan = "<";
+        public const string LessThanOrEqual = "<=";
+        public const string GreaterThan = ">";
+        public const string GreaterThanOrEqual = ">=";
         public const string Contains = "Contains=";
+        public const string NotContains = "Contains!=";
         public const string StartsWith = "StartsWith=";
+        public const string NotStartsWith = "StartsWith!=";
         public const string EndsWith = "EndsWith=";
-        public const string Between = "Between=";
+        public const string NotEndsWith = "EndsWith!=";
+        public const string DateInYear = ":Year=";
+        public const string DateNotInYear = ":Year!=";
     }
 }

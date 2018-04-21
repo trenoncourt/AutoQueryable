@@ -1,22 +1,20 @@
 ﻿using AutoQueryable.Extensions;
-using AutoQueryable.UnitTest.Mock;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
+using FluentAssertions;
+using Xunit;
 
 namespace AutoQueryable.UnitTest
 {
-    [TestClass]
     public class AutoQueryableProfileTest
     {
-        [TestMethod]
+        [Fact]
         public void AllowOnlyOneClause()
         {
-            using (Mock.AutoQueryableContext context = new UnitTest.Mock.AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=name&top=10", new AutoQueryableProfile
@@ -24,21 +22,21 @@ namespace AutoQueryable.UnitTest
                     AllowedClauses = ClauseType.Select
                 }) as IEnumerable<dynamic>).ToList();
 
-                Assert.AreEqual(DataInitializer.ProductSampleCount, query.Count());
+                query.Count.Should().Be(DataInitializer.ProductSampleCount);
                 var first = query.First();
 
-                int propertiesCount = ((Type)first.GetType()).GetProperties().Count();
-                Assert.IsTrue(1 == propertiesCount);
-                
+                var propertiesCount = ((Type)first.GetType()).GetProperties().Length;
+                propertiesCount.Should().Be(1);
+
                 string name = first.GetType().GetProperty("name").GetValue(first);
-                Assert.IsNotNull(name);
+                name.Should().NotBeNull();
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void AllowMultipleClauses()
         {
-            using (Mock.AutoQueryableContext context = new Mock.AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile
@@ -46,14 +44,14 @@ namespace AutoQueryable.UnitTest
                     AllowedClauses = ClauseType.Select | ClauseType.Top
                 }) as IEnumerable<dynamic>).ToList();
 
-                Assert.AreEqual(10, query.Count());
+                query.Count.Should().Be(10);
                 var first = query.First();
 
-                int propertiesCount = ((Type)first.GetType()).GetProperties().Count();
-                Assert.IsTrue(1 == propertiesCount);
+                var propertiesCount = ((Type)first.GetType()).GetProperties().Length;
+                propertiesCount.Should().Be(1);
 
                 int productid = first.GetType().GetProperty("productId").GetValue(first);
-                Assert.IsTrue(1 == productid);
+                productid.Should().Be(101);
             }
         }
     }

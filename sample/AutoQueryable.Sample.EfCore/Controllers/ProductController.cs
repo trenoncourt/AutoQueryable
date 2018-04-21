@@ -6,7 +6,6 @@ using AutoQueryable.Extensions;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using AutoQueryable.Sample.EfCore.Entities;
 
 namespace AutoQueryable.Sample.EfCore.Controllers
 {
@@ -55,7 +54,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         [HttpGet("disallow")]
         public dynamic GetWithNotAllowedClauses([FromServices] AutoQueryableDbContext context)
         {
-            return context.Product.AutoQueryable(Request.QueryString.Value,
+            return context.Product.AutoQueryable(this.Request.QueryString.Value,
                 new AutoQueryableProfile {
                     AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith | ClauseType.Filter, 
                     MaxToTake = 5, 

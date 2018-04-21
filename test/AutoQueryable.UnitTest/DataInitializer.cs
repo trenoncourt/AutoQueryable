@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace AutoQueryable.UnitTest
 {
@@ -50,7 +49,7 @@ namespace AutoQueryable.UnitTest
                 {
                     Name = "Model 1"
                 };
-                for (int i = 0; i < ProductSampleCount; i++)
+                for (var i = 0; i < ProductSampleCount; i++)
                 {
                     context.Product.Add(new Product
                     {
@@ -87,6 +86,15 @@ namespace AutoQueryable.UnitTest
                 }
                 context.SaveChanges();
             //}
+        }
+        public static void AddDateTimeSeeds(AutoQueryableContext context)
+        {
+            context.Product.Add(new Product
+            {
+                Name = "TestIn2010",
+                SellStartDate = new DateTime(2010, DateTime.Today.Month, DateTime.Today.Day)
+            });
+            context.SaveChanges();
         }
     }
 }

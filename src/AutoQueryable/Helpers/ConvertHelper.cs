@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
+using AutoQueryable.Core.CriteriaFilters.FilterMaps;
 
 namespace AutoQueryable.Helpers
 {
@@ -8,11 +9,11 @@ namespace AutoQueryable.Helpers
     {
         public static T Convert<T>(string value)
         {
-            Type type = typeof(T);
+            var type = typeof(T);
             return Convert(value, type);
         }
 
-        public static dynamic Convert(string value, Type type)
+        public static dynamic Convert(string value, Type type, IFormatProvider formatProvider = null)
         {
             if (value.Equals("null"))
             {
@@ -22,13 +23,23 @@ namespace AutoQueryable.Helpers
             type = Nullable.GetUnderlyingType(type) ?? type;
 
             if (type.GetTypeInfo().IsEnum)
+            {
                 return Enum.Parse(type, value, ignoreCase:true);
+            }
 
             if (Equals(type.GetTypeInfo(), typeof(Guid).GetTypeInfo()))
+            {
                 return Guid.Parse(value);
+            }
 
             if (Equals(type.GetTypeInfo(), typeof(DateTime).GetTypeInfo()))
-                return DateTime.Parse(value.Replace(" ", "+"), null, DateTimeStyles.RoundtripKind);
+            {
+                if (formatProvider != null)
+                {
+                    return DateTime.ParseExact(value.Replace(" ", "+"), formatProvider.GetFormat(typeof(DateTime)).ToString(), formatProvider);
+                }
+                return DateTime.Parse(value.Replace(" ", "+"), new DateTimeFormatInfo(), DateTimeStyles.RoundtripKind);
+            }
 
             return System.Convert.ChangeType(value, type);
         }

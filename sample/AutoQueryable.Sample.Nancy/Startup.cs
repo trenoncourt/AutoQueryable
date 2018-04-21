@@ -13,8 +13,7 @@ namespace AutoQueryable.Sample.Nancy
         {
             app.UseOwin(x => x.UseNancy());
 
-            using (var context = new AutoQueryableContext())
-                Seed(context);
+            using (var context = new AutoQueryableContext()) this.Seed(context);
         }
 
         private void Seed(AutoQueryableContext context)
@@ -31,7 +30,7 @@ namespace AutoQueryable.Sample.Nancy
             {
                 Name = "Model 1"
             };
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 context.Product.Add(new Product
                 {

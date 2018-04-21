@@ -2,227 +2,247 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Extensions;
-using AutoQueryable.UnitTest.Mock;
-using AutoQueryable.UnitTest.Mock.Entities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using Xunit;
 
 namespace AutoQueryable.UnitTest
 {
-    [TestClass]
     public class FilterTest
     {
-       
-        [TestMethod]
+        [Fact]
         public void IdEquals5()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid=5") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 1);
+                var query = (context.Product.AutoQueryable("productid==5") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(1);
                 var first = query.First();
                 int id = first.GetType().GetProperty("ProductId").GetValue(first);
-                Assert.IsTrue(id == 5);
+                id.Should().Be(5);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void IdEquals3Or4Or5()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid=3,4,5") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 3);
+                var query = (context.Product.AutoQueryable("productid==3,4,5") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(3);
 
                 foreach (var product in query)
                 {
                     int id = product.GetType().GetProperty("ProductId").GetValue(product);
-                    Assert.IsTrue(id == 3 || id == 4 || id == 5);
+                    id.Should().BeOneOf(3, 4, 5);
                 }
             }
         }
-        [TestMethod]
+        [Fact]
         public void ProductCateqoryIdEquals1()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("ProductCategory.ProductCategoryId=1") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount / 2);
+                var query = (context.Product.AutoQueryable("ProductCategory.ProductCategoryId==1") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(DataInitializer.ProductSampleCount / 2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void IdEquals3And4()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid=3&productid=4") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 0);
+                var query = (context.Product.AutoQueryable("productid==3&productid==4") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(0);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void IdEquals3Or4And5Or6()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid=3,4&productid=5,6") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 0);
+                var query = (context.Product.AutoQueryable("productid==3,4&productid==5,6") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(0);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void RowGuidEqualsGuidString()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable($"rowguid={DataInitializer.GuidString}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(DataInitializer.ProductSampleCount, query.Count());
+                var query = (context.Product.AutoQueryable($"rowguid=={DataInitializer.GuidString}") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(DataInitializer.ProductSampleCount);
                 var first = query.First();
                 Guid id = first.GetType().GetProperty("Rowguid").GetValue(first);
-                Assert.IsTrue(id == Guid.Parse(DataInitializer.GuidString));
+                id.Should().Be(Guid.Parse(DataInitializer.GuidString));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ColorEqualsRed()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("color=red") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount / 2);
+                var query = (context.Product.AutoQueryable("color==red") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(DataInitializer.ProductSampleCount / 2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ColorEqualsRedOrBlack()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("color=red,black") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), DataInitializer.ProductSampleCount);
+
+                var query = (context.Product.AutoQueryable("color==red,black") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(DataInitializer.ProductSampleCount);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SellStartDateEqualsTodayJsonFormatted()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                string todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
-                var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(1, query.Count);
+                var todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
+                var query = (context.Product.AutoQueryable($"SellStartDate=={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(1);
                 var first = query.First();
                 DateTime sellStartDate = first.GetType().GetProperty("SellStartDate").GetValue(first);
-                Assert.IsTrue(sellStartDate == DateTime.Today);
+                sellStartDate.Should().Be(DateTime.Today);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SellStartDateEqualsTodayOrTodayPlus8HourJsonFormatted()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                string todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
-                string todayPlus8HourJsonFormated = DateTime.Today.AddHours(8).ToString("yyyy-MM-ddThh:mm:ss");
-                var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated},{todayPlus8HourJsonFormated}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(2, query.Count);
+                var todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
+                var todayPlus8HourJsonFormated = DateTime.Today.AddHours(8).ToString("yyyy-MM-ddThh:mm:ss");
+                var query = (context.Product.AutoQueryable($"SellStartDate=={todayJsonFormated},{todayPlus8HourJsonFormated}") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(2);
                 foreach (var product in query)
                 {
                     DateTime sellStartDate = product.GetType().GetProperty("SellStartDate").GetValue(product);
-                    Assert.IsTrue(sellStartDate == DateTime.Today || sellStartDate == DateTime.Today.AddHours(8));
+                    sellStartDate.Should().BeOneOf(DateTime.Today, DateTime.Today.AddHours(8));
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SalesOrderDetailUnitPriceEquals2()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("SalesOrderDetail.UnitPrice=2") as IEnumerable<dynamic>;
-                Assert.AreEqual(query.Count(), 1);
+                var query = context.Product.AutoQueryable("SalesOrderDetail.UnitPrice==2") as IEnumerable<dynamic>;
+                query.Count().Should().Be(1);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SalesOrderDetailUnitProductIdEquals1()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId=1") as IEnumerable<dynamic>;
-                Assert.AreEqual(query.Count(), 1);
+                var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId==1") as IEnumerable<dynamic>;
+                query.Count().Should().Be(1);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DateEquals()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable($"SellStartDate={DateTime.Today.AddHours(8*2).ToString("o")}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(query.Count(), 1);
+                var query = (context.Product.AutoQueryable($"SellStartDate=={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(1);
                 var first = query.First();
                 int id = first.GetType().GetProperty("ProductId").GetValue(first);
-                Assert.IsTrue(id == 3);
+                id.Should().Be(3);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DateLessThan()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable($"SellStartDate<{DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(2, query.Count());
+                query.Count.Should().Be(2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DateLessThanEquals()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable($"SellStartDate<={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(3, query.Count());
+                query.Count.Should().Be(3);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DateGreaterThan()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable($"SellStartDate>{DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(DataInitializer.ProductSampleCount - 3, query.Count());
+                query.Count.Should().Be(DataInitializer.ProductSampleCount - 3);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DateGreaterThanEquals()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable($"SellStartDate>={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
-                Assert.AreEqual(DataInitializer.ProductSampleCount - 2, query.Count());
+                query.Count.Should().Be(DataInitializer.ProductSampleCount - 2); ;
             }
         }
 
+        [Fact]
+        public void DateYearEquals2010()
+        {
+            using (var context = new Mock.AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                DataInitializer.AddDateTimeSeeds(context);
+                var query = (context.Product.AutoQueryable("SellStartDate:Year=2010") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(1); ;
+            }
+        }
+        [Fact]
+        public void DateYearShouldNotEqual2011()
+        {
+            using (var context = new Mock.AutoQueryableContext())
+            {
+                DataInitializer.InitializeSeed(context);
+                DataInitializer.AddDateTimeSeeds(context);
+                var query = (context.Product.AutoQueryable("SellStartDate:Year=2011") as IEnumerable<dynamic>).ToList();
+                query.Count.Should().Be(0); ;
+            }
+        }
     }
 }

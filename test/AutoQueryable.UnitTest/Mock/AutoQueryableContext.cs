@@ -1,4 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
 using AutoQueryable.UnitTest.Mock.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

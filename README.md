@@ -1,5 +1,5 @@
 # AutoQueryable
-AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black) with no effort.
+AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color==red,black](http://baseurl/api/products?nameContains=frame&color==red,black) with no effort.
 
 ## Installing / Getting started
 
@@ -97,7 +97,7 @@ You will get result like:
 By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
 
 In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
-- Equals '=': [/products?**color=red,black**](/products?color!=green,blue)
+- Equals '=': [/products?**color==red,black**](/products?color!=green,blue)
 - Not Equals '!=': [/products?**color!=green,blue**](/products?color=red,black)
 - Less Than, Greater Than '<', '>': [/products?**productCount\<5**](/products?productCount\<5)
 - Less Than or Equals, Greater Than or equals '<=' [/products?**productCount\<=5**](/products?productCount\<=5)

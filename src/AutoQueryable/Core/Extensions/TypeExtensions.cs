@@ -44,7 +44,7 @@ namespace AutoQueryable.Core.Extensions
         /// <returns>True if the type own the property, False otherwise</returns>
         public static bool PropertyExist(this Type type, string propertyName)
         {
-            PropertyInfo propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             return propertyInfo != null;
         }
 
@@ -61,7 +61,7 @@ namespace AutoQueryable.Core.Extensions
             {
                 return type.PropertyExist(propertyName);
             }
-            Type genericType = type.GetGenericArguments().FirstOrDefault();
+            var genericType = type.GetGenericArguments().FirstOrDefault();
             if (genericType == null)
             {
                 return false;
@@ -79,8 +79,8 @@ namespace AutoQueryable.Core.Extensions
         public static IEnumerable<string> GetRawSelection(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
-            bool isCollection = type.IsEnumerableButNotString();
-            Type genericType = type;
+            var isCollection = type.IsEnumerableButNotString();
+            var genericType = type;
             if (isCollection)
             {
                 genericType = type.GetGenericArguments().FirstOrDefault();
@@ -122,7 +122,7 @@ namespace AutoQueryable.Core.Extensions
         public static ICollection<SelectColumn> GetSelectableColumns(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<SelectColumn> columns = null;
-            bool isCollection = type.IsEnumerable();
+            var isCollection = type.IsEnumerable();
             if (isCollection)
             {
                 type = type.GetGenericArguments().FirstOrDefault();

@@ -1,77 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AutoQueryable.Extensions;
 using AutoQueryable.UnitTest.Mock;
-using AutoQueryable.UnitTest.Mock.Entities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Dynamic;
-using System.Reflection;
+using FluentAssertions;
+using Xunit;
 
 namespace AutoQueryable.UnitTest
 {
-    [TestClass]
     public class WrapperTest
-    { 
+    {
 
-        [TestMethod]
+        [Fact]
         public void CountAll()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable("wrapwith=count") as object;
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WrapWithTotalCount()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("wrapwith=total-count") as ExpandoObject;
-                var totalCount = query.TotalCount;
-                Assert.AreEqual(totalCount, DataInitializer.ProductSampleCount);
+                var totalCount = query.TotalCount as int?;
+                totalCount.Should().Be(DataInitializer.ProductSampleCount);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void NextLinkWithoutSkip()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("top=20&wrapwith=next-link") as ExpandoObject;
                 string nextLink = query.NextLink;
-                Assert.IsTrue(nextLink.Contains("skip=20"));
+                nextLink.Should().Contain("skip=20");
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void NextLinkWithSkip()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
                 dynamic query = context.Product.AutoQueryable("top=20&skip=20&wrapwith=next-link") as ExpandoObject;
                 string nextLink = query.NextLink;
-                Assert.IsTrue(nextLink.Contains("skip=40"));
+                nextLink.Should().Contain("skip=40");
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void BrowseProducts20PerPage()
         {
-            using (AutoQueryableContext context = new AutoQueryableContext())
+            using (var context = new AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                string nextLink = "top=20&wrapwith=next-link";
-                int i = 0;
-                while(!string.IsNullOrEmpty(nextLink))
+                var nextLink = "top=20&wrapwith=next-link";
+                var i = 0;
+                while (!string.IsNullOrEmpty(nextLink))
                 {
                     dynamic query = context.Product.AutoQueryable(nextLink) as ExpandoObject;
-                    bool isNextLinkAvailable = ((IDictionary<String, object>)query).ContainsKey("NextLink");
+                    var isNextLinkAvailable = ((IDictionary<String, object>)query).ContainsKey("NextLink");
 
                     if (!isNextLinkAvailable)
                     {
@@ -81,9 +78,10 @@ namespace AutoQueryable.UnitTest
                     nextLink = query.NextLink;
                     i++;
                 }
-                Assert.AreEqual(DataInitializer.ProductSampleCount/20, i);
+
+                i.Should().Be(DataInitializer.ProductSampleCount / 20);
             }
         }
- 
+
     }
 }
