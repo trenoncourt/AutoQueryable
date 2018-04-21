@@ -1,26 +1,14 @@
-# AutoQueryable
-AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color==red,black](http://baseurl/api/products?nameContains=frame&color==red,black) with no effort.
+# AutoQueryable &middot; [![NuGet](https://img.shields.io/nuget/v/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/trenoncourt/AutoQueryable/blob/master/LICENSE)
+> AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color==red,black](http://baseurl/api/products?nameContains=frame&color==red,black) with no effort.
 
 ## Installing / Getting started
 
-Install without filters: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg)](https://www.nuget.org/packages/AutoQueryable)
-```powershell
-Install-Package AutoQueryable
-```
-Install for **AspNet Core**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter)
-```powershell
-Install-Package AutoQueryable.AspNetCore.Filter
-```
-
-Install for **Web api 2**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter)
-```powershell
-Install-Package AutoQueryable.AspNet.Filter
-```
-
-Install for **Nancy**: [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter)
-```powershell
-Install-Package AutoQueryable.Nancy.Filter
-```
+| Package        | NuGet                                                                                     | |
+|----------------|-------------------------------------------------------------------------------------------|-|
+| Install-Package AutoQueryable   | [![NuGet Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) | Install without filters |
+| AutoQueryable.AspNetCore.Filter | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter) | Install for **AspNet Core** |
+| AutoQueryable.AspNet.Filter     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter) | Install for **Web api 2** |
+| AutoQueryable.Nancy.Filter      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
 
 **Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
 
