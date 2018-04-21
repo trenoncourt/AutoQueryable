@@ -19,7 +19,7 @@ namespace AutoQueryable.UnitTest
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable("") as IQueryable<object>;
-                query.Count().Should().Be(DataInitializer.ProductSampleCount);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
 
@@ -262,7 +262,7 @@ namespace AutoQueryable.UnitTest
                 properties.Should().NotContain(p => p.Name == "ProductId");
                 properties.Should().NotContain(p => p.Name == "Rowguid");
 
-                query.Count().Should().Be(DataInitializer.ProductSampleCount);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
 
@@ -593,7 +593,7 @@ namespace AutoQueryable.UnitTest
 
                 properties.Should().Contain(p => p.Name == "Name");
 
-                query.Count().Should().Be(DataInitializer.ProductSampleCount);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
 
@@ -719,7 +719,7 @@ namespace AutoQueryable.UnitTest
                 properties.Should().NotContain(p => p.Name == "ProductId");
                 properties.Should().NotContain(p => p.Name == "Rowguid");
 
-                query.Count().Should().Be(DataInitializer.ProductSampleCount);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
 

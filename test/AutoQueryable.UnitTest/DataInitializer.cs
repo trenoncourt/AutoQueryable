@@ -12,6 +12,7 @@ namespace AutoQueryable.UnitTest
     {
         public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
         public static readonly int ProductSampleCount = 1000;
+        public static readonly int DefaultToTakeCount = 10;
         //[AssemblyInitialize()] 
         public static void InitializeSeed(AutoQueryableContext context)
         {
