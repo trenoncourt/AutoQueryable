@@ -2,7 +2,7 @@
 {
     public static class ConditionAlias
     {
-        public const string Equal = "==";
+        public const string Equal = "=";
         public const string NotEqual = "!=";
         public const string LessThan = "<";
         public const string LessThanOrEqual = "<=";
