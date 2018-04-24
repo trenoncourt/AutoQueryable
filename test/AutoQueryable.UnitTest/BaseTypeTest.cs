@@ -18,7 +18,7 @@ namespace AutoQueryable.UnitTest
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable("", new AutoQueryableProfile { UseBaseType = true });
                 var pp = query as IEnumerable<Product>;
-                pp.Count().Should().Be(DataInitializer.ProductSampleCount);
+                pp.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
     }
