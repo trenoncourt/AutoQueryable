@@ -15,7 +15,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid==5") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("productid=5") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(1);
                 var first = query.First();
                 int id = first.GetType().GetProperty("ProductId").GetValue(first);
@@ -29,7 +29,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid==3,4,5") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("productid=3,4,5") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(3);
 
                 foreach (var product in query)
@@ -45,7 +45,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("ProductCategory.ProductCategoryId==1") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("ProductCategory.ProductCategoryId=1") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(DataInitializer.ProductSampleCount / 2);
             }
         }
@@ -56,7 +56,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid==3&productid==4") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("productid=3&productid=4") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(0);
             }
         }
@@ -67,7 +67,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("productid==3,4&productid==5,6") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("productid=3,4&productid=5,6") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(0);
             }
         }
@@ -78,7 +78,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable($"rowguid=={DataInitializer.GuidString}") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable($"rowguid={DataInitializer.GuidString}") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(DataInitializer.ProductSampleCount);
                 var first = query.First();
                 Guid id = first.GetType().GetProperty("Rowguid").GetValue(first);
@@ -92,7 +92,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("color==red") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("color=red") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(DataInitializer.ProductSampleCount / 2);
             }
         }
@@ -104,7 +104,7 @@ namespace AutoQueryable.UnitTest
             {
                 DataInitializer.InitializeSeed(context);
 
-                var query = (context.Product.AutoQueryable("color==red,black") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable("color=red,black") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(DataInitializer.ProductSampleCount);
             }
         }
@@ -116,7 +116,7 @@ namespace AutoQueryable.UnitTest
             {
                 DataInitializer.InitializeSeed(context);
                 var todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
-                var query = (context.Product.AutoQueryable($"SellStartDate=={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated}") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(1);
                 var first = query.First();
                 DateTime sellStartDate = first.GetType().GetProperty("SellStartDate").GetValue(first);
@@ -132,7 +132,7 @@ namespace AutoQueryable.UnitTest
                 DataInitializer.InitializeSeed(context);
                 var todayJsonFormated = DateTime.Today.ToString("yyyy-MM-dd");
                 var todayPlus8HourJsonFormated = DateTime.Today.AddHours(8).ToString("yyyy-MM-ddThh:mm:ss");
-                var query = (context.Product.AutoQueryable($"SellStartDate=={todayJsonFormated},{todayPlus8HourJsonFormated}") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable($"SellStartDate={todayJsonFormated},{todayPlus8HourJsonFormated}") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(2);
                 foreach (var product in query)
                 {
@@ -148,7 +148,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("SalesOrderDetail.UnitPrice==2") as IEnumerable<dynamic>;
+                var query = context.Product.AutoQueryable("SalesOrderDetail.UnitPrice=2") as IEnumerable<dynamic>;
                 query.Count().Should().Be(1);
             }
         }
@@ -159,7 +159,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId==1") as IEnumerable<dynamic>;
+                var query = context.Product.AutoQueryable("SalesOrderDetail.Product.ProductId=1") as IEnumerable<dynamic>;
                 query.Count().Should().Be(1);
             }
         }
@@ -170,7 +170,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable($"SellStartDate=={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable($"SellStartDate={DateTime.Today.AddHours(8 * 2).ToString("o")}") as IEnumerable<dynamic>).ToList();
                 query.Count.Should().Be(1);
                 var first = query.First();
                 int id = first.GetType().GetProperty("ProductId").GetValue(first);
