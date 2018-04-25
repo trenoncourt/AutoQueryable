@@ -1,4 +1,4 @@
-# AutoQueryable &middot; [![NuGet](https://img.shields.io/nuget/v/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/trenoncourt/AutoQueryable/blob/master/LICENSE)
+# AutoQueryable &middot; [![NuGet](https://img.shields.io/nuget/v/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/trenoncourt/AutoQueryable/blob/master/LICENSE) [![Donate](	https://img.shields.io/beerpay/hashdog/scrapfy-chrome-extension.svg?style=flat-square)](https://www.paypal.me/trenoncourt/5)
 > AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black) with no effort.
 
 ## Installing / Getting started
@@ -80,6 +80,7 @@ You will get result like:
 - OrderBy, OrderByDesc: [/products?**orderby=price,id**](/products?orderby=price,id)
 - Wrap with: [/products?wrapwith=**count,total-count,next-link**](/products?wrapwith=count,total-count,next-link)
 - Filtering: [/products?**nameContains=frame&color=red,black**](/products?nameContains=frame&color=red,black) 
+- Paging: [/products?**page=2&pagesize=10**](/products?page=2&pagesize=10) 
 
 ## Existing filters
 By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
@@ -93,6 +94,12 @@ In a filter, comma separator is used for OR (eg: color=red,black is translated b
 - StartsWith, EndsWith 'startswith', 'endswith': [/products?**colorStartsWith=bla,re**](/products?colorStartsWith=bla,re)
 
 *Note that filters works with primitive types, string, datetime & guid*
+
+### Filter modifiers
+AQ provide property modifiers to modify property before filter, modifiers are denoted with **:**
+
+- DateInYear <date-property>:year=<year>: [/products?**selldate:year=1989**](/products?selldate:year=1989)
+- NotDateInYear <date-property>:year!=<year>: [/products?**selldate:year!=2000**](/products?selldate:year!=2000)
 
 ## Selection
 - Select all properties of level zero without relations: [/products?**select=_**](/products?**select=_)
@@ -191,38 +198,3 @@ public class UsersController
     }
 }
 ```
-
-## Roadmap :
-- Add Demo
-- Add more date filters in where clause eg: yearEquals
-- Add capability to use Group by
-- Add capability to set AutoQueryable options in headers
-- Add capability to choose to ignore case or not (case is ignored for now)
-- Add Odata-v(x) & others as plugin (choose beetween AutoQueryable, Odata or others for query)
-- ~~Add an option to not use dynamic objects (Use the type T provided by the IQueryable\<T>)~~
-- ~~Add **Top**, **Skip**, **Take**, **OrderBy** keywords~~
-- ~~Add capability to include navidation properties (aka expand in OData)~~
-- ~~Add capability to select properties (columns in table)~~
-- ~~Add capability to make projection on entities~~
-- ~~Add capability to get single element (first or last)~~
-- ~~Add unselectable columns~~
-- ~~Use Expression tree instead of DbSet\<T>.FromSql for filters~~
-- ~~Add EntityFramework 6.1.3 support~~
-- ~~Add .Net 4.5.1 min support~~
-- ~~Add capability to select with projection~~
-- ~~Add simpler Attribute using OnActionExecuted~~
-- ~~Add Samples~~
-- ~~Add capability to use Dto projection~~
-- ~~Add capability to include hierarchical data~~
-- ~~Add capability to include navigation properties on multiple levels~~
-- ~~Add .* selector to select all properties including navigation properties on the first level~~
-- ~~Add allowed clauses or not~~
-- ~~Add allowed operators or not in where clause~~
-- ~~Add maximum value on clauses (eg maximum top 999)~~
-- ~~Add Sortable/unsortable properties~~
-- ~~Add Allowed/Disallowed wrapper parts~~
-- ~~Add Max depth~~
-- ~~Add Datetime operations~~
-
-## Buy me a beer
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/trenoncourt/5)
