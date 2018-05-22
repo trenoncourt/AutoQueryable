@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoQueryable.AspNetCore.Swagger;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace AutoQueryable.Sample.EfCore
 {
@@ -17,13 +19,20 @@ namespace AutoQueryable.Sample.EfCore
         {
             services
                 .AddMvcCore()
+                .AddApiExplorer()
                 .AddJsonFormatters(settings =>
                 {
                     settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
+            
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.AddAutoQueryable();
+            });
 
-            services.AddEntityFramework()
+            services
                 .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase());
         }
         
@@ -33,6 +42,12 @@ namespace AutoQueryable.Sample.EfCore
             this.Seed(context);
 
             app.UseMvc();
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
         }
 
         private void Seed(AutoQueryableDbContext context)

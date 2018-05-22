@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace AutoQueryable.Sample.EfCore
 {
@@ -8,6 +10,12 @@ namespace AutoQueryable.Sample.EfCore
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging
+                        .AddConsole();
+                })
                 .UseStartup<Startup>()
                 .Build();
 
