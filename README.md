@@ -7,6 +7,7 @@
 |----------------|-------------------------------------------------------------------------------------------|-|
 | Install-Package AutoQueryable   | [![NuGet Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) | Install without filters |
 | AutoQueryable.AspNetCore.Filter | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter) | Install for **AspNet Core** |
+| AutoQueryable.AspNetCore.Swagger      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Swagger.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Swagger) | Install for **AspNet Core** |
 | AutoQueryable.AspNet.Filter     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter) | Install for **Web api 2** |
 | AutoQueryable.Nancy.Filter      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
 
@@ -197,4 +198,18 @@ public class UsersController
         })
     }
 }
+```
+
+## Add Swagger parameters 
+If you want to add AQ parameters to your swagger docs, just add AutoQueryable to the swagger conf.
+
+```powershell
+Install-Package AutoQueryable.AspNetCore.Swagger
+```
+```c#
+services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+    c.AddAutoQueryable(); // add this line
+});
 ```
