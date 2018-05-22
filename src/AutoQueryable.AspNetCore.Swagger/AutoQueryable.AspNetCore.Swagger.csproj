@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AutoQueryable.AspNetCore.Filter\AutoQueryable.AspNetCore.Filter.csproj" />
+  </ItemGroup>
+</Project>
