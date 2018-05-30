@@ -14,7 +14,7 @@ namespace AutoQueryable.Core.Models.Clauses
         private List<string> _rawSelection;
         private readonly ICollection<SelectColumn> _allSelectColumns = new List<SelectColumn>();
 
-        public ICollection<SelectColumn> SelectColumns { get; }
+        public ICollection<SelectColumn> SelectColumns { get; private set; }
 
         public SelectClause(AutoQueryableContext context) : base(context)
         {
@@ -27,6 +27,11 @@ namespace AutoQueryable.Core.Models.Clauses
         /// </summary>
         public void Parse()
         {
+            if (string.IsNullOrEmpty(Value))
+            {
+                this.SelectColumns = this.Context.EntityType.GetSelectableColumns(this.Context.Profile);
+                return;
+            }
             this._rawSelection = this.GetRawSelection(this.Value);
             this.ParseBasePropertiesSelection();
             this.ParseAllPropertiesSelection();

@@ -141,6 +141,12 @@ namespace AutoQueryable.Core.Models
                 clauses.OrderByDesc = new OrderByDescClause(this) { Value = this.Profile.DefaultOrderByDesc };
             }
 
+            if (clauses.Select == null)
+            {
+                clauses.Select = new SelectClause(this) { Value = ""};
+                clauses.Select.Parse();
+            }
+
             return clauses;
         }
         
