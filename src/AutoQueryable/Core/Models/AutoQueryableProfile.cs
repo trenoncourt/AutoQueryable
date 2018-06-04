@@ -4,7 +4,7 @@ using Serilog;
 
 namespace AutoQueryable.Core.Models
 {
-    public class AutoQueryableProfile
+    public class AutoQueryableProfile : IAutoQueryableProfile
     {
         public ILogger Logger { get; }
 
@@ -68,5 +68,58 @@ namespace AutoQueryable.Core.Models
             DefaultOrderByDesc = filterProfile.DefaultOrderByDesc,
             UseBaseType = filterProfile.UseBaseType
         };
+        public bool IsClauseAllowed(ClauseType clauseType)
+        {
+            var isClauseAllowed = true;
+            var isAllowed = AllowedClauses?.HasFlag(clauseType);
+            var isDisallowed = DisAllowedClauses?.HasFlag(clauseType);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isClauseAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isClauseAllowed = false;
+            }
+            return isClauseAllowed;
+        }
+        
+        public bool IsConditionAllowed(ConditionType conditionType)
+        {
+            var isConditionAllowed = true;
+            var isAllowed = AllowedConditions?.HasFlag(conditionType);
+            var isDisallowed = DisAllowedConditions?.HasFlag(conditionType);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isConditionAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isConditionAllowed = false;
+            }
+            return isConditionAllowed;
+        }
+        
+        public bool IsWrapperPartAllowed(WrapperPartType wrapperPartType)
+        {
+            var isWrapperPartAllowed = true;
+            var isAllowed = AllowedWrapperPartType?.HasFlag(wrapperPartType);
+            var isDisallowed = DisAllowedWrapperPartType?.HasFlag(wrapperPartType);
+
+            if (isAllowed.HasValue && !isAllowed.Value)
+            {
+                isWrapperPartAllowed = false;
+            }
+
+            if (isDisallowed.HasValue && isDisallowed.Value)
+            {
+                isWrapperPartAllowed = false;
+            }
+            return isWrapperPartAllowed;
+        }
     }
 }

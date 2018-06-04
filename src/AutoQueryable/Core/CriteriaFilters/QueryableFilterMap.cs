@@ -8,7 +8,7 @@ namespace AutoQueryable.Core.CriteriaFilters
 {
     public class QueryableFilterMap : IQueryableFilterMap
     {
-        public QueryableFilterMap() => this.QueryableFilters = new List<IQueryableFilter>
+        public QueryableFilterMap() => QueryableFilters = new List<IQueryableFilter>
         {
             new QueryableFilter(ConditionAlias.Equal, 1),
             new QueryableFilter(ConditionAlias.NotEqual, 2),
@@ -30,20 +30,20 @@ namespace AutoQueryable.Core.CriteriaFilters
         private ICollection<IQueryableFilter> QueryableFilters { get; }
         public void AddFilter(IQueryableFilter filter)
         {
-            this.QueryableFilters.Add(filter);
+            QueryableFilters.Add(filter);
         }
 
         public void AddFilters(ICollection<IQueryableFilter> filters)
         {
             foreach (var queryableFilter in filters)
             {
-                this.QueryableFilters.Add(queryableFilter);
+                QueryableFilters.Add(queryableFilter);
             }
         }
 
-        public IQueryableFilter GetFilter(string alias) => this.QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => f.Alias == alias);
+        public IQueryableFilter GetFilter(string alias) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => f.Alias == alias);
         
 
-        public IQueryableFilter FindFilter(string queryParameterKey) => this.QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => queryParameterKey.Contains(f.Alias));
+        public IQueryableFilter FindFilter(string queryParameterKey) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => queryParameterKey.Contains(f.Alias));
     }
 }

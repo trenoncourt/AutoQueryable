@@ -2,17 +2,15 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Models.Clauses;
 
 namespace AutoQueryable.Extensions
 {
     public static class QueryableExtension
     {
-        public static dynamic AutoQueryable<TEntity>(this IQueryable<TEntity> query, string queryString, AutoQueryableProfile profile = null) where TEntity : class
-        {
-            profile = profile ?? new AutoQueryableProfile();
-            var context = AutoQueryableContext.Create(query, queryString, profile);
-            return context.GetAutoQuery();
-        }
+        public static IQueryable<object> AutoQueryable(this IQueryable<object> query, IAutoQueryableContext context) => context.GetAutoQuery(query);
+
+        public static IQueryable<TAs> AutoQueryable<TEntity,TAs>(this IQueryable<TEntity> query, IAutoQueryableContext<TEntity,TAs> context) where TEntity : class where TAs : class => context.GetAutoQuery(query);
 
         public static IQueryable<T> Call<T>(this IQueryable<T> source, string method, string propertyName)
         {
@@ -24,6 +22,13 @@ namespace AutoQueryable.Extensions
             var resultExp = Expression.Call(typeof(Queryable), method, new[] { typeof(T), property.PropertyType }, source.Expression, lambda);
 
             return source.Provider.CreateQuery<T>(resultExp);
+        }
+        public static IPagedResult<TEntity> ToPagedResult<TEntity>(this IQueryable<TEntity> query) where TEntity : class
+        {
+            return new PagedResult<TEntity>
+            {
+
+            };
         }
     }
 }

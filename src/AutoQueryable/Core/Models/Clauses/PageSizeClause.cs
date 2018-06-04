@@ -7,9 +7,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class PageSizeClause : Clause
     {
-        public PageSizeClause(AutoQueryableContext context) : base(context)
+        public PageSizeClause()
         {
-            this.ClauseType = ClauseType.PageSize;
+            ClauseType = ClauseType.PageSize;
         }
     }
 }

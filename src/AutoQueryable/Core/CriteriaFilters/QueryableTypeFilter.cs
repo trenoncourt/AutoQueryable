@@ -7,8 +7,8 @@ namespace AutoQueryable.Core.CriteriaFilters
     {
         public QueryableTypeFilter(IQueryableFilter queryableFilter, Func<Expression, Expression, Expression> filter)
         {
-            this.QueryableFilter = queryableFilter;
-            this.Filter = filter;
+            QueryableFilter = queryableFilter;
+            Filter = filter;
         }
        
         public Func<Expression, Expression, Expression> Filter { get; set; }

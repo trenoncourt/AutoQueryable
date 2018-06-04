@@ -4,9 +4,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class OrderByClause : Clause
     {
-        public OrderByClause(AutoQueryableContext context) : base(context)
+        public OrderByClause()
         {
-            this.ClauseType = ClauseType.OrderBy;
+            ClauseType = ClauseType.OrderBy;
         }
     }
 }

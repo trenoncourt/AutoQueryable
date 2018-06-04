@@ -9,11 +9,11 @@ namespace AutoQueryable.Sample.Nancy.Modules
     {
         public ProductModule(AutoQueryableContext context) : base("/products")
         {
-            this.Get("/", args => FormatterExtensions.AsJson(this.Response, context.Product.AutoQueryable(this.Context.Request.Url.Query)));
+            this.Get("/", args => FormatterExtensions.AsJson(Response, context.Product.AutoQueryable(Context.Request.Url.Query)));
 
-            this.Get("/withfilter", args =>
+            Get("/withfilter", args =>
             {
-                this.After.AutoQueryable(this.Context, context.Product);
+                After.AutoQueryable(Context, context.Product);
                 return "";
             });
         }

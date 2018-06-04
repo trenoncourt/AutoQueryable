@@ -33,13 +33,13 @@ namespace AutoQueryable.Sample.EfCore
             });
 
             services
-                .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase());
+                .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase("InMemory"));
         }
         
         public void Configure(IApplicationBuilder app)
         {
             var context = app.ApplicationServices.GetService<AutoQueryableDbContext>();
-            this.Seed(context);
+            Seed(context);
 
             app.UseMvc();
             

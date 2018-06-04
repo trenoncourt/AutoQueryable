@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Models;
 
@@ -9,7 +10,7 @@ namespace AutoQueryable.Helpers
 {
     public static class OrderByHelper
     {
-        public static IEnumerable<Column> GetOrderByColumns(AutoQueryableProfile profile, Clause orderClause, Type entityType)
+        public static IEnumerable<Column> GetOrderByColumns(IAutoQueryableProfile profile, IClause orderClause, Type entityType)
         {
             if (orderClause == null)
             {
@@ -24,7 +25,7 @@ namespace AutoQueryable.Helpers
             {
                 properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
-            var columns = orderClause.Value.Split(',');
+            var columns = orderClause.GetValue<string>().Split(',');
             properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
 
             return properties.Select(v => new Column

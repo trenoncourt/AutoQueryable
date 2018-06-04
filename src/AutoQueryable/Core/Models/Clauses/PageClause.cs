@@ -7,9 +7,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class PageClause : Clause
     {
-        public PageClause(AutoQueryableContext context) : base(context)
+        public PageClause()
         {
-            this.ClauseType = ClauseType.Page;
+            ClauseType = ClauseType.Page;
         }
 
         public void Calculate()

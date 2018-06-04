@@ -38,6 +38,7 @@ namespace AutoQueryable.UnitTest
         {
             using (var context = new Mock.AutoQueryableContext())
             {
+                //var autoQuery = new AutoQuery();
                 DataInitializer.InitializeSeed(context);
                 var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile
                 {

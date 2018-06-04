@@ -1,12 +1,12 @@
 ﻿namespace AutoQueryable.Core.Models
 {
-    public class Query
+    public class Query<TEntity> where TEntity : class
     {
         public Query(string queryString = null)
         {
             
         }
 
-        public AllClauses Clauses { get; set; }
+        public AllClauses<TEntity> Clauses { get; set; }
     }
 }

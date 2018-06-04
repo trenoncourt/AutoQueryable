@@ -7,6 +7,7 @@ using AutoQueryable.Extensions;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models;
 
@@ -105,8 +106,9 @@ namespace AutoQueryable.Helpers
 
     public static class SelectHelper
     {
-        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(IEnumerable<SelectColumn> columns, AutoQueryableProfile profile)
+        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(IClause clause, IAutoQueryableProfile profile)
         {
+            var columns = clause.GetValue<ICollection<SelectColumn>>();
             var memberExpressions = new Dictionary<string, Expression>();
 
             var parameter = Expression.Parameter(typeof(TEntity), "p");
@@ -115,7 +117,7 @@ namespace AutoQueryable.Helpers
             return Expression.Lambda<Func<TEntity, TResult>>(memberInit, parameter);
         }
 
-        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, AutoQueryableProfile profile, bool isLambdaBody = false)
+        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, IAutoQueryableProfile profile, bool isLambdaBody = false)
         {
             var isCollection = parent.Type.IsEnumerableButNotString();
             // If the current column has no sub column, return the final property.
@@ -175,7 +177,7 @@ namespace AutoQueryable.Helpers
             });
         }
 
-        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node, AutoQueryableProfile profile)
+        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node, IAutoQueryableProfile profile)
         {
             var expressions = new Dictionary<string, Expression>();
             foreach (var subColumn in columns)

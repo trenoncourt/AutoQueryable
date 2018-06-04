@@ -4,9 +4,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class TopClause : Clause
     {
-        public TopClause(AutoQueryableContext context) : base(context)
+        public TopClause()
         {
-            this.ClauseType = ClauseType.Top;
+            ClauseType = ClauseType.Top;
         }
     }
 }

@@ -55,9 +55,9 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
             if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
                 
             var queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;;
-            AutoQueryableContext autoQueryableContext =
-                AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
-            context.Result = new OkObjectResult(autoQueryableContext.GetAutoQuery());
+            var autoQueryableContext = new
+                AutoQueryableContext<object>(queryString);//, AutoQueryableProfile.From(this));
+            context.Result = new OkObjectResult(autoQueryableContext.GetAutoQuery(query));
         }
     }
 }

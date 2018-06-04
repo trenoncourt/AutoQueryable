@@ -1,48 +1,23 @@
-﻿using AutoQueryable.Core.Enums;
+﻿using System;
+using AutoQueryable.Core.Clauses;
+using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models.Clauses;
 
 namespace AutoQueryable.Core.Models
 {
-    public class Clause
+    public class Clause : IClause
     {
-        protected readonly AutoQueryableContext Context;
+        public string ClauseType { get; }
 
-        public Clause(AutoQueryableContext context)
+        public object Value { get; }
+        public Type ValueType { get; }
+
+        public Clause(string type, object value, Type valueType = null)
         {
-            this.Context = context;
+            ClauseType = type;
+            Value = value;
+            ValueType = valueType ?? typeof(string);
         }
-        
-        public ClauseType ClauseType { get; set; }
 
-        public string Value { get; set; }
-    }
-
-    public class AllClauses
-    {
-        public SelectClause Select { get; set; }
-        
-        public TopClause Top { get; set; }
-        
-        public SkipClause Skip { get; set; }
-        
-        public OrderByClause OrderBy { get; set; }
-        
-        public OrderByDescClause OrderByDesc { get; set; }
-        
-        public GroupByClause GroupBy { get; set; }
-        
-        public FirstClause First { get; set; }
-        
-        public LastClause Last { get; set; }
-        
-        public WrapWithClause WrapWith { get; set; }
-        public PageClause Page { get; set; }
-        public PageSizeClause PageSize { get; set; }
-
-        public Clause Filter { get; set; }
-        
-        public Clause Expand { get; set; }
-        
-        public Clause Search { get; set; }
     }
 }

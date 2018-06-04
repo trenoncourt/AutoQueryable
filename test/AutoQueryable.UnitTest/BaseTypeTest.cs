@@ -4,6 +4,8 @@ using AutoQueryable.Extensions;
 using AutoQueryable.UnitTest.Mock.Entities;
 using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace AutoQueryable.UnitTest
@@ -13,12 +15,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProducts()
         {
+            var autoQueryableContext = new Mock<AutoQueryableContext<Product>>();
             using (var context = new Mock.AutoQueryableContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("", new AutoQueryableProfile { UseBaseType = true });
-                var pp = query as IEnumerable<Product>;
-                pp.Count().Should().Be(DataInitializer.DefaultToTakeCount);
+                var query = context.Product.AutoQueryable(autoQueryableContext.Object);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
         

@@ -7,7 +7,7 @@ namespace AutoQueryable.UnitTest.Mock.Entities
     {
         public ProductModel()
         {
-            this.Product = new HashSet<Product>();
+            Product = new HashSet<Product>();
         }
 
         public int ProductModelId { get; set; }

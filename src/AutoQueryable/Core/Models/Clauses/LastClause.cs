@@ -4,9 +4,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class LastClause : Clause
     {
-        public LastClause(AutoQueryableContext context) : base(context)
+        public LastClause()
         {
-            this.ClauseType = ClauseType.Last;
+            ClauseType = ClauseType.Last;
         }
     }
 }

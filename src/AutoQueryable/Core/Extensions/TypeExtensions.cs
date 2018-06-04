@@ -76,7 +76,7 @@ namespace AutoQueryable.Core.Extensions
             return type.GetTypeOrGenericType().GetTypeInfo().IsClass && type != typeof(string);
         }
 
-        public static IEnumerable<string> GetRawSelection(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
+        public static IEnumerable<string> GetRawSelection(this Type type, IAutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<string> columns = null;
             var isCollection = type.IsEnumerableButNotString();
@@ -119,7 +119,7 @@ namespace AutoQueryable.Core.Extensions
             return columns?.ToList();
         }
         
-        public static ICollection<SelectColumn> GetSelectableColumns(this Type type, AutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
+        public static ICollection<SelectColumn> GetSelectableColumns(this Type type, IAutoQueryableProfile profile, SelectInclusingType selectInclusingType = SelectInclusingType.IncludeBaseProperties)
         {
             IEnumerable<SelectColumn> columns = null;
             var isCollection = type.IsEnumerable();

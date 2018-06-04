@@ -13,7 +13,7 @@ namespace AutoQueryable.Sample.Nancy
         {
             app.UseOwin(x => x.UseNancy());
 
-            using (var context = new AutoQueryableContext()) this.Seed(context);
+            using (var context = new AutoQueryableContext()) Seed(context);
         }
 
         private void Seed(AutoQueryableContext context)

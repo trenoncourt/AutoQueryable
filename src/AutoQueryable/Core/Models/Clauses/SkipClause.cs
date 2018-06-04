@@ -4,9 +4,9 @@ namespace AutoQueryable.Core.Models.Clauses
 {
     public class SkipClause : Clause
     {
-        public SkipClause(AutoQueryableContext context) : base(context)
+        public SkipClause()
         {
-            this.ClauseType = ClauseType.Skip;
+            ClauseType = ClauseType.Skip;
         }
     }
 }
