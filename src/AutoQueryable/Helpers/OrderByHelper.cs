@@ -10,7 +10,7 @@ namespace AutoQueryable.Helpers
 {
     public static class OrderByHelper
     {
-        public static IEnumerable<Column> GetOrderByColumns(IAutoQueryableProfile profile, IClause orderClause, Type entityType)
+        public static IEnumerable<Column> GetOrderByColumns(IAutoQueryableProfile profile, string orderClause, Type entityType)
         {
             if (orderClause == null)
             {
@@ -25,7 +25,7 @@ namespace AutoQueryable.Helpers
             {
                 properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
             }
-            var columns = orderClause.GetValue<string>().Split(',');
+            var columns = orderClause.Split(',');
             properties = properties.Where(p => columns.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
 
             return properties.Select(v => new Column

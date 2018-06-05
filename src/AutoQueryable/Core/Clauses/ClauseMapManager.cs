@@ -11,9 +11,9 @@ namespace AutoQueryable.Core.Clauses
     {
         private readonly IClauseQueryFilterMap _clauseQueryFilterMap;
 
-        public ClauseMapManager()
+        public ClauseMapManager(ISelectClauseHandler selectClauseHandler)
         {
-            _clauseQueryFilterMap = new DefaultClauseQueryFilterMap();
+            _clauseQueryFilterMap = new DefaultClauseQueryFilterMap(selectClauseHandler);
             //FilterMap.AddFilters(typeof(string), StringFilterMapFactory.InitializeMap(QueryableFilterMap));
             //FilterMap.AddFilters(typeof(DateTime), DateTimeFilterMapFactory.InitializeMap(QueryableFilterMap));
             //FilterMap.AddFilters(typeof(object), BaseFilterMapFactory.InitializeMap(QueryableFilterMap));
@@ -22,6 +22,8 @@ namespace AutoQueryable.Core.Clauses
 
         public IClauseQueryFilter GetClauseQueryFilter(string alias)
             => _clauseQueryFilterMap.GetClauseQueryFilter(alias);
+
+        public IClauseQueryFilter GetClauseQueryFilter(ClauseType clauseType) => _clauseQueryFilterMap.GetClauseQueryFilter(clauseType);
 
         public IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey)
             => _clauseQueryFilterMap.FindClauseQueryFilter(queryParameterKey);
@@ -32,6 +34,7 @@ namespace AutoQueryable.Core.Clauses
     {
         IClauseQueryFilter GetClauseQueryFilter(string alias);
         IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey);
+        IClauseQueryFilter GetClauseQueryFilter(ClauseType clauseType);
     }
 
     public class DefaultClauseQueryFilterMap : IClauseQueryFilterMap
@@ -55,5 +58,6 @@ namespace AutoQueryable.Core.Clauses
         public IClauseQueryFilter GetClauseQueryFilter(string alias) => _queryFilters.FirstOrDefault(f => f.Alias == alias);
 
         public IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey) => _queryFilters.FirstOrDefault(clause => queryParameterKey.Contains(clause.Alias));
+        public IClauseQueryFilter GetClauseQueryFilter(ClauseType clauseType) => _queryFilters.FirstOrDefault(f => f.ClauseType == clauseType);
     }
 }

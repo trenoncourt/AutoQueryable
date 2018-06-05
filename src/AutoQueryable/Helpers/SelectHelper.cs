@@ -106,14 +106,13 @@ namespace AutoQueryable.Helpers
 
     public static class SelectHelper
     {
-        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(IClause clause, IAutoQueryableProfile profile)
+        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(ICollection<SelectColumn> selectColumns, IAutoQueryableProfile profile)
         {
-            var columns = clause.GetValue<ICollection<SelectColumn>>();
             var memberExpressions = new Dictionary<string, Expression>();
 
             var parameter = Expression.Parameter(typeof(TEntity), "p");
 
-            var memberInit = InitType<TEntity>(columns, parameter, profile);
+            var memberInit = InitType<TEntity>(selectColumns, parameter, profile);
             return Expression.Lambda<Func<TEntity, TResult>>(memberInit, parameter);
         }
 

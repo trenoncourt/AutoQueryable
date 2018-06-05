@@ -15,18 +15,25 @@ using AutoQueryable.Models.Constants;
 
 namespace AutoQueryable.Helpers
 {
-    public class QueryBuilder
+    public interface IQueryBuilder<TEntity, TAs> where TEntity : class where TAs : class
     {
-        private readonly IClauseMapManager _clauseMapManager;
+        IQueryable<TAs> Build(IQueryable<TEntity> query, ICollection<Criteria> criterias);
+    }
+    public class QueryBuilder<TEntity, TAs> : IQueryBuilder<TEntity, TAs> where TEntity : class where TAs : class
+    {
+        private readonly IClauseValueManager _clauseValueManager;
+        private readonly IAutoQueryableProfile _profile;
 
-        public QueryBuilder(IClauseMapManager clauseMapManager)
+
+        public QueryBuilder(IClauseValueManager clauseValueManager, IAutoQueryableProfile profile)
         {
-            _clauseMapManager = clauseMapManager;
+            _clauseValueManager = clauseValueManager;
+            _profile = profile;
         }
-        public IQueryable<TAs> Build<TEntity, TAs>(IQueryable<TEntity> query, ICollection<Clause> clauses, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where TEntity : class where TAs : class
+        public IQueryable<TAs> Build(IQueryable<TEntity> query, ICollection<Criteria> criterias)
         {
             // TODO: Handle '-' to orderbydesc (in order that they are in the orderby string)
-            var orderColumns = OrderByHelper.GetOrderByColumns(profile, _clauseMapManager.GetClause(ClauseType.OrderBy), typeof(TEntity));
+            var orderColumns = OrderByHelper.GetOrderByColumns(_profile, _clauseValueManager.OrderBy, typeof(TEntity));
 
             if (criterias != null && criterias.Any())
             {
@@ -38,63 +45,57 @@ namespace AutoQueryable.Helpers
             }
 
             IQueryable<TAs> queryProjection;
-            var selectClause = _clauseMapManager.GetClause(ClauseType.Select);
-            if (selectClause != null || profile?.UnselectableProperties != null || profile?.SelectableProperties != null)
+            if (_clauseValueManager.Select.Any() || _profile?.UnselectableProperties != null || _profile?.SelectableProperties != null)
             {
-                queryProjection = query.Select(SelectHelper.GetSelector<TEntity, TAs>(selectClause, profile));
+                queryProjection = query.Select(SelectHelper.GetSelector<TEntity, TAs>(_clauseValueManager.Select, _profile));
             }else
             {
                 queryProjection = query.ProjectTo<TAs>();
             }
-            var skipClause = _clauseMapManager.GetClause(ClauseType.Skip);
-            if (skipClause != null)
+            if (_clauseValueManager.Skip.HasValue)
             {
-                int.TryParse(skipClause.GetValue<string>(), out var skip);
-                if (profile?.MaxToSkip != null && skip > profile.MaxToSkip)
+                if (_profile?.MaxToSkip != null && _clauseValueManager.Skip > _profile.MaxToSkip)
                 {
-                    skip = profile.MaxToSkip.Value;
+                    _clauseValueManager.Skip = _profile.MaxToSkip.Value;
                 }
 
-                if (profile != null && profile.UseBaseType)
+                if (_profile != null && _profile.UseBaseType)
                 {
-                    queryProjection = queryProjection.Skip(skip);
+                    queryProjection = queryProjection.Skip(_clauseValueManager.Skip.Value);
                 }
                 else
                 {
-                    queryProjection = queryProjection.Skip(skip);
+                    queryProjection = queryProjection.Skip(_clauseValueManager.Skip.Value);
                 }
             }
-            var topClause = _clauseMapManager.GetClause(ClauseType.Top);
-            if (topClause != null)
+            if (_clauseValueManager.Top.HasValue)
             {
-                int.TryParse(topClause.GetValue<string>(), out var take);
-                if (profile?.MaxToTake != null && take > profile.MaxToTake)
+                if (_profile?.MaxToTake != null && _clauseValueManager.Top > _profile.MaxToTake)
                 {
-                    take = profile.MaxToTake.Value;
+                    _clauseValueManager.Top = _profile.MaxToTake.Value;
                 }
 
-                if (profile != null && profile.UseBaseType)
+                if (_profile != null && _profile.UseBaseType)
                 {
-                    queryProjection = queryProjection.Take(take);
+                    queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
                 }
                 else
                 {
-                    queryProjection = queryProjection.Take(take);
+                    queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
                 }
             }
-            else if (profile?.MaxToTake != null)
+            else if (_profile?.MaxToTake != null)
             {
-                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
+                queryProjection = queryProjection.Take(_profile.MaxToTake.Value);
             }
 
-            if (profile?.MaxToTake != null)
+            if (_profile?.MaxToTake != null)
             {
-                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
+                queryProjection = queryProjection.Take(_profile.MaxToTake.Value);
             }
             return queryProjection;
         }
         
-
         private Expression MakeLambda(Expression parameter, Expression predicate)
         {
             var resultParameterVisitor = new ParameterVisitor();
@@ -175,7 +176,7 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private IQueryable<T> Where<T>(IEnumerable<Criteria> criterias)
+        private IQueryable<T> Where<T>(IQueryable<T> source, IEnumerable<Criteria> criterias)
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;
@@ -189,7 +190,7 @@ namespace AutoQueryable.Helpers
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
         }
 
-        private IQueryable<T> OrderBy<T>(IEnumerable<Column> columns)
+        private IQueryable<T> OrderBy<T>(IQueryable<T> source, IEnumerable<Column> columns)
         {
             foreach (var column in columns)
             {
@@ -198,7 +199,7 @@ namespace AutoQueryable.Helpers
             return source;
         }
 
-        private IQueryable<T> OrderByDesc<T>(IEnumerable<Column> columns)
+        private IQueryable<T> OrderByDesc<T>(IQueryable<T> source, IEnumerable<Column> columns)
         {
             foreach (var column in columns)
             {

@@ -6,5 +6,6 @@ namespace AutoQueryable.Core.Clauses
     {
         IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey);
         IClauseQueryFilter GetClauseQueryFilter(string alias);
+        IClauseQueryFilter GetClauseQueryFilter(ClauseType clauseType);
     }
 }

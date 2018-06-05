@@ -15,6 +15,6 @@ namespace AutoQueryable.Core.Clauses
         int? Skip { get; set; }
         int? Take { get; set; }
         int? Top { get; set; }
-        void SetDefaults(IAutoQueryableProfile profile, ISelectClauseHandler selectClauseHandler);
+        void SetDefaults(IAutoQueryableProfile profile);
     }
 }

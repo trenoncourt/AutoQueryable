@@ -20,8 +20,6 @@ namespace AutoQueryable.Core.Models
     public interface IAutoQueryableContext<TEntity> : IAutoQueryableContext<TEntity, TEntity> where TEntity : class { }
     public interface IAutoQueryableContext<TEntity, TAs> where TEntity : class where TAs : class
     {
-        AllClauses<TEntity> Clauses { get; set; }
-
         IQueryable<TAs> GetAutoQuery(IQueryable<TEntity> query);
     }
     public class AutoQueryableContext : AutoQueryableContext<object, object>
@@ -45,15 +43,17 @@ namespace AutoQueryable.Core.Models
         private readonly ICriteriaFilterManager _criteriaFilterManager;
         private readonly IClauseMapManager _clauseMapManager;
         private readonly IClauseValueManager _clauseValueManager;
+        private readonly IQueryBuilder<TEntity, TAs> _queryBuilder;
 
 
-        public AutoQueryableContext(IQueryStringAccessor queryStringAccessor, IAutoQueryableProfile profile, ICriteriaFilterManager criteriaFilterManager, IClauseMapManager clauseMapManager, IClauseValueManager clauseValueManager)
+        public AutoQueryableContext(IQueryStringAccessor queryStringAccessor, IAutoQueryableProfile profile, ICriteriaFilterManager criteriaFilterManager, IClauseMapManager clauseMapManager, IClauseValueManager clauseValueManager, IQueryBuilder<TEntity, TAs> queryBuilder)
         {
             _queryStringAccessor = queryStringAccessor;
             _profile = profile;
             _criteriaFilterManager = criteriaFilterManager;
             _clauseMapManager = clauseMapManager;
             _clauseValueManager = clauseValueManager;
+            _queryBuilder = queryBuilder;
         }
 
         public IQueryable<TAs> GetAutoQuery(IQueryable<TEntity> query) //IAutoQueryResult<TEntity>
@@ -61,18 +61,18 @@ namespace AutoQueryable.Core.Models
             // No query string, get only selectable columns
             if (string.IsNullOrEmpty(_queryStringAccessor.QueryString))
             {
-                return GetDefaultSelectableQuery(); //new AutoQueryResult<TEntity>(); //;
+                return GetDefaultSelectableQuery(query); //new AutoQueryResult<TEntity>(); //;
             }
 
-            Clauses = GetClauses(_queryStringAccessor.QueryStringParts);
+            _getClauses();
             var criterias = _profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias().ToList() : null;
             
-            var queryResult = QueryBuilder.Build<TEntity, TAs>(query, Clauses, criterias, _profile);
+            var queryResult = _queryBuilder.Build(query, criterias);
 
             return queryResult;
         }
         
-        public void GetClauses()
+        private void _getClauses()
         {
             // Set the defaults to start with, then fill/overwrite with the query string values
             _clauseValueManager.SetDefaults(_profile);
@@ -83,7 +83,7 @@ namespace AutoQueryable.Core.Models
                 if(clauseQueryFilter != null)
                 {
                     var value = clauseQueryFilter.ParseValue(_getOperandValue(q.Value, clauseQueryFilter.Alias));
-                    var propertyInfo = _clauseValueManager.GetType().GetProperty(clauseQueryFilter.ClauseType);
+                    var propertyInfo = _clauseValueManager.GetType().GetProperty(clauseQueryFilter.ClauseType.ToString());
                     propertyInfo.SetValue(_clauseValueManager, value);
                     //clauses.Add(new Clause(clauseQueryFilter.ClauseType, value, clauseQueryFilter.ValueType));
                 }
@@ -97,19 +97,17 @@ namespace AutoQueryable.Core.Models
                 var take = _clauseValueManager.Top ?? _profile.DefaultToTake;
                 _clauseValueManager.Skip = page*take;
             }
-            // TODO: Refactor
+
             if (_clauseValueManager.OrderBy == null && !string.IsNullOrEmpty(_profile.DefaultOrderBy))
             {
                 _clauseValueManager.OrderBy = _profile.DefaultOrderBy;
             }
 
-
+                // TODO: Is this right? empty string??
             if (_clauseValueManager.Select == null)
             {
-                clauses.Select.Parse();
+                _clauseMapManager.GetClauseQueryFilter(ClauseType.Select).ParseValue("");
             }
-
-            return clauses;
         }
         private string _getOperandValue(string q, string clauseAlias) => Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase)[1];
 
@@ -177,17 +175,17 @@ namespace AutoQueryable.Core.Models
             return criteria;
         }
 
-        private IQueryable<TAs> GetDefaultSelectableQuery()
+        private IQueryable<TAs> GetDefaultSelectableQuery(IQueryable<TEntity> query)
         {
             var selectColumns = typeof(TEntity).GetSelectableColumns(_profile);
             
-            Query = Query.Take(_profile.DefaultToTake);
+            query = query.Take(_profile.DefaultToTake);
 
             if (_profile.MaxToTake.HasValue)
             {
-                Query = Query.Take(_profile.MaxToTake.Value);
+                query = query.Take(_profile.MaxToTake.Value);
             }
-            return Query.Select(SelectHelper.GetSelector<TEntity, TAs>(selectColumns, _profile));
+            return query.Select(SelectHelper.GetSelector<TEntity, TAs>(selectColumns, _profile));
         }
     }
 
