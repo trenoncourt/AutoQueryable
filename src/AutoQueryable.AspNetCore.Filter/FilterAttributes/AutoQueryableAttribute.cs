@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Abstractions;
@@ -9,6 +10,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
     public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
+        private readonly IAutoQueryableContext _autoQueryableContext;
+
         public string[] SelectableProperties { get; set; }
 
         public string[] UnselectableProperties { get; set; }
@@ -41,7 +44,7 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 
         public int MaxDepth { get; set; }
         
-        public string DefaultOrderBy { get; set; }
+        public Dictionary<string, bool> DefaultOrderBy { get; set; }
         
         public string DefaultOrderByDesc { get; set; }
 
@@ -52,12 +55,9 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         public override void OnActionExecuted(ActionExecutedContext context)
         {
             dynamic query = ((ObjectResult)context.Result).Value;
+            //context.HttpContext
             if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-                
-            var queryString = context.HttpContext.Request.QueryString.HasValue ? context.HttpContext.Request.QueryString.Value : null;;
-            var autoQueryableContext = new
-                AutoQueryableContext<object>(queryString);//, AutoQueryableProfile.From(this));
-            context.Result = new OkObjectResult(autoQueryableContext.GetAutoQuery(query));
+            //context.Result = new OkObjectResult(_autoQueryableContext.GetAutoQuery(query));
         }
     }
 }

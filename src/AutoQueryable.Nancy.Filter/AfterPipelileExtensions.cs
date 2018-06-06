@@ -8,28 +8,28 @@ namespace AutoQueryable.Nancy.Filter
 {
     public static class AfterPipelileExtensions
     {
-        public static void AutoQueryable(this AfterPipeline afterPipeline, NancyContext context, dynamic query, AutoQueryableProfile profile = null)
-        {
-            context.Items.Add("autoqueryable-query", query);
+        //public static void AutoQueryable(this AfterPipeline afterPipeline, NancyContext context, dynamic query, AutoQueryableProfile profile = null)
+        //{
+        //    context.Items.Add("autoqueryable-query", query);
             
-            afterPipeline += ctx =>
-            {
-                if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-                Type entityType = query.GetType().GenericTypeArguments[0];
+        //    afterPipeline += ctx =>
+        //    {
+        //        if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
+        //        Type entityType = query.GetType().GenericTypeArguments[0];
 
-                var queryString = ctx.Request.Url.Query;
+        //        var queryString = ctx.Request.Url.Query;
 
-                ctx.Response.Contents = stream =>
-                {
-                    using (var writer = new StreamWriter(stream))
-                    {
-                        profile = profile ?? new AutoQueryableProfile();
-                        var autoQueryableContext = new AutoQueryableContext<object>(queryString);
-                        var result = autoQueryableContext.GetAutoQuery(query);
-                        writer.Write(JsonConvert.SerializeObject(result));
-                    }
-                };
-            };
-        }
+        //        ctx.Response.Contents = stream =>
+        //        {
+        //            using (var writer = new StreamWriter(stream))
+        //            {
+        //                profile = profile ?? new AutoQueryableProfile();
+        //                var autoQueryableContext = new AutoQueryableContext(queryString);
+        //                var result = autoQueryableContext.GetAutoQuery(query);
+        //                writer.Write(JsonConvert.SerializeObject(result));
+        //            }
+        //        };
+        //    };
+        //}
     }
 }

@@ -7,18 +7,18 @@ using System.Linq;
 
 namespace AutoQueryable.UnitTest
 {
-    [TestClass()]
+    [TestClass]
     public static class DataInitializer
     {
         public static readonly string GuidString = "62559CB0-1EEF-4256-958E-AE4B95974F4E";
         public static readonly int ProductSampleCount = 1000;
         public static readonly int DefaultToTakeCount = 10;
         //[AssemblyInitialize()] 
-        public static void InitializeSeed(AutoQueryableContext context)
+        public static void InitializeSeed(AutoQueryableDbContext dbContext)
         {
             //using (AutoQueryableContext context = new AutoQueryableContext())
             //{
-                if (context.Product.Any())
+                if (dbContext.Product.Any())
                 {
                     return;
                 }
@@ -52,7 +52,7 @@ namespace AutoQueryable.UnitTest
                 };
                 for (var i = 0; i < ProductSampleCount; i++)
                 {
-                    context.Product.Add(new Product
+                    dbContext.Product.Add(new Product
                     {
                         Color = i % 2 == 0 ? "red" : "black",
                         ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
@@ -85,17 +85,17 @@ namespace AutoQueryable.UnitTest
                         ProductExtension = i % 2 == 0 ? new ProductExtension { Name = "ext" } : new ProductExtension { Name = "ext", IsDeleted = true }
                     });
                 }
-                context.SaveChanges();
+                dbContext.SaveChanges();
             //}
         }
-        public static void AddDateTimeSeeds(AutoQueryableContext context)
+        public static void AddDateTimeSeeds(AutoQueryableDbContext dbContext)
         {
-            context.Product.Add(new Product
+            dbContext.Product.Add(new Product
             {
                 Name = "TestIn2010",
                 SellStartDate = new DateTime(2010, DateTime.Today.Month, DateTime.Today.Day)
             });
-            context.SaveChanges();
+            dbContext.SaveChanges();
         }
     }
 }

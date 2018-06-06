@@ -4,86 +4,83 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using AutoQueryable.Core.Aliases;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Extensions;
-using AutoQueryable.Core.Models.Clauses;
 using AutoQueryable.Helpers;
-using Microsoft.AspNetCore.Http;
-using Serilog;
 
 namespace AutoQueryable.Core.Models
 {
-    public interface IAutoQueryableContext : IAutoQueryableContext<object, object> { } 
-    public interface IAutoQueryableContext<TEntity> : IAutoQueryableContext<TEntity, TEntity> where TEntity : class { }
-    public interface IAutoQueryableContext<TEntity, TAs> where TEntity : class where TAs : class
+    public class AutoQueryableContext : IAutoQueryableContext
     {
-        IQueryable<TAs> GetAutoQuery(IQueryable<TEntity> query);
-    }
-    public class AutoQueryableContext : AutoQueryableContext<object, object>
-    {
-        public AutoQueryableContext(IQueryStringAccessor queryStringAccessor, IAutoQueryableProfile profile) : base(queryStringAccessor, profile)
+        private readonly IAutoQueryHandler _autoQueryHandler;
+        private readonly IAutoQueryableProfile _profile;
+
+        public AutoQueryableContext(IAutoQueryableProfile profile, IAutoQueryHandler autoQueryHandler)
         {
-            
+            _autoQueryHandler = autoQueryHandler;
+            _profile = profile;
         }
+
+        public IQueryable<object> GetAutoQuery<T>(IQueryable<T> query) where T : class => _autoQueryHandler.GetAutoQuery(query, _profile);
     }
-    public class AutoQueryableContext<TEntity> : AutoQueryableContext<TEntity, TEntity> where TEntity : class
+
+    public interface IAutoQueryHandler
     {
-        public AutoQueryableContext(IQueryStringAccessor queryStringAccessor, IAutoQueryableProfile profile) : base(queryStringAccessor, profile)
-        {
-            
-        }
+        IQueryable<object> GetAutoQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class;
     }
-    public class AutoQueryableContext<TEntity, TAs> : IAutoQueryableContext<TEntity, TAs> where TEntity : class where TAs : class
+
+    public class AutoQueryHandler : IAutoQueryHandler
     {
         private readonly IQueryStringAccessor _queryStringAccessor;
-        private readonly IAutoQueryableProfile _profile;
         private readonly ICriteriaFilterManager _criteriaFilterManager;
         private readonly IClauseMapManager _clauseMapManager;
         private readonly IClauseValueManager _clauseValueManager;
-        private readonly IQueryBuilder<TEntity, TAs> _queryBuilder;
+        private readonly IQueryBuilder _queryBuilder;
 
-
-        public AutoQueryableContext(IQueryStringAccessor queryStringAccessor, IAutoQueryableProfile profile, ICriteriaFilterManager criteriaFilterManager, IClauseMapManager clauseMapManager, IClauseValueManager clauseValueManager, IQueryBuilder<TEntity, TAs> queryBuilder)
+        public AutoQueryHandler(IQueryStringAccessor queryStringAccessor, ICriteriaFilterManager criteriaFilterManager, IClauseMapManager clauseMapManager, IClauseValueManager clauseValueManager, IQueryBuilder queryBuilder)
         {
             _queryStringAccessor = queryStringAccessor;
-            _profile = profile;
             _criteriaFilterManager = criteriaFilterManager;
             _clauseMapManager = clauseMapManager;
             _clauseValueManager = clauseValueManager;
             _queryBuilder = queryBuilder;
         }
 
-        public IQueryable<TAs> GetAutoQuery(IQueryable<TEntity> query) //IAutoQueryResult<TEntity>
+        public IQueryable<object> GetAutoQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
         {
             // No query string, get only selectable columns
             if (string.IsNullOrEmpty(_queryStringAccessor.QueryString))
             {
-                return GetDefaultSelectableQuery(query); //new AutoQueryResult<TEntity>(); //;
+                return GetDefaultSelectableQuery(query, profile);
             }
 
-            _getClauses();
-            var criterias = _profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias().ToList() : null;
+            _getClauses<T>(profile);
+            var criterias = profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias<T>().ToList() : null;
             
-            var queryResult = _queryBuilder.Build(query, criterias);
+            var queryResult = _queryBuilder.Build<T>(query, criterias, profile);
 
             return queryResult;
         }
-        
-        private void _getClauses()
+        private void _getClauses<T>(IAutoQueryableProfile profile) where T : class
         {
             // Set the defaults to start with, then fill/overwrite with the query string values
-            _clauseValueManager.SetDefaults(_profile);
+            _clauseValueManager.SetDefaults(typeof(T), profile);
             //var clauses = new List<Clause>();
             foreach (var q in _queryStringAccessor.QueryStringParts.Where(q => !q.IsHandled))
             {
                 var clauseQueryFilter = _clauseMapManager.FindClauseQueryFilter(q.Value);
                 if(clauseQueryFilter != null)
                 {
-                    var value = clauseQueryFilter.ParseValue(_getOperandValue(q.Value, clauseQueryFilter.Alias));
+                    var operandValue = _getOperandValue(q.Value, clauseQueryFilter.Alias);
+                    var value = clauseQueryFilter.ParseValue(operandValue, typeof(T), profile);
                     var propertyInfo = _clauseValueManager.GetType().GetProperty(clauseQueryFilter.ClauseType.ToString());
+                    if(propertyInfo.PropertyType == typeof(bool))
+                    {
+                        value = bool.Parse(value.ToString());
+                    }
+
                     propertyInfo.SetValue(_clauseValueManager, value);
                     //clauses.Add(new Clause(clauseQueryFilter.ClauseType, value, clauseQueryFilter.ValueType));
                 }
@@ -94,29 +91,28 @@ namespace AutoQueryable.Core.Models
                 //this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
                 // Calculate skip from page if page query param was set
                 var page = _clauseValueManager.Page;
-                var take = _clauseValueManager.Top ?? _profile.DefaultToTake;
+                var take = _clauseValueManager.Top ?? profile.DefaultToTake;
                 _clauseValueManager.Skip = page*take;
             }
 
-            if (_clauseValueManager.OrderBy == null && !string.IsNullOrEmpty(_profile.DefaultOrderBy))
+            if (_clauseValueManager.OrderBy == null && profile.DefaultOrderBy != null)
             {
-                _clauseValueManager.OrderBy = _profile.DefaultOrderBy;
+                _clauseValueManager.OrderBy = profile.DefaultOrderBy;
             }
 
-                // TODO: Is this right? empty string??
-            if (_clauseValueManager.Select == null)
+            if (_clauseValueManager.Select.Count == 0)
             {
-                _clauseMapManager.GetClauseQueryFilter(ClauseType.Select).ParseValue("");
+                _clauseMapManager.GetClauseQueryFilter(ClauseType.Select).ParseValue("", typeof(T), profile);
             }
         }
         private string _getOperandValue(string q, string clauseAlias) => Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase)[1];
 
-        public IEnumerable<Criteria> GetCriterias()
+        public IEnumerable<Criteria> GetCriterias<T>() where T : class
         {
             foreach (var qPart in _queryStringAccessor.QueryStringParts.Where(q => !q.IsHandled))
             {
                 var q = WebUtility.UrlDecode(qPart.Value);
-                var criteria = GetCriteria(q);
+                var criteria = GetCriteria<T>(q);
 
                 if (criteria != null)
                 {
@@ -125,7 +121,7 @@ namespace AutoQueryable.Core.Models
             }
         }
 
-        private Criteria GetCriteria(string q)
+        private Criteria GetCriteria<T>(string q) where T : class
         {
 
             var filter = _criteriaFilterManager.FindFilter(q);
@@ -143,7 +139,7 @@ namespace AutoQueryable.Core.Models
             {
                 if (property == null)
                 {
-                    property = typeof(TEntity).GetProperties().FirstOrDefault(p => p.Name.Equals(column, StringComparison.OrdinalIgnoreCase));
+                    property = typeof(T).GetProperties().FirstOrDefault(p => p.Name.Equals(column, StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
@@ -175,60 +171,22 @@ namespace AutoQueryable.Core.Models
             return criteria;
         }
 
-        private IQueryable<TAs> GetDefaultSelectableQuery(IQueryable<TEntity> query)
+        private IQueryable<object> GetDefaultSelectableQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
         {
-            var selectColumns = typeof(TEntity).GetSelectableColumns(_profile);
+            var selectColumns = typeof(T).GetSelectableColumns(profile);
             
-            query = query.Take(_profile.DefaultToTake);
+            query = query.Take(profile.DefaultToTake);
 
-            if (_profile.MaxToTake.HasValue)
+            if (profile.MaxToTake.HasValue)
             {
-                query = query.Take(_profile.MaxToTake.Value);
+                query = query.Take(profile.MaxToTake.Value);
             }
-            return query.Select(SelectHelper.GetSelector<TEntity, TAs>(selectColumns, _profile));
-        }
-    }
-
-    public interface IQueryStringAccessor
-    {
-        string QueryString { get; }
-        ICollection<QueryStringPart> QueryStringParts { get; }
-    }
-
-    public class AspNetCoreQueryStringAccessor : IQueryStringAccessor
-    {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        public ICollection<QueryStringPart> QueryStringParts { get; } = new List<QueryStringPart>();
-
-        public string QueryString
-        {
-            get
+            if (profile.UseBaseType)
             {
-                var queryString = _httpContextAccessor.HttpContext.Request.QueryString.Value;
-                return Uri.UnescapeDataString(queryString ?? "");
+                return query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile));
             }
-        }
+            return query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
 
-        public AspNetCoreQueryStringAccessor(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-
-            foreach(var queryStringPart in QueryString.Replace("?", "").Split('&'))
-            {
-                QueryStringParts.Add(new QueryStringPart(queryStringPart));
-            }
-        }
-    }
-
-    public class QueryStringPart
-    {
-
-        public string Value { get; set; }
-        public bool IsHandled { get; set; }
-
-        public QueryStringPart(string value)
-        {
-            Value = value;
         }
     }
 }

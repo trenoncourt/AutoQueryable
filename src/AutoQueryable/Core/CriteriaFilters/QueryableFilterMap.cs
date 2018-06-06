@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Core.Aliases;
-using AutoQueryable.Core.CriteriaFilters.FilterMaps;
 using AutoQueryable.Core.CriteriaFilters.Formatters;
 
 namespace AutoQueryable.Core.CriteriaFilters

@@ -7,6 +7,6 @@ namespace AutoQueryable.Core.Models
     { 
         public List<string> ColumnPath { get; set; } 
         public IQueryableFilter Filter { get; set; }
-        public dynamic[] Values { get; set; }
+        public string[] Values { get; set; }
     }
 }

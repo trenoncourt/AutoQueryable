@@ -1,4 +1,5 @@
-﻿using AutoQueryable.Core.Enums;
+﻿using System.Collections.Generic;
+using AutoQueryable.Core.Enums;
 using Serilog;
 
 namespace AutoQueryable.Core.Models
@@ -8,7 +9,7 @@ namespace AutoQueryable.Core.Models
         ClauseType? AllowedClauses { get; set; }
         ConditionType? AllowedConditions { get; set; }
         WrapperPartType? AllowedWrapperPartType { get; set; }
-        string DefaultOrderBy { get; set; }
+        Dictionary<string, bool> DefaultOrderBy { get; set; }
         string DefaultOrderByDesc { get; set; }
         int DefaultToTake { get; set; }
         ClauseType? DisAllowedClauses { get; set; }

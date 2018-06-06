@@ -3,63 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using AutoMapper.QueryableExtensions;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.CriteriaFilters;
-using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Core.Models.Clauses;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
 
 namespace AutoQueryable.Helpers
 {
-    public interface IQueryBuilder<TEntity, TAs> where TEntity : class where TAs : class
+    public interface IQueryBuilder
     {
-        IQueryable<TAs> Build(IQueryable<TEntity> query, ICollection<Criteria> criterias);
+        IQueryable<dynamic> Build<T>(IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class;
     }
-    public class QueryBuilder<TEntity, TAs> : IQueryBuilder<TEntity, TAs> where TEntity : class where TAs : class
+    public class QueryBuilder : IQueryBuilder
     {
         private readonly IClauseValueManager _clauseValueManager;
-        private readonly IAutoQueryableProfile _profile;
+        private readonly ICriteriaFilterManager _criteriaFilterManager;
 
 
-        public QueryBuilder(IClauseValueManager clauseValueManager, IAutoQueryableProfile profile)
+        public QueryBuilder(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager)
         {
             _clauseValueManager = clauseValueManager;
-            _profile = profile;
+            _criteriaFilterManager = criteriaFilterManager;
         }
-        public IQueryable<TAs> Build(IQueryable<TEntity> query, ICollection<Criteria> criterias)
+        public IQueryable<dynamic> Build<T>(IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
         {
-            // TODO: Handle '-' to orderbydesc (in order that they are in the orderby string)
-            var orderColumns = OrderByHelper.GetOrderByColumns(_profile, _clauseValueManager.OrderBy, typeof(TEntity));
-
             if (criterias != null && criterias.Any())
             {
-                query = query.Where(criterias);
+                query = _addCriterias(query, criterias);
             }
-            if (orderColumns != null)
+            query = _addOrderBy(query, _clauseValueManager.OrderBy, profile);
+            IQueryable<dynamic> queryProjection;
+           
+            if (!_clauseValueManager.Select.Any() && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
             {
-                query = query.OrderBy(orderColumns);
-            }
-
-            IQueryable<TAs> queryProjection;
-            if (_clauseValueManager.Select.Any() || _profile?.UnselectableProperties != null || _profile?.SelectableProperties != null)
+                queryProjection = query;
+                
+            } else
             {
-                queryProjection = query.Select(SelectHelper.GetSelector<TEntity, TAs>(_clauseValueManager.Select, _profile));
-            }else
-            {
-                queryProjection = query.ProjectTo<TAs>();
+                queryProjection = profile.UseBaseType ? 
+                    query.Select(SelectHelper.GetSelector<T, T>(_clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(_clauseValueManager.Select, profile));
             }
             if (_clauseValueManager.Skip.HasValue)
             {
-                if (_profile?.MaxToSkip != null && _clauseValueManager.Skip > _profile.MaxToSkip)
+                if (profile?.MaxToSkip != null && _clauseValueManager.Skip > profile.MaxToSkip)
                 {
-                    _clauseValueManager.Skip = _profile.MaxToSkip.Value;
+                    _clauseValueManager.Skip = profile.MaxToSkip.Value;
                 }
 
-                if (_profile != null && _profile.UseBaseType)
+                if (profile != null && profile.UseBaseType)
                 {
                     queryProjection = queryProjection.Skip(_clauseValueManager.Skip.Value);
                 }
@@ -70,12 +63,12 @@ namespace AutoQueryable.Helpers
             }
             if (_clauseValueManager.Top.HasValue)
             {
-                if (_profile?.MaxToTake != null && _clauseValueManager.Top > _profile.MaxToTake)
+                if (profile?.MaxToTake != null && _clauseValueManager.Top > profile.MaxToTake)
                 {
-                    _clauseValueManager.Top = _profile.MaxToTake.Value;
+                    _clauseValueManager.Top = profile.MaxToTake.Value;
                 }
 
-                if (_profile != null && _profile.UseBaseType)
+                if (profile != null && profile.UseBaseType)
                 {
                     queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
                 }
@@ -84,14 +77,14 @@ namespace AutoQueryable.Helpers
                     queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
                 }
             }
-            else if (_profile?.MaxToTake != null)
+            else if (profile?.MaxToTake != null)
             {
-                queryProjection = queryProjection.Take(_profile.MaxToTake.Value);
+                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
             }
 
-            if (_profile?.MaxToTake != null)
+            if (profile?.MaxToTake != null)
             {
-                queryProjection = queryProjection.Take(_profile.MaxToTake.Value);
+                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
             }
             return queryProjection;
         }
@@ -166,7 +159,7 @@ namespace AutoQueryable.Helpers
                 var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType, criteria.Filter.FormatProvider);
                 ConstantExpression val = Expression.Constant(convertedValue, childProperty.PropertyType);
 
-                var filter = CriteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria);
+                var filter = _criteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria.Filter.Alias);
                 if (filter != null)
                 {
                     var newExpression = filter.Filter(memberExpression, val);
@@ -176,7 +169,7 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private IQueryable<T> Where<T>(IQueryable<T> source, IEnumerable<Criteria> criterias)
+        private IQueryable<T> _addCriterias<T>(IQueryable<T> source, IEnumerable<Criteria> criterias) where T : class
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;
@@ -189,23 +182,49 @@ namespace AutoQueryable.Helpers
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
         }
-
-        private IQueryable<T> OrderBy<T>(IQueryable<T> source, IEnumerable<Column> columns)
+        // TODO: Handle '-' to orderbydesc (in order that they are in the orderby string)
+        private IQueryable<T> _addOrderBy<T>(IQueryable<T> source, Dictionary<string, bool> orderClause, IAutoQueryableProfile profile) where T : class
         {
+            if (orderClause.Count == 0)
+            {
+                return source;
+            }
+            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties();
+            if (profile?.SortableProperties != null)
+            {
+                properties = properties.Where(c => profile.SortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+            if (profile?.UnSortableProperties != null)
+            {
+                properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+
+            properties = properties.Where(p => orderClause.Keys.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+
+            var columns = properties.Select(v => new Column
+            {
+                PropertyName = v.Name
+            });
             foreach (var column in columns)
             {
-                source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                var desc = orderClause.FirstOrDefault(o => string.Equals(o.Key, column.PropertyName, StringComparison.OrdinalIgnoreCase)).Value;
+                if(desc){
+                    source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
+                }else
+                {
+                    source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                }
             }
             return source;
         }
 
-        private IQueryable<T> OrderByDesc<T>(IQueryable<T> source, IEnumerable<Column> columns)
-        {
-            foreach (var column in columns)
-            {
-                source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
-            }
-            return source;
-        }
+        //private IQueryable<T> OrderByDesc<T>(IQueryable<T> source, IEnumerable<Column> columns)
+        //{
+        //    foreach (var column in columns)
+        //    {
+        //        source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
+        //    }
+        //    return source;
+        //}
     }
 }

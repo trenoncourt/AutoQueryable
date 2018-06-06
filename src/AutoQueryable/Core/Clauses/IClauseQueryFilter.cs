@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
 
@@ -8,6 +8,6 @@ namespace AutoQueryable.Core.Clauses
     {
         string Alias { get; set; }
         ClauseType ClauseType { get; set; }
-        object ParseValue(string value);
+        object ParseValue(string value, Type type, IAutoQueryableProfile profile);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http.Filters;
@@ -10,6 +11,12 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {
     public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
+        private readonly IAutoQueryableContext _autoQueryableContext;
+
+        public AutoQueryableAttribute(IAutoQueryableContext autoQueryableContext)
+        {
+            _autoQueryableContext = autoQueryableContext;
+        }
         public string[] SelectableProperties { get; set; }
 
         public string[] UnselectableProperties { get; set; }
@@ -42,7 +49,7 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
 
         public int MaxDepth { get; set; }
         
-        public string DefaultOrderBy { get; set; }
+        public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
         
         public string DefaultOrderByDesc { get; set; }
         
@@ -51,17 +58,13 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
 
         public override void OnActionExecuted(HttpActionExecutedContext context)
         {
-            var content = context.Response.Content as ObjectContent;
-            if (content != null)
+            if (context.Response.Content is ObjectContent content)
             {
                 dynamic query = content.Value;
                 if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-                
-                var queryString = context.Request.RequestUri.Query;
-                var autoQueryableContext = new
-                    AutoQueryableContext<object>(queryString); //AutoQueryableProfile.From(this));
-                var result = autoQueryableContext.GetAutoQuery(query);
-                context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
+
+                //var result = _autoQueryableContext.GetAutoQuery(query);
+                //context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
             }
         }
     }

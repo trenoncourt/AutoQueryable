@@ -5,7 +5,6 @@ using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using AutoQueryable.Core.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
     public class AutoQueryable
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAutoQueryableContext _autoQueryableContext;
 
-        public AutoQueryable(IHttpContextAccessor httpContextAccessor)
+        public AutoQueryable(IAutoQueryableContext autoQueryableContext)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _autoQueryableContext = autoQueryableContext;
         }
-        public dynamic AutoQuery<TEntity>(IQueryable<TEntity> query) where TEntity : class
-        {
-            var context = new AutoQueryableContext<TEntity>("");//_httpContextAccessor.HttpContext.Request.GetUri()
-            return context.GetAutoQuery(query);
-        }
+        public dynamic AutoQuery<TEntity>(IQueryable<TEntity> query) where TEntity : class => _autoQueryableContext.GetAutoQuery(query);
     }
 }

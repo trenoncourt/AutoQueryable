@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.Core.Clauses
@@ -8,13 +9,13 @@ namespace AutoQueryable.Core.Clauses
         bool First { get; set; }
         string GroupBy { get; set; }
         bool Last { get; set; }
-        string OrderBy { get; set; }
+        Dictionary<string, bool> OrderBy { get; set; }
         int? Page { get; set; }
         int? PageSize { get; set; }
         ICollection<SelectColumn> Select { get; set; }
         int? Skip { get; set; }
         int? Take { get; set; }
         int? Top { get; set; }
-        void SetDefaults(IAutoQueryableProfile profile);
+        void SetDefaults(Type type, IAutoQueryableProfile profile);
     }
 }

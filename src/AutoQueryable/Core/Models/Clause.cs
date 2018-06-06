@@ -1,7 +1,5 @@
 ﻿using System;
 using AutoQueryable.Core.Clauses;
-using AutoQueryable.Core.Enums;
-using AutoQueryable.Core.Models.Clauses;
 
 namespace AutoQueryable.Core.Models
 {

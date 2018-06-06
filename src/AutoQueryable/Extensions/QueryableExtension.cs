@@ -8,9 +8,9 @@ namespace AutoQueryable.Extensions
 {
     public static class QueryableExtension
     {
-        public static IQueryable<object> AutoQueryable(this IQueryable<object> query, IAutoQueryableContext context) => context.GetAutoQuery(query);
+        //public static IQueryable<object> AutoQueryable(this IQueryable<object> query, IAutoQueryableContext context) => context.GetAutoQuery(query);
 
-        public static IQueryable<TAs> AutoQueryable<TEntity,TAs>(this IQueryable<TEntity> query, IAutoQueryableContext<TEntity,TAs> context) where TEntity : class where TAs : class => context.GetAutoQuery(query);
+        public static IQueryable<object> AutoQueryable<TEntity>(this IQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class => context.GetAutoQuery(query);
 
         public static IQueryable<T> Call<T>(this IQueryable<T> source, string method, string propertyName)
         {

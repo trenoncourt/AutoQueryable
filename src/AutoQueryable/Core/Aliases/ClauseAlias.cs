@@ -11,8 +11,8 @@
         public const string OrderBy = "orderby=";
         public const string OrderByDesc = "orderbydesc=";
         public const string GroupBy = "groupby=";
-        public const string First = "first=true";
-        public const string Last = "last=true";
+        public const string First = "first=";
+        public const string Last = "last=";
         public const string WrapWith = "wrapwith=";
     }
 }

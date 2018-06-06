@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace AutoQueryable.Core.Enums
 {
+    [Flags]
     public enum ClauseType
     {
         None,

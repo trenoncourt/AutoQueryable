@@ -1,5 +1,4 @@
 ﻿using System;
-using AutoQueryable.Core.Enums;
 
 namespace AutoQueryable.Core.Clauses
 {

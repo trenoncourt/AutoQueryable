@@ -1,4 +1,5 @@
-﻿using AutoQueryable.Core.Enums;
+﻿using System.Collections.Generic;
+using AutoQueryable.Core.Enums;
 
 namespace AutoQueryable.Core.Models.Abstractions
 {
@@ -36,7 +37,7 @@ namespace AutoQueryable.Core.Models.Abstractions
 
         int MaxDepth { get; set; }
 
-        string DefaultOrderBy { get; set; }
+        Dictionary<string, bool> DefaultOrderBy { get; set; }
         
         string DefaultOrderByDesc { get; set; }
 

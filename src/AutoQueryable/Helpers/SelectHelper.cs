@@ -7,7 +7,6 @@ using AutoQueryable.Extensions;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models;
 

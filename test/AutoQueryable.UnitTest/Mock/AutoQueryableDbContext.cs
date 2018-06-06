@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging.Console;
 
 namespace AutoQueryable.UnitTest.Mock
 {
-    public class AutoQueryableContext : DbContext
+    public class AutoQueryableDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

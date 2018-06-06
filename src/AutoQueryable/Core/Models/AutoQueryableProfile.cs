@@ -1,4 +1,5 @@
-﻿using AutoQueryable.Core.Enums;
+﻿using System.Collections.Generic;
+using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models.Abstractions;
 using Serilog;
 
@@ -40,7 +41,7 @@ namespace AutoQueryable.Core.Models
         
         public int? MaxDepth { get; set; }
         
-        public string DefaultOrderBy { get; set; }
+        public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
         
         public string DefaultOrderByDesc { get; set; }
 

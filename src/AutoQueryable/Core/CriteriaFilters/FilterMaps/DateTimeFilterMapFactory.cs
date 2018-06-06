@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using AutoQueryable.Core.Aliases;
 
 namespace AutoQueryable.Core.CriteriaFilters.FilterMaps

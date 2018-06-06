@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoQueryable.Extensions;
-using AutoQueryable.UnitTest.Mock;
-using System.Dynamic;
-using FluentAssertions;
-using Xunit;
-
-namespace AutoQueryable.UnitTest
+﻿namespace AutoQueryable.UnitTest
 {
     public class PagedResultTest
     {
 
-        [Fact]
-        public void CountAll()
-        {
-            using (var context = new AutoQueryableContext())
-            {
-                DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("wrapwith=count") as object;
-            }
-        }
+        //[Fact]
+        //public void CountAll()
+        //{
+        //    using (var context = new AutoQueryableContext())
+        //    {
+        //        DataInitializer.InitializeSeed(context);
+        //        var query = context.Product.AutoQueryable("wrapwith=count") as object;
+        //    }
+        //}
 
         //[Fact]
         //public void WrapWithTotalCount()

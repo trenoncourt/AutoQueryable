@@ -5,6 +5,7 @@ using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Dtos;
+using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoQueryable.Sample.EfCore.Controllers
@@ -12,7 +13,14 @@ namespace AutoQueryable.Sample.EfCore.Controllers
     [Route("api/products")]
     public class ProductController : ControllerBase
     {
+        private readonly IAutoQueryableContext _autoQueryableContext;
+        private readonly IAutoQueryableProfile _profile;
 
+        public ProductController(IAutoQueryableContext autoQueryableContext, IAutoQueryableProfile profile)
+        {
+            _autoQueryableContext = autoQueryableContext;
+            _profile = profile;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -54,17 +62,17 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         [HttpGet("disallow")]
         public dynamic GetWithNotAllowedClauses([FromServices] AutoQueryableDbContext context)
         {
-            return context.Product.AutoQueryable(Request.QueryString.Value,
-                new AutoQueryableProfile {
-                    AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith | ClauseType.Filter, 
-                    MaxToTake = 5, 
-                    MaxToSkip = 5,
-                    MaxDepth = 2,
-//                    SelectableProperties = new[] { "name", "color" },
-                    DisAllowedConditions = ConditionType.Contains | ConditionType.Less,
-                    SortableProperties = new []{"color"},
-                    AllowedWrapperPartType = WrapperPartType.Count
-                });
+           _profile.AllowedClauses = ClauseType.Select | ClauseType.Skip | ClauseType.OrderBy | ClauseType.OrderByDesc | ClauseType.WrapWith | ClauseType.Filter;
+            _profile.MaxToTake = 5;
+
+//                MaxToSkip = 5,
+//                MaxDepth = 2,
+////                    SelectableProperties = new[] { "name", "color" },
+//                DisAllowedConditions = ConditionType.Contains | ConditionType.Less,
+//                SortableProperties = new []{"color"},
+//                AllowedWrapperPartType = WrapperPartType.Count
+//            };
+            return context.Product.AutoQueryable(_autoQueryableContext);
         }
     }
 }
