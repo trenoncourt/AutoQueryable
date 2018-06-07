@@ -5,7 +5,8 @@ namespace AutoQueryable.Core.Models
 {
     public interface IAutoQueryableContext
     {
-        IQueryable<object> GetAutoQuery<T>(IQueryable<T> query) where T : class;
+        IQueryable<dynamic> GetAutoQuery<T>(IQueryable<T> query) where T : class;
+        IQueryable<dynamic> TotalCountQuery { get; }
     }
 
 }

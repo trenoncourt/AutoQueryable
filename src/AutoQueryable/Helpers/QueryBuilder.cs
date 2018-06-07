@@ -15,12 +15,13 @@ namespace AutoQueryable.Helpers
     public interface IQueryBuilder
     {
         IQueryable<dynamic> Build<T>(IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class;
+        IQueryable<dynamic> TotalCountQuery { get; }
     }
     public class QueryBuilder : IQueryBuilder
     {
         private readonly IClauseValueManager _clauseValueManager;
         private readonly ICriteriaFilterManager _criteriaFilterManager;
-
+        public IQueryable<dynamic> TotalCountQuery { get; private set; }
 
         public QueryBuilder(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager)
         {
@@ -34,6 +35,8 @@ namespace AutoQueryable.Helpers
                 query = _addCriterias(query, criterias);
             }
             query = _addOrderBy(query, _clauseValueManager.OrderBy, profile);
+
+            TotalCountQuery = query;
             IQueryable<dynamic> queryProjection;
            
             if (!_clauseValueManager.Select.Any() && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
@@ -54,7 +57,7 @@ namespace AutoQueryable.Helpers
 
                 if (profile != null && profile.UseBaseType)
                 {
-                    queryProjection = queryProjection.Skip(_clauseValueManager.Skip.Value);
+                    queryProjection = ((IQueryable<T>)queryProjection).Skip(_clauseValueManager.Skip.Value);
                 }
                 else
                 {
@@ -70,7 +73,7 @@ namespace AutoQueryable.Helpers
 
                 if (profile != null && profile.UseBaseType)
                 {
-                    queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
+                    queryProjection = ((IQueryable<T>)queryProjection).Take(_clauseValueManager.Top.Value);
                 }
                 else
                 {
@@ -79,13 +82,13 @@ namespace AutoQueryable.Helpers
             }
             else if (profile?.MaxToTake != null)
             {
-                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
+                queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
             }
 
-            if (profile?.MaxToTake != null)
-            {
-                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
-            }
+            //if (profile?.MaxToTake != null)
+            //{
+            //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
+            //}
             return queryProjection;
         }
         
