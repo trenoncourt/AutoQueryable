@@ -28,7 +28,7 @@ namespace AutoQueryable.UnitTest
             var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler);
             var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler);
             var criteriaFilterManager = new CriteriaFilterManager();
-            _autoQueryableContext = new AutoQueryableContext(_profile, new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager , new QueryBuilder(clauseValueManager, criteriaFilterManager)));
+            _autoQueryableContext = new AutoQueryableContext(_profile, new AutoQueryHandler( _queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager));
         }
 
         [Fact]

@@ -12,72 +12,60 @@ using AutoQueryable.Models.Constants;
 
 namespace AutoQueryable.Helpers
 {
-    public interface IQueryBuilder
+    public static class QueryBuilder
     {
-        IQueryable<dynamic> Build<T>(IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class;
-        IQueryable<dynamic> TotalCountQuery { get; }
-    }
-    public class QueryBuilder : IQueryBuilder
-    {
-        private readonly IClauseValueManager _clauseValueManager;
-        private readonly ICriteriaFilterManager _criteriaFilterManager;
-        public IQueryable<dynamic> TotalCountQuery { get; private set; }
+        public static IQueryable<dynamic> TotalCountQuery { get; private set; }
 
-        public QueryBuilder(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager)
-        {
-            _clauseValueManager = clauseValueManager;
-            _criteriaFilterManager = criteriaFilterManager;
-        }
-        public IQueryable<dynamic> Build<T>(IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
+        public static IQueryable<dynamic> Build<T>(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager, IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
         {
             if (criterias != null && criterias.Any())
             {
-                query = _addCriterias(query, criterias);
+                query = _addCriterias(criteriaFilterManager, query, criterias);
             }
-            query = _addOrderBy(query, _clauseValueManager.OrderBy, profile);
+            query = _addOrderBy(query, clauseValueManager.OrderBy, profile);
 
             TotalCountQuery = query;
             IQueryable<dynamic> queryProjection;
            
-            if (!_clauseValueManager.Select.Any() && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
+            if (!clauseValueManager.Select.Any() && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
             {
                 queryProjection = query;
                 
             } else
             {
                 queryProjection = profile.UseBaseType ? 
-                    query.Select(SelectHelper.GetSelector<T, T>(_clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(_clauseValueManager.Select, profile));
+                    query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
             }
-            if (_clauseValueManager.Skip.HasValue)
+            if (clauseValueManager.Skip.HasValue)
             {
-                if (profile?.MaxToSkip != null && _clauseValueManager.Skip > profile.MaxToSkip)
+                if (profile?.MaxToSkip != null && clauseValueManager.Skip > profile.MaxToSkip)
                 {
-                    _clauseValueManager.Skip = profile.MaxToSkip.Value;
+                    clauseValueManager.Skip = profile.MaxToSkip.Value;
                 }
 
                 if (profile != null && profile.UseBaseType)
                 {
-                    queryProjection = ((IQueryable<T>)queryProjection).Skip(_clauseValueManager.Skip.Value);
+                    queryProjection = ((IQueryable<T>)queryProjection).Skip(clauseValueManager.Skip.Value);
                 }
                 else
                 {
-                    queryProjection = queryProjection.Skip(_clauseValueManager.Skip.Value);
+                    queryProjection = queryProjection.Skip(clauseValueManager.Skip.Value);
                 }
             }
-            if (_clauseValueManager.Top.HasValue)
+            if (clauseValueManager.Top.HasValue)
             {
-                if (profile?.MaxToTake != null && _clauseValueManager.Top > profile.MaxToTake)
+                if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
                 {
-                    _clauseValueManager.Top = profile.MaxToTake.Value;
+                    clauseValueManager.Top = profile.MaxToTake.Value;
                 }
 
                 if (profile != null && profile.UseBaseType)
                 {
-                    queryProjection = ((IQueryable<T>)queryProjection).Take(_clauseValueManager.Top.Value);
+                    queryProjection = ((IQueryable<T>)queryProjection).Take(clauseValueManager.Top.Value);
                 }
                 else
                 {
-                    queryProjection = queryProjection.Take(_clauseValueManager.Top.Value);
+                    queryProjection = queryProjection.Take(clauseValueManager.Top.Value);
                 }
             }
             else if (profile?.MaxToTake != null)
@@ -92,7 +80,7 @@ namespace AutoQueryable.Helpers
             return queryProjection;
         }
         
-        private Expression MakeLambda(Expression parameter, Expression predicate)
+        private static Expression MakeLambda(Expression parameter, Expression predicate)
         {
             var resultParameterVisitor = new ParameterVisitor();
             resultParameterVisitor.Visit(parameter);
@@ -114,7 +102,7 @@ namespace AutoQueryable.Helpers
             }
         }
 
-        private Expression BuildWhereSubQueryExpression(Expression parameter, Expression childParameter, Type childType, Expression predicate)
+        private static Expression BuildWhereSubQueryExpression(Expression parameter, Expression childParameter, Type childType, Expression predicate)
         {
             var anyMethod = typeof(Enumerable).GetMethods().Single(m => m.Name == "Any" && m.GetParameters().Length == 2);
             anyMethod = anyMethod.MakeGenericMethod(childType);
@@ -122,7 +110,7 @@ namespace AutoQueryable.Helpers
             return Expression.Call(anyMethod, parameter, lambdaPredicate);
         }
 
-        private Expression BuildWhereExpression(Expression parameter, Criteria criteria, params string[] properties)
+        private static Expression BuildWhereExpression(ICriteriaFilterManager criteriaFilterManager, Expression parameter, Criteria criteria, params string[] properties)
         {
             Type childType = null;
 
@@ -144,7 +132,7 @@ namespace AutoQueryable.Helpers
                 }
                 //skip current property and get navigation property expression recursivly
                 var innerProperties = properties.Skip(1).ToArray();
-                var predicate = BuildWhereExpression(childParameter, criteria, innerProperties);
+                var predicate = BuildWhereExpression(criteriaFilterManager, childParameter, criteria, innerProperties);
                 if (isCollection)
                 {
                     //build subquery
@@ -162,7 +150,7 @@ namespace AutoQueryable.Helpers
                 var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType, criteria.Filter.FormatProvider);
                 ConstantExpression val = Expression.Constant(convertedValue, childProperty.PropertyType);
 
-                var filter = _criteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria.Filter.Alias);
+                var filter = criteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria.Filter.Alias);
                 if (filter != null)
                 {
                     var newExpression = filter.Filter(memberExpression, val);
@@ -172,13 +160,13 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private IQueryable<T> _addCriterias<T>(IQueryable<T> source, IEnumerable<Criteria> criterias) where T : class
+        private static IQueryable<T> _addCriterias<T>(ICriteriaFilterManager criteriaFilterManager, IQueryable<T> source, IEnumerable<Criteria> criterias) where T : class
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;
             foreach (var c in criterias)
             {
-                var expression = BuildWhereExpression(parentEntity, c, c.ColumnPath.ToArray());
+                var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
 
                 whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
             }
@@ -186,7 +174,7 @@ namespace AutoQueryable.Helpers
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
         }
         // TODO: Handle '-' to orderbydesc (in order that they are in the orderby string)
-        private IQueryable<T> _addOrderBy<T>(IQueryable<T> source, Dictionary<string, bool> orderClause, IAutoQueryableProfile profile) where T : class
+        private static IQueryable<T> _addOrderBy<T>(IQueryable<T> source, Dictionary<string, bool> orderClause, IAutoQueryableProfile profile) where T : class
         {
             if (orderClause.Count == 0)
             {

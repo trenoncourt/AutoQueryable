@@ -17,7 +17,7 @@ namespace AutoQueryable.Core.Clauses
         private Type _baseType = typeof(object);
         private IAutoQueryableProfile _profile;
 
-        public ICollection<SelectColumn> Handle(string queryString, Type type = default, IAutoQueryableProfile profile = null)
+        public ICollection<SelectColumn> Handle(string queryString, Type type = default(Type), IAutoQueryableProfile profile = null)
         {
             _profile = profile ?? throw new NullReferenceException("The profile has not been set on SelectClauseHandler");
             _baseType = type;

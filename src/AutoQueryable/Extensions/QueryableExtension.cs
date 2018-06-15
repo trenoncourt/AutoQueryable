@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Clauses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace AutoQueryable.Extensions
 {
@@ -35,9 +36,9 @@ namespace AutoQueryable.Extensions
                 Result = result
             };
         }
-        public static async Task<IPagedResult<TEntity>> ToPagedResultAsync<TEntity>(this IQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class
+        public static async Task<IPagedResult<TEntity>> ToPagedResultAsync<TEntity>(this EntityQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class
         {
-            var result = await query.ToListAsync();
+            var result = query.ToList();
             return new PagedResult<TEntity>
             {
                 TotalCount = context.TotalCountQuery != null ? await context.TotalCountQuery.CountAsync() : result.Count,

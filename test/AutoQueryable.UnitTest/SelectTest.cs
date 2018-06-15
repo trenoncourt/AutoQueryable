@@ -33,7 +33,7 @@ namespace AutoQueryable.UnitTest
             var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler);
             var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler);
             var criteriaFilterManager = new CriteriaFilterManager();
-            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager , new QueryBuilder(clauseValueManager, criteriaFilterManager));
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
             _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
         }
         [Fact]
