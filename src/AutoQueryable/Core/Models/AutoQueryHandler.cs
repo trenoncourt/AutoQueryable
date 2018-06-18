@@ -38,6 +38,7 @@ namespace AutoQueryable.Core.Models
             // No query string, get only selectable columns
             if (string.IsNullOrEmpty(_queryStringAccessor.QueryString))
             {
+                TotalCountQuery = query;
                 return GetDefaultSelectableQuery(query, profile);
             }
 
@@ -46,12 +47,8 @@ namespace AutoQueryable.Core.Models
             
             var queryResult = QueryBuilder.Build(_clauseValueManager, _criteriaFilterManager, query, criterias, profile);
 
-            // If pagination is used, add the totalcountquery to the context to be passed to the ToPagedResultAsync() method after the query
-            if(_clauseValueManager.Page != null)
-            {
-                TotalCountQuery = QueryBuilder.TotalCountQuery;
-            }
-
+            TotalCountQuery = QueryBuilder.TotalCountQuery;
+ 
             return queryResult;
         }
         private void _getClauses<T>(IAutoQueryableProfile profile) where T : class
@@ -77,14 +74,20 @@ namespace AutoQueryable.Core.Models
                 }
             }
 
+            if (_clauseValueManager.PageSize != null)
+            {
+                _clauseValueManager.Top = _clauseValueManager.PageSize;
+            }
+
             if (_clauseValueManager.Page != null)
             {
                 //this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
                 // Calculate skip from page if page query param was set
-                var page = _clauseValueManager.Page;
                 _clauseValueManager.Top = _clauseValueManager.Top ?? profile.DefaultToTake;
                 _clauseValueManager.Skip = (_clauseValueManager.Page - 1) * _clauseValueManager.Top;
             }
+
+
 
             if (_clauseValueManager.OrderBy == null && profile.DefaultOrderBy != null)
             {
@@ -162,7 +165,7 @@ namespace AutoQueryable.Core.Models
             return criteria;
         }
 
-        private IQueryable<dynamic> GetDefaultSelectableQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
+        private static IQueryable<dynamic> GetDefaultSelectableQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
         {
             var selectColumns = typeof(T).GetSelectableColumns(profile);
             
@@ -172,12 +175,13 @@ namespace AutoQueryable.Core.Models
             {
                 query = query.Take(profile.MaxToTake.Value);
             }
-            if (profile.UseBaseType)
-            {
-                return query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile));
-            }
-            return query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
 
+            if(profile.ToListBeforeSelect)
+            {
+                query = query.ToList().AsQueryable();
+            }
+
+            return profile.UseBaseType ? query.Select(SelectHelper.GetSelector<T, T>(selectColumns, profile)) : query.Select(SelectHelper.GetSelector<T, object>(selectColumns, profile));
         }
     }
 }

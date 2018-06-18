@@ -46,6 +46,7 @@ namespace AutoQueryable.Core.Models
         public string DefaultOrderByDesc { get; set; }
 
         public bool UseBaseType { get; set; }
+        public bool ToListBeforeSelect { get; set; }
 
         public static AutoQueryableProfile From(IFilterProfile filterProfile) => new AutoQueryableProfile
         {
@@ -67,7 +68,8 @@ namespace AutoQueryable.Core.Models
             MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
             DefaultOrderBy = filterProfile.DefaultOrderBy,
             DefaultOrderByDesc = filterProfile.DefaultOrderByDesc,
-            UseBaseType = filterProfile.UseBaseType
+            UseBaseType = filterProfile.UseBaseType,
+            ToListBeforeSelect = filterProfile.ToListBeforeSelect
         };
         public bool IsClauseAllowed(ClauseType clauseType)
         {

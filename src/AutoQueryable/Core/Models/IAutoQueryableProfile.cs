@@ -26,6 +26,7 @@ namespace AutoQueryable.Core.Models
         string[] UnselectableProperties { get; set; }
         string[] UnSortableProperties { get; set; }
         bool UseBaseType { get; set; }
+        bool ToListBeforeSelect { get; set; }
         bool IsClauseAllowed(ClauseType clauseType);
         bool IsConditionAllowed(ConditionType conditionType);
         bool IsWrapperPartAllowed(WrapperPartType wrapperPartType);

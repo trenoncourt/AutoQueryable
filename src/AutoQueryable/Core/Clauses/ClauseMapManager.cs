@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AutoQueryable.Core.Aliases;
@@ -13,10 +14,6 @@ namespace AutoQueryable.Core.Clauses
         public ClauseMapManager(ISelectClauseHandler selectClauseHandler, IOrderByClauseHandler orderByClauseHandler)
         {
             _clauseQueryFilterMap = new DefaultClauseQueryFilterMap(selectClauseHandler, orderByClauseHandler);
-            //FilterMap.AddFilters(typeof(string), StringFilterMapFactory.InitializeMap(QueryableFilterMap));
-            //FilterMap.AddFilters(typeof(DateTime), DateTimeFilterMapFactory.InitializeMap(QueryableFilterMap));
-            //FilterMap.AddFilters(typeof(object), BaseFilterMapFactory.InitializeMap(QueryableFilterMap));
-            // FilterMap.AddFilters(typeof(DateTime), DateTimeFilter);
         }
 
         public IClauseQueryFilter GetClauseQueryFilter(string alias)
@@ -54,9 +51,10 @@ namespace AutoQueryable.Core.Clauses
         }
 
 
-        public IClauseQueryFilter GetClauseQueryFilter(string alias) => _queryFilters.FirstOrDefault(f => f.Alias == alias);
+        public IClauseQueryFilter GetClauseQueryFilter(string alias) => _queryFilters.FirstOrDefault(f =>
+            string.Equals(f.Alias.ToLowerInvariant(), alias.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase));
 
-        public IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey) => _queryFilters.FirstOrDefault(clause => queryParameterKey.Contains(clause.Alias));
+        public IClauseQueryFilter FindClauseQueryFilter(string queryParameterKey) => _queryFilters.FirstOrDefault(clause => queryParameterKey.Contains(clause.Alias.ToLowerInvariant()));
         public IClauseQueryFilter GetClauseQueryFilter(ClauseType clauseType) => _queryFilters.FirstOrDefault(f => f.ClauseType == clauseType);
     }
 }

@@ -54,6 +54,7 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
         public string DefaultOrderByDesc { get; set; }
         
         public bool UseBaseType { get; set; }
+        public bool ToListBeforeSelect { get; set; }
 
 
         public override void OnActionExecuted(HttpActionExecutedContext context)

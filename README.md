@@ -213,3 +213,28 @@ services.AddSwaggerGen(c =>
     c.AddAutoQueryable(); // add this line
 });
 ```
+
+## AutoMapper 
+
+### ProjectTo()
+
+If you are getting the error "Sequence contains no elements", you should use the package
+```powershell
+Install-Package AutoMapper.Extensions.ExpressionMapping
+```
+and replace the 
+```c#
+ProjectTo<T>()
+```
+with
+```c#
+.UseAsDataSource().For<T>()
+```
+
+### Map relations
+
+AutoQueryable and AutoMapper do not work together when it comes to mapping entity relations from an Entity to a Dto. To fix this, use the AutoQueryable profile setting
+```c#
+profile.ToListBeforeSelect = true
+```
+This performs a ToList() using the AutoMapper mapping before using the select query parameters and selecting only the properties asked by the Querystring

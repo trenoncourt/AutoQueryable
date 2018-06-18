@@ -51,6 +51,7 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         public ProviderType ProviderType { get; set; }
 
         public bool UseBaseType { get; set; }
+        public bool ToListBeforeSelect { get; set; }
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {

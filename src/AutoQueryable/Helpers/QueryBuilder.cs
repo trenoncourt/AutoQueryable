@@ -9,6 +9,7 @@ using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoQueryable.Helpers
 {
@@ -25,58 +26,55 @@ namespace AutoQueryable.Helpers
             query = _addOrderBy(query, clauseValueManager.OrderBy, profile);
 
             TotalCountQuery = query;
-            IQueryable<dynamic> queryProjection;
-           
-            if (!clauseValueManager.Select.Any() && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
-            {
-                queryProjection = query;
-                
-            } else
-            {
-                queryProjection = profile.UseBaseType ? 
-                    query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
-            }
+
             if (clauseValueManager.Skip.HasValue)
             {
                 if (profile?.MaxToSkip != null && clauseValueManager.Skip > profile.MaxToSkip)
                 {
                     clauseValueManager.Skip = profile.MaxToSkip.Value;
                 }
-
-                if (profile != null && profile.UseBaseType)
-                {
-                    queryProjection = ((IQueryable<T>)queryProjection).Skip(clauseValueManager.Skip.Value);
-                }
-                else
-                {
-                    queryProjection = queryProjection.Skip(clauseValueManager.Skip.Value);
-                }
+                query = query.Skip(clauseValueManager.Skip.Value);
             }
+            // Top = 0 => return ALL values
             if (clauseValueManager.Top.HasValue)
             {
-                if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
+                if(clauseValueManager.Top != 0)
                 {
-                    clauseValueManager.Top = profile.MaxToTake.Value;
-                }
-
-                if (profile != null && profile.UseBaseType)
-                {
-                    queryProjection = ((IQueryable<T>)queryProjection).Take(clauseValueManager.Top.Value);
-                }
-                else
-                {
-                    queryProjection = queryProjection.Take(clauseValueManager.Top.Value);
+                    if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
+                    {
+                        clauseValueManager.Top = profile.MaxToTake.Value;
+                    }
+                    query = query.Take(clauseValueManager.Top.Value);
                 }
             }
             else if (profile?.MaxToTake != null)
             {
-                queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
+                query = query.Take(profile.MaxToTake.Value);
+            }else
+            {
+                if(profile != null){
+                    query = query.Take(profile.DefaultToTake);
+                }
+ 
             }
-
             //if (profile?.MaxToTake != null)
             //{
             //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
             //}
+
+            IQueryable<dynamic> queryProjection = query;
+            if (clauseValueManager.Select.Any() || profile?.UnselectableProperties != null || profile?.SelectableProperties != null)
+            {
+                if(profile != null){
+                    if(profile.ToListBeforeSelect)
+                    {
+                        query = query.ToList().AsQueryable();
+                    }
+                    queryProjection = profile.UseBaseType ? 
+                        query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
+                }
+            }
+
             return queryProjection;
         }
         

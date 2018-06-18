@@ -42,5 +42,6 @@ namespace AutoQueryable.Core.Models.Abstractions
         string DefaultOrderByDesc { get; set; }
 
         bool UseBaseType { get; set; }
+        bool ToListBeforeSelect { get; set; }
     }
 }

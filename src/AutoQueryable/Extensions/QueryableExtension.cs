@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Clauses;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace AutoQueryable.Extensions
 {
@@ -36,15 +37,36 @@ namespace AutoQueryable.Extensions
                 Result = result
             };
         }
-        public static async Task<IPagedResult<TEntity>> ToPagedResultAsync<TEntity>(this EntityQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class
+        public static async Task<IPagedResult<TEntity>> ToPagedResultAsync<TEntity>(this IQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class
         {
-            var result = query.ToList();
+            var result = await query.ToListAsyncSafe();
             return new PagedResult<TEntity>
             {
-                TotalCount = context.TotalCountQuery != null ? await context.TotalCountQuery.CountAsync() : result.Count,
+                TotalCount = context.TotalCountQuery != null ? await context.TotalCountQuery.CountAsyncSafe() : result.Count,
                 RowCount = result.Count,
                 Result = result
             };
+        }
+    }
+    public static class EfExtensions
+    {
+        public static Task<List<TSource>> ToListAsyncSafe<TSource>(
+            this IQueryable<TSource> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (!(source is IAsyncEnumerable<TSource>))
+                return Task.FromResult(source.ToList());
+            return source.ToListAsync();
+        }
+        public static Task<int> CountAsyncSafe<TSource>(
+            this IQueryable<TSource> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (!(source is IAsyncEnumerable<TSource>))
+                return Task.FromResult(source.Count());
+            return source.CountAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Core.Aliases;
 using AutoQueryable.Core.CriteriaFilters.Formatters;
@@ -40,9 +41,10 @@ namespace AutoQueryable.Core.CriteriaFilters
             }
         }
 
-        public IQueryableFilter GetFilter(string alias) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => f.Alias == alias);
+        public IQueryableFilter GetFilter(string alias) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f =>
+            string.Equals(f.Alias.ToLowerInvariant(), alias.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase));
         
 
-        public IQueryableFilter FindFilter(string queryParameterKey) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => queryParameterKey.Contains(f.Alias));
+        public IQueryableFilter FindFilter(string queryParameterKey) => QueryableFilters.OrderByDescending(f => f.Level).FirstOrDefault(f => queryParameterKey.ToLowerInvariant().Contains(f.Alias.ToLowerInvariant()));
     }
 }
