@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoQueryable.Core.Clauses;
+using AutoQueryable.Core.Clauses.ClauseHandlers;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
@@ -23,10 +24,11 @@ namespace AutoQueryable.UnitTest
         {
             _profile = new AutoQueryableProfile();
             _queryStringAccessor = new SimpleQueryStringAccessor();
-            var selectClauseHandler = new SelectClauseHandler();
-            var orderByClauseHandler = new OrderByClauseHandler();
-            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler);
+            var selectClauseHandler = new DefaultSelectClauseHandler();
+            var orderByClauseHandler = new DefaultOrderByClauseHandler();
+            var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
+            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
             var criteriaFilterManager = new CriteriaFilterManager();
             _autoQueryableContext = new AutoQueryableContext(_profile, new AutoQueryHandler( _queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager));
         }

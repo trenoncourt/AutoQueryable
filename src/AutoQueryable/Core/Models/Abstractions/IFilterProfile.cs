@@ -38,8 +38,7 @@ namespace AutoQueryable.Core.Models.Abstractions
         int MaxDepth { get; set; }
 
         Dictionary<string, bool> DefaultOrderBy { get; set; }
-        
-        string DefaultOrderByDesc { get; set; }
+       
 
         bool UseBaseType { get; set; }
         bool ToListBeforeSelect { get; set; }

@@ -45,9 +45,7 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         public int MaxDepth { get; set; }
         
         public Dictionary<string, bool> DefaultOrderBy { get; set; }
-        
-        public string DefaultOrderByDesc { get; set; }
-
+       
         public ProviderType ProviderType { get; set; }
 
         public bool UseBaseType { get; set; }
@@ -57,8 +55,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         {
             dynamic query = ((ObjectResult)context.Result).Value;
             //context.HttpContext
-            if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-            //context.Result = new OkObjectResult(_autoQueryableContext.GetAutoQuery(query));
+            if (query == null) throw new Exception("Unable to retrieve value of IQueryable from context result.");
+            context.Result = new OkObjectResult(_autoQueryableContext.GetAutoQuery(query));
         }
     }
 }

@@ -16,6 +16,7 @@ namespace AutoQueryable.Core.Clauses
         int? Skip { get; set; }
         int? Take { get; set; }
         int? Top { get; set; }
+        IEnumerable<string> WrapWith { get; set; }
         void SetDefaults(Type type, IAutoQueryableProfile profile);
     }
 }

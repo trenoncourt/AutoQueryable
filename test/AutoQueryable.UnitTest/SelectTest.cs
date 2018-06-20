@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using AutoQueryable.Core.Clauses;
+using AutoQueryable.Core.Clauses.ClauseHandlers;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Extensions;
 using AutoQueryable.Core.Models;
@@ -28,10 +29,11 @@ namespace AutoQueryable.UnitTest
         {
             _profile = new AutoQueryableProfile();
             _queryStringAccessor = new SimpleQueryStringAccessor();
-            var selectClauseHandler = new SelectClauseHandler();
-            var orderByClauseHandler = new OrderByClauseHandler();
-            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler);
+            var selectClauseHandler = new DefaultSelectClauseHandler();
+            var orderByClauseHandler = new DefaultOrderByClauseHandler();
+            var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
+            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
             var criteriaFilterManager = new CriteriaFilterManager();
             var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
             _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
@@ -577,12 +579,12 @@ namespace AutoQueryable.UnitTest
         {
             using (var context = new AutoQueryableDbContext())
             {
-                _queryStringAccessor.SetQueryString("first=true&orderby=-productid&top=0");
+                _queryStringAccessor.SetQueryString("first=true&orderby=-productid");
 
                 DataInitializer.InitializeSeed(context);
                 var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
-                var properties = product.GetType().GetProperties();
+                var properties = product.FirstOrDefault().GetType().GetProperties();
                 ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should()
                     .Be(DataInitializer.ProductSampleCount);
             }

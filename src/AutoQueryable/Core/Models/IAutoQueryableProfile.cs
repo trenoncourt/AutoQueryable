@@ -10,7 +10,6 @@ namespace AutoQueryable.Core.Models
         ConditionType? AllowedConditions { get; set; }
         WrapperPartType? AllowedWrapperPartType { get; set; }
         Dictionary<string, bool> DefaultOrderBy { get; set; }
-        string DefaultOrderByDesc { get; set; }
         int DefaultToTake { get; set; }
         ClauseType? DisAllowedClauses { get; set; }
         ConditionType? DisAllowedConditions { get; set; }

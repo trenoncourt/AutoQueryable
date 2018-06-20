@@ -42,8 +42,7 @@ namespace AutoQueryable.Core.Models
         public int? MaxDepth { get; set; }
         
         public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
-        
-        public string DefaultOrderByDesc { get; set; }
+       
 
         public bool UseBaseType { get; set; }
         public bool ToListBeforeSelect { get; set; }
@@ -67,7 +66,6 @@ namespace AutoQueryable.Core.Models
             MaxToSkip = filterProfile.MaxToSkip == 0 ? null : (int?)filterProfile.MaxToSkip,
             MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
             DefaultOrderBy = filterProfile.DefaultOrderBy,
-            DefaultOrderByDesc = filterProfile.DefaultOrderByDesc,
             UseBaseType = filterProfile.UseBaseType,
             ToListBeforeSelect = filterProfile.ToListBeforeSelect
         };

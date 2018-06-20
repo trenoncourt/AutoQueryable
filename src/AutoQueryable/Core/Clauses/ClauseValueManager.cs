@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoQueryable.Core.Clauses.ClauseHandlers;
 using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.Core.Clauses
@@ -8,11 +9,13 @@ namespace AutoQueryable.Core.Clauses
     {
         private readonly ISelectClauseHandler _selectClauseHandler;
         private readonly IOrderByClauseHandler _orderByClauseHandler;
+        private readonly IWrapWithClauseHandler _wrapWithClauseHandler;
 
-        public ClauseValueManager(ISelectClauseHandler selectClauseHandler, IOrderByClauseHandler orderByClauseHandler)
+        public ClauseValueManager(ISelectClauseHandler selectClauseHandler, IOrderByClauseHandler orderByClauseHandler, IWrapWithClauseHandler wrapWithClauseHandler)
         {
             _selectClauseHandler = selectClauseHandler;
             _orderByClauseHandler = orderByClauseHandler;
+            _wrapWithClauseHandler = wrapWithClauseHandler;
         }
         public ICollection<SelectColumn> Select { get; set; } = new List<SelectColumn>();
         public int? Take { get; set; }
@@ -29,12 +32,14 @@ namespace AutoQueryable.Core.Clauses
         public bool Last { get; set; }
         public int? Page { get; set; }
         public int? PageSize { get; set; }
+        public IEnumerable<string> WrapWith { get; set; }
 
         public void SetDefaults(Type type, IAutoQueryableProfile profile)
         {
             OrderBy = profile.DefaultOrderBy;
             Select = _selectClauseHandler.Handle("", type, profile);
             OrderBy = _orderByClauseHandler.Handle("", type, profile);
+            WrapWith = _wrapWithClauseHandler.Handle("", type, profile);
         }
     }
 }

@@ -26,7 +26,36 @@ namespace AutoQueryable.Helpers
             query = _addOrderBy(query, clauseValueManager.OrderBy, profile);
 
             TotalCountQuery = query;
+            if(clauseValueManager.First)
+            {
+                query = query.Take(1);
+            }else{
+                query = _handlePaging(clauseValueManager, query, profile);
+            }
+            //if (profile?.MaxToTake != null)
+            //{
+            //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
+            //}
 
+            IQueryable<dynamic> queryProjection = query;
+            if (clauseValueManager.Select.Any() || profile?.UnselectableProperties != null || profile?.SelectableProperties != null)
+            {
+                if (profile != null)
+                {
+                    if (profile.ToListBeforeSelect)
+                    {
+                        query = query.ToList().AsQueryable();
+                    }
+                    queryProjection = profile.UseBaseType ?
+                        query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
+                }
+            }
+
+            return queryProjection;
+        }
+
+        private static IQueryable<T> _handlePaging<T>(IClauseValueManager clauseValueManager, IQueryable<T> query, IAutoQueryableProfile profile) where T : class
+        {
             if (clauseValueManager.Skip.HasValue)
             {
                 if (profile?.MaxToSkip != null && clauseValueManager.Skip > profile.MaxToSkip)
@@ -38,7 +67,7 @@ namespace AutoQueryable.Helpers
             // Top = 0 => return ALL values
             if (clauseValueManager.Top.HasValue)
             {
-                if(clauseValueManager.Top != 0)
+                if (clauseValueManager.Top != 0)
                 {
                     if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
                     {
@@ -50,34 +79,19 @@ namespace AutoQueryable.Helpers
             else if (profile?.MaxToTake != null)
             {
                 query = query.Take(profile.MaxToTake.Value);
-            }else
+            }
+            else
             {
-                if(profile != null){
+                if (profile != null)
+                {
                     query = query.Take(profile.DefaultToTake);
                 }
- 
-            }
-            //if (profile?.MaxToTake != null)
-            //{
-            //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
-            //}
 
-            IQueryable<dynamic> queryProjection = query;
-            if (clauseValueManager.Select.Any() || profile?.UnselectableProperties != null || profile?.SelectableProperties != null)
-            {
-                if(profile != null){
-                    if(profile.ToListBeforeSelect)
-                    {
-                        query = query.ToList().AsQueryable();
-                    }
-                    queryProjection = profile.UseBaseType ? 
-                        query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
-                }
             }
 
-            return queryProjection;
+            return query;
         }
-        
+
         private static Expression MakeLambda(Expression parameter, Expression predicate)
         {
             var resultParameterVisitor = new ParameterVisitor();

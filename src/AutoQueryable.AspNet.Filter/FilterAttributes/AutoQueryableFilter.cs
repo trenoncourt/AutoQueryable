@@ -11,12 +11,6 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {
     public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
-        private readonly IAutoQueryableContext _autoQueryableContext;
-
-        public AutoQueryableAttribute(IAutoQueryableContext autoQueryableContext)
-        {
-            _autoQueryableContext = autoQueryableContext;
-        }
         public string[] SelectableProperties { get; set; }
 
         public string[] UnselectableProperties { get; set; }
@@ -51,8 +45,6 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
         
         public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
         
-        public string DefaultOrderByDesc { get; set; }
-        
         public bool UseBaseType { get; set; }
         public bool ToListBeforeSelect { get; set; }
 
@@ -61,11 +53,25 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
         {
             if (context.Response.Content is ObjectContent content)
             {
-                dynamic query = content.Value;
-                if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
+                // Get the request lifetime scope so you can resolve services.
+                var requestScope = context.Request.GetDependencyScope();
 
-                //var result = _autoQueryableContext.GetAutoQuery(query);
-                //context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
+                // Resolve the service you want to use.
+
+                if(!(requestScope.GetService(typeof(IAutoQueryableContext)) is IAutoQueryableContext autoQueryableContext))
+                {
+                    throw new NullReferenceException($"No instance registered as '{nameof(IAutoQueryableContext)}'");
+                }
+
+                dynamic query = content.Value;
+
+                if (query == null)
+                {
+                    throw new Exception("Unable to retrieve value of IQueryable from context result.");
+                }
+
+                var result = autoQueryableContext.GetAutoQuery(query);
+                context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
             }
         }
     }
