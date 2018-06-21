@@ -45,10 +45,10 @@ namespace AutoQueryable.Extensions
             }
             var result = query.ToList();
 
-            if (!context.ClauseValueManager.Page.HasValue || context.ClauseValueManager.Page.Value == 0)
-            {
-                return result;
-            }
+            //if (!context.ClauseValueManager.Page.HasValue || context.ClauseValueManager.Page.Value == 0)
+            //{
+            //    return result;
+            //}
 
             return new PagedResult<TEntity>
             {
@@ -62,10 +62,10 @@ namespace AutoQueryable.Extensions
         {
             var result = await query.ToListAsyncSafe();
 
-            if (!context.ClauseValueManager.Page.HasValue || context.ClauseValueManager.Page.Value == 0)
-            {
-                return result;
-            }
+            //if (!context.ClauseValueManager.Page.HasValue || context.ClauseValueManager.Page.Value == 0)
+            //{
+            //    return result;
+            //}
             
             return new PagedResult<TEntity>
             {

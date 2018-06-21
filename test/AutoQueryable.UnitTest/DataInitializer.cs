@@ -52,13 +52,14 @@ namespace AutoQueryable.UnitTest
                 };
                 for (var i = 0; i < ProductSampleCount; i++)
                 {
+
                     dbContext.Product.Add(new Product
                     {
                         Color = i % 2 == 0 ? "red" : "black",
                         ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
                         ProductModel = model1,
                         ListPrice = i,
-                        Name = $"Product {i}",
+                        Name = i % 2 == 0 ? null : $"Product {i}",
                         ProductNumber = Guid.NewGuid().ToString(),
                         Rowguid = Guid.Parse(GuidString),
                         Size = i % 3 == 0 ? "L" : i % 2 == 0 ? "M" : "S",

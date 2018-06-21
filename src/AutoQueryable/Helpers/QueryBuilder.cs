@@ -64,10 +64,10 @@ namespace AutoQueryable.Helpers
                 }
                 query = query.Skip(clauseValueManager.Skip.Value);
             }
-            // Top = 0 => return ALL values
+            // Top or DefaultToTake = 0 => return ALL values
             if (clauseValueManager.Top.HasValue)
             {
-                if (clauseValueManager.Top != 0)
+                if (clauseValueManager.Top != 0 && (profile == null || profile.DefaultToTake != 0))
                 {
                     if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
                     {
@@ -82,7 +82,7 @@ namespace AutoQueryable.Helpers
             }
             else
             {
-                if (profile != null)
+                if (profile != null && profile.DefaultToTake != 0)
                 {
                     query = query.Take(profile.DefaultToTake);
                 }

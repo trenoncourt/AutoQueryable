@@ -23,8 +23,16 @@ namespace AutoQueryable.Core.CriteriaFilters
             new QueryableFilter(ConditionAlias.NotStartsWith, 10),
             new QueryableFilter(ConditionAlias.EndsWith, 10),
             new QueryableFilter(ConditionAlias.NotEndsWith, 10),
+
+            new QueryableFilter(ConditionAlias.ContainsIgnoreCase, 10),
+            new QueryableFilter(ConditionAlias.NotContainsIgnoreCase, 10),
+            new QueryableFilter(ConditionAlias.StartsWithIgnoreCase, 10),
+            new QueryableFilter(ConditionAlias.NotStartsWithIgnoreCase, 10),
+            new QueryableFilter(ConditionAlias.EndsWithIgnoreCase, 10),
+            new QueryableFilter(ConditionAlias.NotEndsWithIgnoreCase, 10),
                 
             new QueryableFilter(ConditionAlias.DateInYear, 10, new DateInYearFormatProvider()),
+            new QueryableFilter(ConditionAlias.DateNotInYear, 10, new DateInYearFormatProvider()),
         };
 
         private ICollection<IQueryableFilter> QueryableFilters { get; }
