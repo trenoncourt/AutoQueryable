@@ -9,7 +9,6 @@ using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.Models;
 using AutoQueryable.Models.Constants;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoQueryable.Helpers
 {

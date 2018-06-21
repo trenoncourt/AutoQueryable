@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using AutoQueryable.Core.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace AutoQueryable.Core.Models
+namespace AutoQueryable.AspNetCore.Filter
 {
     public class AspNetCoreQueryStringAccessor : BaseQueryStringAccessor
     {
