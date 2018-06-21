@@ -1,5 +1,8 @@
-﻿namespace AutoQueryable.Core.Enums
+﻿using System;
+
+namespace AutoQueryable.Core.Enums
 {
+    [Flags]
     public enum ClauseType
     {
         None,
@@ -14,8 +17,6 @@
         First,
         Last,
         WrapWith,
-        Filter,
-        Expand,
-        Search
+        Filter
     }
 }

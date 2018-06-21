@@ -1,24 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using Autofac;
+using AutoQueryable.Core.Clauses;
+using AutoQueryable.Core.Clauses.ClauseHandlers;
+using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Extensions;
-using AutoQueryable.UnitTest.Mock.Dtos;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Helpers;
+using AutoQueryable.UnitTest.Mock;
+using AutoQueryable.UnitTest.Mock.Dtos;
+using AutoQueryable.UnitTest.Mock.Entities;
+using Moq;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace AutoQueryable.UnitTest
 {
     public class SelectTest
     {
+        private SimpleQueryStringAccessor _queryStringAccessor;
+        private IAutoQueryableProfile _profile;
+        private IAutoQueryableContext _autoQueryableContext;
+
+        public SelectTest()
+        {
+            _profile = new AutoQueryableProfile();
+            _queryStringAccessor = new SimpleQueryStringAccessor();
+            var selectClauseHandler = new DefaultSelectClauseHandler();
+            var orderByClauseHandler = new DefaultOrderByClauseHandler();
+            var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
+            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var criteriaFilterManager = new CriteriaFilterManager();
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
+            _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
+        }
         [Fact]
         public void SelectAllProducts()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("") as IQueryable<object>;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext);
+
                 query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }
@@ -26,10 +55,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productcategory.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=name,productcategory.name") as IQueryable<object>;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(2);
@@ -49,12 +81,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjectionWithStarSelection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productcategory.*,productcategory.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
                 var query =
-                    context.Product.AutoQueryable("select=name,productcategory.*,productcategory.name") as
-                        IQueryable<object>;
+                    context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(2);
@@ -84,12 +117,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection0()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=ProductCategory.Product.name,ProductCategory.Product.name,ProductCategory.Product.ProductId,ProductCategory.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(
-                        "select=ProductCategory.Product.name,ProductCategory.Product.name,ProductCategory.Product.ProductId,ProductCategory.name")
-                    as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(1);
@@ -111,12 +144,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection1()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productcategory,productcategory.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
                 var query =
-                    context.Product.AutoQueryable("select=name,productcategory,productcategory.name") as
-                        IQueryable<object>;
+                    context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(2);
@@ -140,10 +174,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection2()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=SalesOrderDetail.LineTotal&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=SalesOrderDetail.LineTotal") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(1);
@@ -161,11 +197,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection3()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=SalesOrderDetail.Product.ProductId&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    context.Product.AutoQueryable("select=SalesOrderDetail.Product.ProductId") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(1);
@@ -182,13 +219,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjection4()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productcategory.name,ProductCategory.ProductCategoryId,SalesOrderDetail.LineTotal&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(
-                        "select=name,productcategory.name,ProductCategory.ProductCategoryId,SalesOrderDetail.LineTotal")
-                    as
-                    IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(3);
@@ -215,10 +251,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithNameAndColor()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,color&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=name,color") as IQueryable<object>;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(2);
@@ -233,10 +272,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithNameAndColorIgnoreCase()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=Name,COLOR&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=Name,COLOR") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(2);
@@ -251,12 +292,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithUnselectableProperties()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+               _profile.UnselectableProperties = new[] { "productid", "rowguid" };
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("",
-                        new AutoQueryableProfile {UnselectableProperties = new[] {"productid", "rowguid"}}) as
-                    IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Should().NotContain(p => p.Name == "ProductId");
@@ -269,11 +310,14 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllWithNameAndColorWithUnselectableProperties()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=Name,COLOR&top=0");
+                _profile.UnselectableProperties = new[] { "color" };
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=Name,COLOR",
-                    new AutoQueryableProfile {UnselectableProperties = new[] {"color"}}) as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(1);
@@ -288,13 +332,16 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectSkip50()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=ProductId,name,color&skip=50&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=ProductId,name,color&skip=50") as IQueryable<dynamic>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
                 var first = query.First();
-                Type type = first.GetType();
-                int value = type.GetProperty("ProductId").GetValue(first);
+                var type = first.GetType();
+                var value = int.Parse(type.GetProperty("ProductId").GetValue(first).ToString());
 
                 value.Should().Be(51);
                 query.Count().Should().Be(DataInitializer.ProductSampleCount - 50);
@@ -304,10 +351,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectTake50()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=ProductId,name,color&take=50");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=ProductId,name,color&take=50") as IQueryable<dynamic>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext);
+
                 query.Count().Should().Be(50);
             }
         }
@@ -315,14 +365,16 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectSkipAndTake50()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=ProductId,name,color&skip=50&take=50");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    context.Product.AutoQueryable("select=ProductId,name,color&skip=50&take=50") as IQueryable<dynamic>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
                 var first = query.First();
-                Type type = first.GetType();
-                int value = type.GetProperty("ProductId").GetValue(first);
+                var type = first.GetType();
+                var value = int.Parse(type.GetProperty("ProductId").GetValue(first).ToString());
 
                 value.Should().Be(51);
                 query.Count().Should().Be(50);
@@ -332,23 +384,24 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderByColor()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,color&orderby=color&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("select=name,color&orderby=color") as IEnumerable<dynamic>)
-                    .ToList();
+                var query = (context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>).ToList();
                 var first = query.First();
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
                 var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
-                Type type = first.GetType();
-                string firstValue = type.GetProperty("color").GetValue(first);
-                string secondValue = type.GetProperty("color").GetValue(second);
+                var type = first.GetType();
+                var firstValue = type.GetProperty("color").GetValue(first).ToString();
+                var secondValue = type.GetProperty("color").GetValue(second).ToString();
 
-                string lastValue = type.GetProperty("color").GetValue(last);
-                string preLastValue = type.GetProperty("color").GetValue(preLast);
+                var lastValue = type.GetProperty("color").GetValue(last).ToString();
+                var preLastValue = type.GetProperty("color").GetValue(preLast).ToString();
 
 
 
@@ -362,24 +415,25 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderById()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=productid,name,color&orderby=productid&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    (context.Product.AutoQueryable("select=productid,name,color&orderby=productid") as
-                        IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>).ToList();
+
                 var first = query.First();
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
                 var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
-                Type type = first.GetType();
-                int firstValue = type.GetProperty("productid").GetValue(first);
-                int secondValue = type.GetProperty("productid").GetValue(second);
+                var type = first.GetType();
+                var firstValue = int.Parse(type.GetProperty("productid").GetValue(first).ToString());
+                var secondValue = int.Parse(type.GetProperty("productid").GetValue(second).ToString());
 
-                int lastValue = type.GetProperty("productid").GetValue(last);
-                int preLastValue = type.GetProperty("productid").GetValue(preLast);
+                var lastValue = int.Parse(type.GetProperty("productid").GetValue(last).ToString());
+                var preLastValue = int.Parse(type.GetProperty("productid").GetValue(preLast).ToString());
 
 
 
@@ -393,24 +447,25 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderByIdDesc()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=productid,name,color&orderby=-productid&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    (context.Product.AutoQueryable("select=productid,name,color&orderbydesc=productid") as
-                        IEnumerable<dynamic>).ToList();
+                var query = (context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>).ToList();
+
                 var first = query.First();
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
                 var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
-                Type type = first.GetType();
-                int firstValue = type.GetProperty("productid").GetValue(first);
-                int secondValue = type.GetProperty("productid").GetValue(second);
+                var type = first.GetType();
+                var firstValue = int.Parse(type.GetProperty("productid").GetValue(first).ToString());
+                var secondValue = int.Parse(type.GetProperty("productid").GetValue(second).ToString());
 
-                int lastValue = type.GetProperty("productid").GetValue(last);
-                int preLastValue = type.GetProperty("productid").GetValue(preLast);
+                var lastValue = int.Parse(type.GetProperty("productid").GetValue(last).ToString());
+                var preLastValue = int.Parse(type.GetProperty("productid").GetValue(preLast).ToString());
 
 
                 lastValue.Should().Be(1);
@@ -423,24 +478,24 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderByColorDesc()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,color&orderby=-color&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    (context.Product.AutoQueryable("select=name,color&orderbydesc=color") as IEnumerable<dynamic>)
-                    .ToList();
+                var query = (context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>).ToList();
                 var first = query.First();
                 var second = query.Skip(1).First();
 
                 var last = query.Last();
                 var preLast = query.Skip(DataInitializer.ProductSampleCount - 2).First();
 
-                Type type = first.GetType();
-                string firstValue = type.GetProperty("color").GetValue(first);
-                string secondValue = type.GetProperty("color").GetValue(second);
+                var type = first.GetType();
+                var firstValue = type.GetProperty("color").GetValue(first).ToString();
+                var secondValue = type.GetProperty("color").GetValue(second).ToString();
 
-                string lastValue = type.GetProperty("color").GetValue(last);
-                string preLastValue = type.GetProperty("color").GetValue(preLast);
+                var lastValue = type.GetProperty("color").GetValue(last).ToString();
+                var preLastValue = type.GetProperty("color").GetValue(preLast).ToString();
 
                 firstValue.Should().Be("red");
                 secondValue.Should().Be("red");
@@ -452,16 +507,16 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderBySellStartDate()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=SellStartDate");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    (context.Product.AutoQueryable("select=SellStartDate&orderby=SellStartDate") as IEnumerable<dynamic>
-                    ).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
                 var currentDate = DateTime.MinValue;
                 foreach (var product in query)
                 {
-                    var date = (DateTime) product.GetType().GetProperty("SellStartDate").GetValue(product);
+                    var date = (DateTime)product.GetType().GetProperty("SellStartDate").GetValue(product);
                     date.Should().BeAfter(currentDate);
                     currentDate = date;
                 }
@@ -471,16 +526,16 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectOrderBySellStartDateDesc()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=-SellStartDate");
+
                 DataInitializer.InitializeSeed(context);
-                var query =
-                    (context.Product.AutoQueryable("select=SellStartDate&orderbydesc=SellStartDate") as
-                        IEnumerable<dynamic>).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
                 var currentDate = DateTime.MaxValue;
                 foreach (var product in query)
                 {
-                    var date = (DateTime) product.GetType().GetProperty("SellStartDate").GetValue(product);
+                    var date = (DateTime)product.GetType().GetProperty("SellStartDate").GetValue(product);
                     date.Should().BeBefore(currentDate);
                     currentDate = date;
                 }
@@ -490,13 +545,15 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectFirst()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("first=true&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable("first=true");
-                PropertyInfo[] properties = product.GetType().GetProperties();
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var properties = product.GetType().GetProperties();
                 properties.Should().Contain(p => p.Name == "ProductId");
-                ((int) properties.First(p => p.Name == "ProductId").GetValue(product)).Should().Be(1);
+                ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should().Be(1);
             }
         }
 
@@ -504,7 +561,7 @@ namespace AutoQueryable.UnitTest
         //[Fact]
         //public void SelectLast()
         //{
-        //    using (AutoQueryableContext context = new AutoQueryableContext())
+        //    using (AutoQueryableDbContext context = new AutoQueryableDbContext())
         //    {
         //        DataInitializer.InitializeSeed(context);
         //        dynamic productLast = context.Product.AutoQueryable("last=true");
@@ -520,13 +577,15 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectFirstOrderbyIdDesc()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
-                DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable("first=true&orderbydesc=productid");
+                _queryStringAccessor.SetQueryString("first=true&orderby=-productid");
 
-                PropertyInfo[] properties = product.GetType().GetProperties();
-                ((int) properties.First(p => p.Name == "ProductId").GetValue(product)).Should()
+                DataInitializer.InitializeSeed(context);
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
+                var properties = product.FirstOrDefault().GetType().GetProperties();
+                ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should()
                     .Be(DataInitializer.ProductSampleCount);
             }
         }
@@ -534,11 +593,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllWithSelectInclude()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("top=50&select=name,SalesOrderDetail,productcategory");
+                _profile.UnselectableProperties = new[] { "color" };
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("top=50&select=name,SalesOrderDetail,productcategory",
-                    new AutoQueryableProfile {UnselectableProperties = new[] {"color"}}) as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(3);
@@ -553,12 +614,15 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectWithIncludeNavigationProperties()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("top=50&select=name,SalesOrderDetail.Product.ProductId,productcategory");
+                _profile.UnselectableProperties = new[] { "color" };
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(
-                    "top=50&select=name,SalesOrderDetail.Product.ProductId,productcategory",
-                    new AutoQueryableProfile {UnselectableProperties = new[] {"color"}}) as IQueryable<object>;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
                 var firstResult = query.First();
                 var properties = firstResult.GetType().GetProperties();
                 properties.Length.Should().Be(3);
@@ -581,13 +645,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithDtoProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.Select(p => new ProductDto
                 {
                     Name = p.Name
-                }).AutoQueryable("") as IQueryable<object>;
+                }).AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(1);
 
@@ -600,8 +664,10 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithDtoProjectionAndSelectProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,category.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.Select(p => new ProductDto
                 {
@@ -610,7 +676,7 @@ namespace AutoQueryable.UnitTest
                     {
                         Name = p.ProductCategory.Name
                     }
-                }).AutoQueryable("select=name,category.name") as IQueryable<object>;
+                }).AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 var properties = query.First().GetType().GetProperties();
                 properties.Length.Should().Be(2);
@@ -627,16 +693,13 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithSelectProjectionWithUnselectableProperty()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productcategory.name,ProductCategory.ProductCategoryId");
+                _profile.UnselectableProperties = new[] { "ProductCategory.ProductCategoryId" };
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(
-                        "select=name,productcategory.name,ProductCategory.ProductCategoryId",
-                        new AutoQueryableProfile
- {
-                            UnselectableProperties = new[] {"ProductCategory.ProductCategoryId"}
-                        }) as
-                    IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(2);
@@ -654,7 +717,9 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithNameAndColorWithDtoProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            _queryStringAccessor.SetQueryString("select=name,color,categoryName&top=0");
+
+            using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.Select(p => new
@@ -662,7 +727,7 @@ namespace AutoQueryable.UnitTest
                     p.Name,
                     p.Color,
                     categoryName = p.ProductCategory.Name
-                }).AutoQueryable("select=name,color,categoryName") as IQueryable<object>;
+                }).AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(3);
@@ -678,7 +743,9 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithNameAndColorIgnoreCaseWithDtoProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            _queryStringAccessor.SetQueryString("select=Name,COLOR&top=0");
+            
+            using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.Select(p => new
@@ -686,7 +753,7 @@ namespace AutoQueryable.UnitTest
                     p.Name,
                     p.Color,
                     categoryName = p.ProductCategory.Name
-                }).AutoQueryable("select=Name,COLOR") as IQueryable<object>;
+                }).AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(2);
@@ -701,19 +768,20 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllProductsWithUnselectablePropertiesWithDtoProjection()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                
+                _profile.UnselectableProperties = new[] { "productid", "rowguid" };
+
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.Select(p => new
-                    {
-                        p.ProductId,
-                        p.Rowguid,
-                        p.Name,
-                        p.Color,
-                        categoryName = p.ProductCategory.Name
-                    }).AutoQueryable("",
-                        new AutoQueryableProfile {UnselectableProperties = new[] {"productid", "rowguid"}}) as
-                    IQueryable<object>;
+                {
+                    p.ProductId,
+                    p.Rowguid,
+                    p.Name,
+                    p.Color,
+                    categoryName = p.ProductCategory.Name
+                }).AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Should().NotContain(p => p.Name == "ProductId");
@@ -727,10 +795,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void CountWithNullForeignKey()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=name,productextension.name&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=name,productextension.name") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext);
                 query?.Count().Should().Be(DataInitializer.ProductSampleCount);
             }
         }
@@ -738,10 +808,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllPropertiesWithoutRelations()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=_&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=_") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(17);
@@ -772,10 +844,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllPropertiesWithOneRelation()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=_,ProductModel&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=_,ProductModel") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(18);
@@ -806,10 +880,12 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void SelectAllPropertiesFromLevelZero()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
+                _queryStringAccessor.SetQueryString("select=*&top=0");
+
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable("select=*") as IQueryable<object>;
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var properties = query.First().GetType().GetProperties();
 
                 properties.Length.Should().Be(21);
@@ -839,5 +915,24 @@ namespace AutoQueryable.UnitTest
                 query.Count().Should().Be(DataInitializer.ProductSampleCount);
             }
         }
+        [Fact]
+        public async Task PagedResultTest()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("page=1");
+                _profile.UseBaseType = true;
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<Product>;
+                //var pagedResult = await query.ToPagedResultAsync(_autoQueryableContext);
+
+                //pagedResult.RowCount.Should().Be(_profile.DefaultToTake);
+                //pagedResult.TotalCount.Should().Be(await context.Product.CountAsync());
+                //pagedResult.Result.Count.Should().Be(_profile.DefaultToTake);
+                
+            }
+        }
+
     }
 }

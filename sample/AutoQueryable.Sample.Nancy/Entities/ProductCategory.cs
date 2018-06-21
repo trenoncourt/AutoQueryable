@@ -7,7 +7,7 @@ namespace AutoQueryable.Sample.Nancy.Entities
     {
         public ProductCategory()
         {
-            this.Product = new HashSet<Product>();
+            Product = new HashSet<Product>();
         }
 
         public int ProductCategoryId { get; set; }

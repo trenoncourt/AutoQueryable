@@ -1,22 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using AutoQueryable.Sample.Nancy.Contexts;
 using AutoQueryable.Sample.Nancy.Entities;
 using Microsoft.AspNetCore.Builder;
 using Nancy.Owin;
+using AutoQueryable.Core.Models;
+using AutoQueryable.Extensions.Autofac;
+using AutoQueryable.Nancy.Filter;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Nancy;
+using Nancy.Bootstrappers.Autofac;
 
 namespace AutoQueryable.Sample.Nancy
 {
     public class Startup
     {
-        public void Configure(IApplicationBuilder app)
+        public Startup()
         {
-            app.UseOwin(x => x.UseNancy());
-
-            using (var context = new AutoQueryableContext()) this.Seed(context);
+            var builder = new ConfigurationBuilder();
+            this.Configuration = builder.Build();
         }
 
-        private void Seed(AutoQueryableContext context)
+        public IConfigurationRoot Configuration { get; private set; }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            // Register the Autofac middleware FIRST. This also adds
+            // Autofac-injected middleware registered with the container.
+            
+            app.UseOwin().UseNancy();
+
+            using (var context = new AutoQueryableDbContext()) Seed(context);
+        }
+
+
+        private void Seed(AutoQueryableDbContext context)
         {
             var redCategory = new ProductCategory
             {
@@ -66,5 +86,34 @@ namespace AutoQueryable.Sample.Nancy
             }
             context.SaveChanges();
         }
+    }
+    public class AutoQueryableAutofacBootstrapper : AutofacNancyBootstrapper
+    {
+        public AutoQueryableAutofacBootstrapper()
+        {
+
+        }
+        protected override void ConfigureRequestContainer(
+            ILifetimeScope container,
+            NancyContext context
+        ) {
+            container.Update(builder =>
+            {
+                builder.RegisterAutoQueryable();
+                builder.RegisterType<NancyQueryStringAccessor>().AsSelf().As<IQueryStringAccessor>();
+                builder.RegisterType<AutoQueryableDbContext>().AsSelf();
+                //builder.Populate(_services);
+            });
+        }
+        //protected override void ConfigureApplicationContainer(ILifetimeScope container)
+        //{
+        //    base.ConfigureApplicationContainer(container);
+        //    container.Update(builder =>
+        //    {
+
+        //        //builder.Populate(_services);
+        //    });
+            
+        //}
     }
 }

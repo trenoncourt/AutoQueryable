@@ -1,5 +1,7 @@
-﻿using AutoQueryable.Extensions;
+﻿using System.Collections.Generic;
+using AutoQueryable.Extensions;
 using Nancy;
+using AutoQueryable.Core.Models;
 using AutoQueryable.Nancy.Filter;
 using AutoQueryable.Sample.Nancy.Contexts;
 
@@ -7,13 +9,15 @@ namespace AutoQueryable.Sample.Nancy.Modules
 {
     public sealed class ProductModule : NancyModule
     {
-        public ProductModule(AutoQueryableContext context) : base("/products")
+        public ProductModule(AutoQueryableDbContext dbContext, IAutoQueryableContext autoQueryableContext, NancyQueryStringAccessor queryStringAccessor, NancyContext nancyContext) : base("/products")
         {
-            this.Get("/", args => FormatterExtensions.AsJson(this.Response, context.Product.AutoQueryable(this.Context.Request.Url.Query)));
+            queryStringAccessor.SetQueryString(nancyContext.Request.Url.Query);
 
-            this.Get("/withfilter", args =>
+            Get<dynamic>("/", args => Response.AsJson(dbContext.Product.AutoQueryable(autoQueryableContext).ToAutoQueryListResult(autoQueryableContext) as ICollection<object>));
+
+            Get<dynamic>("/withfilter", args =>
             {
-                this.After.AutoQueryable(this.Context, context.Product);
+                After.AutoQueryable(Context, dbContext.Product, autoQueryableContext);
                 return "";
             });
         }

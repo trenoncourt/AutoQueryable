@@ -6,9 +6,9 @@ namespace AutoQueryable.Core.CriteriaFilters
     {
         public QueryableFilter(string alias, int level, IFormatProvider formatProvider = null)
         {
-            this.Alias = alias;
-            this.Level = level;
-            this.FormatProvider = formatProvider;
+            Alias = alias;
+            Level = level;
+            FormatProvider = formatProvider;
         }
         public string Alias { get; set; }
         /// <summary>

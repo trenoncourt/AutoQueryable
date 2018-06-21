@@ -105,17 +105,17 @@ namespace AutoQueryable.Helpers
 
     public static class SelectHelper
     {
-        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(IEnumerable<SelectColumn> columns, AutoQueryableProfile profile)
+        public static Expression<Func<TEntity, TResult>> GetSelector<TEntity, TResult>(ICollection<SelectColumn> selectColumns, IAutoQueryableProfile profile)
         {
             var memberExpressions = new Dictionary<string, Expression>();
 
             var parameter = Expression.Parameter(typeof(TEntity), "p");
 
-            var memberInit = InitType<TEntity>(columns, parameter, profile);
+            var memberInit = InitType<TEntity>(selectColumns, parameter, profile);
             return Expression.Lambda<Func<TEntity, TResult>>(memberInit, parameter);
         }
 
-        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, AutoQueryableProfile profile, bool isLambdaBody = false)
+        private static Expression GetMemberExpression<TEntity>(Expression parent, SelectColumn column, IAutoQueryableProfile profile, bool isLambdaBody = false)
         {
             var isCollection = parent.Type.IsEnumerableButNotString();
             // If the current column has no sub column, return the final property.
@@ -175,7 +175,7 @@ namespace AutoQueryable.Helpers
             });
         }
 
-        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node, AutoQueryableProfile profile)
+        public static MemberInitExpression InitType<TEntity>(IEnumerable<SelectColumn> columns, Expression node, IAutoQueryableProfile profile)
         {
             var expressions = new Dictionary<string, Expression>();
             foreach (var subColumn in columns)

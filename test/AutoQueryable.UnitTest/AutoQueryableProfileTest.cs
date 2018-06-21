@@ -1,9 +1,13 @@
-﻿using AutoQueryable.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutoQueryable.Core.Clauses;
+using AutoQueryable.Core.Clauses.ClauseHandlers;
+using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Extensions;
+using AutoQueryable.UnitTest.Mock;
 using FluentAssertions;
 using Xunit;
 
@@ -11,24 +15,44 @@ namespace AutoQueryable.UnitTest
 {
     public class AutoQueryableProfileTest
     {
+        private readonly SimpleQueryStringAccessor _queryStringAccessor;
+        private readonly IAutoQueryableProfile _profile;
+        private readonly IAutoQueryableContext _autoQueryableContext;
+
+        public AutoQueryableProfileTest()
+        {
+            _profile = new AutoQueryableProfile();
+            _queryStringAccessor = new SimpleQueryStringAccessor();
+            var selectClauseHandler = new DefaultSelectClauseHandler();
+            var orderByClauseHandler = new DefaultOrderByClauseHandler();
+            var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
+            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var criteriaFilterManager = new CriteriaFilterManager();
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
+            _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
+        }
+
         [Fact]
         public void AllowOnlyOneClause()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("select=name&top=10", new AutoQueryableProfile
-                {
-                    AllowedClauses = ClauseType.Select
-                }) as IEnumerable<dynamic>).ToList();
+                _queryStringAccessor.SetQueryString("select=id");
 
-                query.Count.Should().Be(DataInitializer.ProductSampleCount);
+                _profile.AllowedClauses = ClauseType.Select;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
+
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
                 var first = query.First();
 
-                var propertiesCount = ((Type)first.GetType()).GetProperties().Length;
+                var propertiesCount = first.GetType().GetProperties().Length;
                 propertiesCount.Should().Be(1);
 
-                string name = first.GetType().GetProperty("name").GetValue(first);
+                var name = first.GetType().GetProperty("id").GetValue(first);
                 name.Should().NotBeNull();
             }
         }
@@ -36,21 +60,22 @@ namespace AutoQueryable.UnitTest
         [Fact]
         public void AllowMultipleClauses()
         {
-            using (var context = new Mock.AutoQueryableContext())
+            using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = (context.Product.AutoQueryable("select=productId&top=10&skip=100", new AutoQueryableProfile
-                {
-                    AllowedClauses = ClauseType.Select | ClauseType.Top
-                }) as IEnumerable<dynamic>).ToList();
 
-                query.Count.Should().Be(10);
+                _queryStringAccessor.SetQueryString("select=productId&top=10&skip=100");
+                _profile.AllowedClauses = ClauseType.Select | ClauseType.Top;
+
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
+                query.Count().Should().Be(10);
                 var first = query.First();
 
-                var propertiesCount = ((Type)first.GetType()).GetProperties().Length;
+                var propertiesCount = first.GetType().GetProperties().Length;
                 propertiesCount.Should().Be(1);
 
-                int productid = first.GetType().GetProperty("productId").GetValue(first);
+                var productid = first.GetType().GetProperty("productId").GetValue(first);
                 productid.Should().Be(101);
             }
         }

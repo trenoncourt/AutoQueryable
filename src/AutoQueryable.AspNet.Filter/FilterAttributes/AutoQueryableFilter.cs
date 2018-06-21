@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http.Filters;
@@ -42,25 +43,34 @@ namespace AutoQueryable.AspNet.Filter.FilterAttributes
 
         public int MaxDepth { get; set; }
         
-        public string DefaultOrderBy { get; set; }
-        
-        public string DefaultOrderByDesc { get; set; }
+        public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
         
         public bool UseBaseType { get; set; }
+        public bool ToListBeforeSelect { get; set; }
 
 
         public override void OnActionExecuted(HttpActionExecutedContext context)
         {
-            var content = context.Response.Content as ObjectContent;
-            if (content != null)
+            if (context.Response.Content is ObjectContent content)
             {
+                // Get the request lifetime scope so you can resolve services.
+                var requestScope = context.Request.GetDependencyScope();
+
+                // Resolve the service you want to use.
+
+                if(!(requestScope.GetService(typeof(IAutoQueryableContext)) is IAutoQueryableContext autoQueryableContext))
+                {
+                    throw new NullReferenceException($"No instance registered as '{nameof(IAutoQueryableContext)}'");
+                }
+
                 dynamic query = content.Value;
-                if (query == null) throw new Exception("Unable to retreive value of IQueryable from context result.");
-                
-                var queryString = context.Request.RequestUri.Query;
-                AutoQueryableContext autoQueryableContext =
-                    AutoQueryableContext.Create(query, queryString, AutoQueryableProfile.From(this));
-                var result = autoQueryableContext.GetAutoQuery();
+
+                if (query == null)
+                {
+                    throw new Exception("Unable to retrieve value of IQueryable from context result.");
+                }
+
+                var result = autoQueryableContext.GetAutoQuery(query);
                 context.Response.Content = new ObjectContent(result.GetType(), result, new JsonMediaTypeFormatter());
             }
         }

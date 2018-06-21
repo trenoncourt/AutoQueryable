@@ -3,32 +3,31 @@ using AutoQueryable.Core.CriteriaFilters.FilterMaps;
 
 namespace AutoQueryable.Core.CriteriaFilters
 {
-    public static class CriteriaFilterManager
+    public class CriteriaFilterManager : ICriteriaFilterManager
     {
-        private static readonly IQueryableFilterMap QueryableFilterMap = new QueryableFilterMap();
-        private static readonly IQueryableTypeFilterMap FilterMap = new QueryableTypeFilterMap();
+        private readonly IQueryableFilterMap _queryableFilterMap = new QueryableFilterMap();
+        private readonly IQueryableTypeFilterMap _filterMap = new QueryableTypeFilterMap();
 
-        public static void InitializeFilterMap()
+        public CriteriaFilterManager()
         {
-            FilterMap.AddFilters(typeof(string), StringFilterMapFactory.InitializeMap(QueryableFilterMap));
-            FilterMap.AddFilters(typeof(DateTime), DateTimeFilterMapFactory.InitializeMap(QueryableFilterMap));
-            FilterMap.AddFilters(typeof(object), BaseFilterMapFactory.InitializeMap(QueryableFilterMap));
+            _filterMap.AddFilters(typeof(string), StringFilterMapFactory.InitializeMap(_queryableFilterMap));
+            _filterMap.AddFilters(typeof(DateTime), DateTimeFilterMapFactory.InitializeMap(_queryableFilterMap));
+            _filterMap.AddFilters(typeof(object), BaseFilterMapFactory.InitializeMap(_queryableFilterMap));
             // FilterMap.AddFilters(typeof(DateTime), DateTimeFilter);
         }
 
+        public IQueryableFilter GetFilter(string alias)
+            => _queryableFilterMap.GetFilter(alias);
 
-        public static IQueryableFilter GetFilter(string alias)
-            => QueryableFilterMap.GetFilter(alias);
+        public IQueryableFilter FindFilter(string queryParameterKey)
+            => _queryableFilterMap.FindFilter(queryParameterKey);
 
-        public static IQueryableFilter FindFilter(string queryParameterKey)
-            => QueryableFilterMap.FindFilter(queryParameterKey);
-
-        public static IQueryableTypeFilter GetTypeFilter(Type type, string alias) =>
-            FilterMap.GetFilter(type, alias);
-        public static IQueryableTypeFilter GetTypeFilter(Type type, Models.Criteria criteria) =>
-            FilterMap.GetFilter(type, criteria.Filter);
-        public static IQueryableTypeFilter GetTypeFilter(Type type, IQueryableFilter queryableFilter) =>
-            FilterMap.GetFilter(type, queryableFilter);
+        public IQueryableTypeFilter GetTypeFilter(Type type, string alias) =>
+            _filterMap.GetFilter(type, alias);
+        public IQueryableTypeFilter GetTypeFilter(Type type, Models.Criteria criteria) =>
+            _filterMap.GetFilter(type, criteria.Filter);
+        public IQueryableTypeFilter GetTypeFilter(Type type, IQueryableFilter queryableFilter) =>
+            _filterMap.GetFilter(type, queryableFilter);
         
     }
 }

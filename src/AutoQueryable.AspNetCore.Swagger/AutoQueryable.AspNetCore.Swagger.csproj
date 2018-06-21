@@ -4,16 +4,21 @@
     <AssemblyTitle>AutoQueryable.AspNetCore.Swagger add Swagger parameters for AutoQueryable to Asp.Net Core.</AssemblyTitle>
     <Version>1.0.0</Version>
     <Authors>Thibaut Renoncourt</Authors>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AutoQueryable.AspNetCore.Swagger</AssemblyName>
     <PackageId>AutoQueryable.AspNetCore.Swagger</PackageId>
     <PackageTags>AutoQueryable;Swagger;AutoQuery;OData;GraphQL</PackageTags>
     <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE</PackageLicenseUrl>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.4.0" />

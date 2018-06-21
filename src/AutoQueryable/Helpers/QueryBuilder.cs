@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
@@ -13,106 +14,81 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static QueryResult Build<T>(IQueryable<T> query, Type entityType, AllClauses clauses, ICollection<Criteria> criterias, AutoQueryableProfile profile, bool countAllRows) where T : class
-        {
-            var orderColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderBy, entityType);
-            var orderDescColumns = OrderByHelper.GetOrderByColumns(profile, clauses.OrderByDesc, entityType);
+        public static IQueryable<dynamic> TotalCountQuery { get; private set; }
 
+        public static IQueryable<dynamic> Build<T>(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager, IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
+        {
             if (criterias != null && criterias.Any())
             {
-                query = query.Where(criterias);
+                query = _addCriterias(criteriaFilterManager, query, criterias);
             }
-            var totalCount = 0;
-            if (countAllRows)
-            {
-                totalCount = query.Count();
-            }
-            if (orderColumns != null)
-            {
-                query = query.OrderBy(orderColumns);
-            }
-            else if (orderDescColumns != null)
-            {
-                query = query.OrderByDesc(orderDescColumns);
-            }
+            query = _addOrderBy(query, clauseValueManager.OrderBy, profile);
 
-            IQueryable<dynamic> queryProjection;
-            if (clauses.Select == null && profile?.UnselectableProperties == null && profile?.SelectableProperties == null)
+            TotalCountQuery = query;
+            if(clauseValueManager.First)
             {
-                queryProjection = query;
+                query = query.Take(1);
+            }else{
+                query = _handlePaging(clauseValueManager, query, profile);
             }
-            else
+            //if (profile?.MaxToTake != null)
+            //{
+            //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
+            //}
+
+            IQueryable<dynamic> queryProjection = query;
+            if (clauseValueManager.Select.Any() || profile?.UnselectableProperties != null || profile?.SelectableProperties != null)
             {
-                if (profile.UseBaseType)
+                if (profile != null)
                 {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, T>(clauses?.Select?.SelectColumns, profile));
-                }
-                else
-                {
-                    queryProjection = query.Select(SelectHelper.GetSelector<T, object>(clauses?.Select?.SelectColumns, profile));
+                    if (profile.ToListBeforeSelect)
+                    {
+                        query = query.ToList().AsQueryable();
+                    }
+                    queryProjection = profile.UseBaseType ?
+                        query.Select(SelectHelper.GetSelector<T, T>(clauseValueManager.Select, profile)) : query.Select(SelectHelper.GetSelector<T, object>(clauseValueManager.Select, profile));
                 }
             }
 
-            if (clauses.Skip != null)
-            {
-                int.TryParse(clauses.Skip.Value, out var skip);
-                if (profile?.MaxToSkip != null && skip > profile.MaxToSkip)
-                {
-                    skip = profile.MaxToSkip.Value;
-                }
+            return queryProjection;
+        }
 
-                if (profile != null && profile.UseBaseType)
+        private static IQueryable<T> _handlePaging<T>(IClauseValueManager clauseValueManager, IQueryable<T> query, IAutoQueryableProfile profile) where T : class
+        {
+            if (clauseValueManager.Skip.HasValue)
+            {
+                if (profile?.MaxToSkip != null && clauseValueManager.Skip > profile.MaxToSkip)
                 {
-                    queryProjection = ((IQueryable<T>)queryProjection).Skip<T>(skip);
+                    clauseValueManager.Skip = profile.MaxToSkip.Value;
                 }
-                else
-                {
-                    queryProjection = queryProjection.Skip(skip);
-                }
+                query = query.Skip(clauseValueManager.Skip.Value);
             }
-            if (clauses.Top != null)
+            // Top or DefaultToTake = 0 => return ALL values
+            if (clauseValueManager.Top.HasValue)
             {
-                int.TryParse(clauses.Top.Value, out var take);
-                if (profile?.MaxToTake != null && take > profile.MaxToTake)
+                if (clauseValueManager.Top != 0 && (profile == null || profile.DefaultToTake != 0))
                 {
-                    take = profile.MaxToTake.Value;
-                }
-
-                if (profile != null && profile.UseBaseType)
-                {
-                    queryProjection = ((IQueryable<T>)queryProjection).Take(take);
-                }
-                else
-                {
-                    queryProjection = queryProjection.Take(take);
+                    if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
+                    {
+                        clauseValueManager.Top = profile.MaxToTake.Value;
+                    }
+                    query = query.Take(clauseValueManager.Top.Value);
                 }
             }
             else if (profile?.MaxToTake != null)
             {
-                if (profile.UseBaseType)
-                {
-                    queryProjection = ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value);
-                }
-                else
-                {
-                    queryProjection = queryProjection.Take(profile.MaxToTake.Value);
-                }
+                query = query.Take(profile.MaxToTake.Value);
             }
-            if (clauses.First != null)
+            else
             {
-                return new QueryResult { Result = queryProjection.FirstOrDefault(), TotalCount = totalCount };
+                if (profile != null && profile.DefaultToTake != 0)
+                {
+                    query = query.Take(profile.DefaultToTake);
+                }
+
             }
 
-            if (clauses.Last != null)
-            {
-                return new QueryResult { Result = queryProjection.LastOrDefault(), TotalCount = totalCount };
-            }
-
-            if (profile?.MaxToTake != null)
-            {
-                queryProjection = queryProjection.Take(profile.MaxToTake.Value);
-            }
-            return new QueryResult { Result = queryProjection, TotalCount = totalCount };
+            return query;
         }
 
         private static Expression MakeLambda(Expression parameter, Expression predicate)
@@ -132,7 +108,7 @@ namespace AutoQueryable.Helpers
             }
             protected override Expression VisitParameter(ParameterExpression node)
             {
-                this.Parameter = node;
+                Parameter = node;
                 return node;
             }
         }
@@ -145,7 +121,7 @@ namespace AutoQueryable.Helpers
             return Expression.Call(anyMethod, parameter, lambdaPredicate);
         }
 
-        private static Expression BuildWhereExpression(Expression parameter, Criteria criteria, params string[] properties)
+        private static Expression BuildWhereExpression(ICriteriaFilterManager criteriaFilterManager, Expression parameter, Criteria criteria, params string[] properties)
         {
             Type childType = null;
 
@@ -167,7 +143,7 @@ namespace AutoQueryable.Helpers
                 }
                 //skip current property and get navigation property expression recursivly
                 var innerProperties = properties.Skip(1).ToArray();
-                var predicate = BuildWhereExpression(childParameter, criteria, innerProperties);
+                var predicate = BuildWhereExpression(criteriaFilterManager, childParameter, criteria, innerProperties);
                 if (isCollection)
                 {
                     //build subquery
@@ -185,7 +161,7 @@ namespace AutoQueryable.Helpers
                 var convertedValue = ConvertHelper.Convert(value, childProperty.PropertyType, criteria.Filter.FormatProvider);
                 ConstantExpression val = Expression.Constant(convertedValue, childProperty.PropertyType);
 
-                var filter = CriteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria);
+                var filter = criteriaFilterManager.GetTypeFilter(childProperty.PropertyType, criteria.Filter.Alias);
                 if (filter != null)
                 {
                     var newExpression = filter.Filter(memberExpression, val);
@@ -195,36 +171,62 @@ namespace AutoQueryable.Helpers
             return orExpression;
         }
 
-        private static IQueryable<T> Where<T>(this IQueryable<T> source, IEnumerable<Criteria> criterias)
+        private static IQueryable<T> _addCriterias<T>(ICriteriaFilterManager criteriaFilterManager, IQueryable<T> source, IEnumerable<Criteria> criterias) where T : class
         {
             var parentEntity = Expression.Parameter(typeof(T), "x");
             Expression whereExpression = null;
             foreach (var c in criterias)
             {
-                var expression = BuildWhereExpression(parentEntity, c, c.ColumnPath.ToArray());
+                var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
 
                 whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
             }
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
         }
-
-        private static IQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<Column> columns)
+        // TODO: Handle '-' to orderbydesc (in order that they are in the orderby string)
+        private static IQueryable<T> _addOrderBy<T>(IQueryable<T> source, Dictionary<string, bool> orderClause, IAutoQueryableProfile profile) where T : class
         {
+            if (orderClause.Count == 0)
+            {
+                return source;
+            }
+            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties();
+            if (profile?.SortableProperties != null)
+            {
+                properties = properties.Where(c => profile.SortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+            if (profile?.UnSortableProperties != null)
+            {
+                properties = properties.Where(c => !profile.UnSortableProperties.Contains(c.Name, StringComparer.OrdinalIgnoreCase));
+            }
+
+            properties = properties.Where(p => orderClause.Keys.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+
+            var columns = properties.Select(v => new Column
+            {
+                PropertyName = v.Name
+            });
             foreach (var column in columns)
             {
-                source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                var desc = orderClause.FirstOrDefault(o => string.Equals(o.Key, column.PropertyName, StringComparison.OrdinalIgnoreCase)).Value;
+                if(desc){
+                    source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
+                }else
+                {
+                    source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                }
             }
             return source;
         }
 
-        private static IQueryable<T> OrderByDesc<T>(this IQueryable<T> source, IEnumerable<Column> columns)
-        {
-            foreach (var column in columns)
-            {
-                source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
-            }
-            return source;
-        }
+        //private IQueryable<T> OrderByDesc<T>(IQueryable<T> source, IEnumerable<Column> columns)
+        //{
+        //    foreach (var column in columns)
+        //    {
+        //        source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
+        //    }
+        //    return source;
+        //}
     }
 }

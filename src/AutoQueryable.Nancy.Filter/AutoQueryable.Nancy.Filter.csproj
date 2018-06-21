@@ -11,11 +11,22 @@
     <PackageTags>AutoQueryable;AutoQuery;OData;GraphQL</PackageTags>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
+    <PackageReference Include="Nancy.Bootstrappers.Autofac" Version="2.0.0-clinteastwood" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>
 

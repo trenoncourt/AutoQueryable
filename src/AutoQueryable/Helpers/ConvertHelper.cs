@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using AutoQueryable.Core.CriteriaFilters.FilterMaps;
 
 namespace AutoQueryable.Helpers
 {

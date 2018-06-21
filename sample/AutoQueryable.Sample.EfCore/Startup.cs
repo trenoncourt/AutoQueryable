@@ -5,7 +5,6 @@ using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -33,13 +32,13 @@ namespace AutoQueryable.Sample.EfCore
             });
 
             services
-                .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase());
+                .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase("InMemory"));
         }
         
         public void Configure(IApplicationBuilder app)
         {
             var context = app.ApplicationServices.GetService<AutoQueryableDbContext>();
-            this.Seed(context);
+            Seed(context);
 
             app.UseMvc();
             
