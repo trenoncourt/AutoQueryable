@@ -110,6 +110,18 @@ namespace AutoQueryable.UnitTest
             }
         }
         [Fact]
+        public void NullablePropertyEquals()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("name=Product 23");
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
+                query.Count().Should().Be(1);
+            }
+        }
+        [Fact]
         public void NameEqualsNull()
         {
             using (var context = new AutoQueryableDbContext())
