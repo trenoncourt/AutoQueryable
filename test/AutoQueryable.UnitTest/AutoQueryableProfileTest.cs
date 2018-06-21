@@ -39,20 +39,20 @@ namespace AutoQueryable.UnitTest
             using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
-                _queryStringAccessor.SetQueryString("select=name&top=10");
+                _queryStringAccessor.SetQueryString("select=id");
 
                 _profile.AllowedClauses = ClauseType.Select;
 
                 var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
 
-                query.Count().Should().Be(DataInitializer.ProductSampleCount);
+                query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
                 var first = query.First();
 
                 var propertiesCount = first.GetType().GetProperties().Length;
                 propertiesCount.Should().Be(1);
 
-                var name = first.GetType().GetProperty("name").GetValue(first);
+                var name = first.GetType().GetProperty("id").GetValue(first);
                 name.Should().NotBeNull();
             }
         }

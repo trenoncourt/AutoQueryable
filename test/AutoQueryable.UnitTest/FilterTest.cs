@@ -7,6 +7,7 @@ using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
 using AutoQueryable.UnitTest.Mock;
+using AutoQueryable.UnitTest.Mock.Entities;
 using FluentAssertions;
 using Xunit;
 
@@ -109,6 +110,33 @@ namespace AutoQueryable.UnitTest
             }
         }
         [Fact]
+        public void NameEqualsNull()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("name=null");
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
+                query.Count().Should().Be(DataInitializer.ProductSampleCount / 2);
+                query.Should().OnlyContain(product => product.GetType().GetProperty("Name").GetValue(product) == null);
+            }
+        }
+        [Fact]
+        public void NameNotEqualsNull()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("name!=null");
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
+                query.Count().Should().Be(DataInitializer.ProductSampleCount / 2);
+                query.Should().OnlyContain(product => product.GetType().GetProperty("Name").GetValue(product) != null);
+            }
+        }
+
+        [Fact]
         public void NullableValueContains()
         {
             using (var context = new AutoQueryableDbContext())
@@ -146,6 +174,18 @@ namespace AutoQueryable.UnitTest
             }
         }
         [Fact]
+        public void NotStartsWith()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("nameStartsWith!=Prod");
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
+                query.Count().Should().Be(DataInitializer.ProductSampleCount / 2);
+            }
+        }
+        [Fact]
         public void StartsWithIgnoreCase()
         {
             using (var context = new AutoQueryableDbContext())
@@ -162,11 +202,15 @@ namespace AutoQueryable.UnitTest
         {
             using (var context = new AutoQueryableDbContext())
             {
-                _queryStringAccessor.SetQueryString("namestartsWith:i!=prodUct 10");
+                const string nameCheck = "prodUct 10";
+                _queryStringAccessor.SetQueryString($"namestartsWith:i!={nameCheck}");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
-                query.Count().Should().Be(DataInitializer.ProductSampleCount - 11);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+
+                query.Should().OnlyContain(product => 
+                    product.GetType().GetProperty("Name").GetValue(product) == null 
+                    || !product.GetType().GetProperty("Name").GetValue(product).ToString().StartsWith(nameCheck, StringComparison.OrdinalIgnoreCase));
             }
         }
         [Fact]
@@ -198,11 +242,14 @@ namespace AutoQueryable.UnitTest
         {
             using (var context = new AutoQueryableDbContext())
             {
-                _queryStringAccessor.SetQueryString("nameEndsWith:i!=dUcT 100");
+                const string nameCheck = "dUcT 100";
+                _queryStringAccessor.SetQueryString($"nameEndsWith:i!={nameCheck}");
 
                 DataInitializer.InitializeSeed(context);
                 var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
-                query.Count().Should().Be(DataInitializer.ProductSampleCount - 1);
+                query.Should().OnlyContain(product => 
+                    product.GetType().GetProperty("Name").GetValue(product) == null 
+                    || !product.GetType().GetProperty("Name").GetValue(product).ToString().EndsWith(nameCheck, StringComparison.OrdinalIgnoreCase));
             }
         }
 
