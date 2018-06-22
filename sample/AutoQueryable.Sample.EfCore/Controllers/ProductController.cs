@@ -8,6 +8,7 @@ using AutoQueryable.Sample.EfCore.Dtos;
 using AutoQueryable.Sample.EfCore.Entities;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace AutoQueryable.Sample.EfCore.Controllers
 {
     [Route("api/products")]
@@ -28,10 +29,11 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <example>http://localhost:5000/api/products?select=name&top=50&skip=10</example>
         /// <param name="context"></param>
         /// <returns></returns>
-        [AutoQueryable(MaxToTake = 10)]
+        [TypeFilter(typeof(AutoQueryableAttribute))]
         [HttpGet]
         public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
+            _profile.MaxToTake = 10;
             return context.Product;
         }
 
@@ -41,7 +43,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <example>http://localhost:5000/api/products/with_dto_projection?select=name,category.name</example>
         /// <param name="context"></param>
         /// <returns></returns>
-        [AutoQueryable]
+        //[AutoQueryable]
         [HttpGet("with_dto_projection")]
         public IQueryable GetWithDtoProjection([FromServices] AutoQueryableDbContext context)
         {
