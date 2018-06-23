@@ -29,6 +29,21 @@ public class ProductsController : Controller
 }
 ```
 
+### For ASP.NET Core (using internal Dependency Injection)
+
+```c#
+[Route("api/[controller]")]
+public class ProductsController : Controller
+{
+    [HttpGet]
+    [TypeFilter(typeof(AutoQueryableAttribute))]
+    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
+    {
+        return dbContext.Product;
+    }
+}
+```
+
 With this url: [**/products?select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product**](/products?top=1&select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product)
 
 You will get result like:

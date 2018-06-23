@@ -16,17 +16,17 @@ namespace AutoQueryable.Sample.AspNetFramework.Controllers
 {
     public class UsersController : ApiController
     {
-        private readonly AutoQueryableSampleAspNetFrameworkContext db = new AutoQueryableSampleAspNetFrameworkContext();
+        private readonly AutoQueryableSampleAspNetFrameworkContext _db = new AutoQueryableSampleAspNetFrameworkContext();
 
         // GET: api/Users
         [AutoQueryable]
-        public IQueryable<User> GetUsers() => db.Users;
+        public IQueryable<User> GetUsers() => _db.Users;
 
         // GET: api/Users/5
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> GetUser(int id)
         {
-            var user = await db.Users.FindAsync(id);
+            var user = await _db.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -49,11 +49,11 @@ namespace AutoQueryable.Sample.AspNetFramework.Controllers
                 return BadRequest();
             }
 
-            db.Entry(user).State = EntityState.Modified;
+            _db.Entry(user).State = EntityState.Modified;
 
             try
             {
-                await db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -79,8 +79,8 @@ namespace AutoQueryable.Sample.AspNetFramework.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Users.Add(user);
-            await db.SaveChangesAsync();
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
 
             return CreatedAtRoute("DefaultApi", new { id = user.Id }, user);
         }
@@ -89,14 +89,14 @@ namespace AutoQueryable.Sample.AspNetFramework.Controllers
         [ResponseType(typeof(User))]
         public async Task<IHttpActionResult> DeleteUser(int id)
         {
-            var user = await db.Users.FindAsync(id);
+            var user = await _db.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            db.Users.Remove(user);
-            await db.SaveChangesAsync();
+            _db.Users.Remove(user);
+            await _db.SaveChangesAsync();
 
             return Ok(user);
         }
@@ -105,14 +105,14 @@ namespace AutoQueryable.Sample.AspNetFramework.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }
 
         private bool UserExists(int id)
         {
-            return db.Users.Count(e => e.Id == id) > 0;
+            return _db.Users.Count(e => e.Id == id) > 0;
         }
     }
 }
