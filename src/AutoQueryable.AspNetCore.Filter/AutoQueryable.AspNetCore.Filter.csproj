@@ -35,6 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>C:\Users\NilsG.bijtjes\.nuget\packages\autofac\4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>C:\Users\NilsG.bijtjes\.nuget\packages\microsoft.entityframeworkcore\1.1.2\lib\netstandard1.3\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>

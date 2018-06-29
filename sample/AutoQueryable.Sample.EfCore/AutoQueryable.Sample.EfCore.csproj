@@ -9,6 +9,7 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.0" />
@@ -23,7 +24,16 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.AspNetCore.Filter\AutoQueryable.AspNetCore.Filter.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.AspNetCore.Swagger\AutoQueryable.AspNetCore.Swagger.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Extensions.DependencyInjection">
+      <HintPath>C:\Users\NilsG.bijtjes\.nuget\packages\autofac.extensions.dependencyinjection\4.2.2\lib\netstandard1.1\Autofac.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

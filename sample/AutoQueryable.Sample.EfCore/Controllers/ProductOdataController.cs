@@ -17,7 +17,7 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <example>http://localhost:5000/api/products?select=name&top=50&skip=10</example>
         /// <param name="context"></param>
         /// <returns></returns>
-        [AutoQueryable(ProviderType = ProviderType.OData)]
+        //[AutoQueryable(ProviderType = ProviderType.OData)]
         [HttpGet]
         public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
