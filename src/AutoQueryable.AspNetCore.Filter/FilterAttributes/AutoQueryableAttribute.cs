@@ -12,7 +12,7 @@ using Serilog;
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
-    public class AutoQueryableAttribute : Attribute, IFilterFactory
+    public class AutoQueryableAttribute : Attribute, IFilterFactory, IAutoQueryableAttribute
     {
         public string[] SelectableProperties { get; set; }
 
