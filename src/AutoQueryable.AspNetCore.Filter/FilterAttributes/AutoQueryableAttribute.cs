@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Core.Models.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 
 namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 {
-    public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
+    public class AutoQueryableAttribute : Attribute, IFilterFactory
     {
-        private readonly IAutoQueryableContext _autoQueryableContext;
-        private readonly IAutoQueryableProfile _autoQueryableProfile;
-
-        public AutoQueryableAttribute(IAutoQueryableContext autoQueryableContext, IAutoQueryableProfile autoQueryableProfile)
-        {
-            _autoQueryableContext = autoQueryableContext;
-            _autoQueryableProfile = autoQueryableProfile;
-        }
         public string[] SelectableProperties { get; set; }
 
         public string[] UnselectableProperties { get; set; }
@@ -56,16 +50,113 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
        
         public ProviderType ProviderType { get; set; }
 
-        public bool UseBaseType { get; set; }
-        public bool ToListBeforeSelect { get; set; }
-
-        public override void OnActionExecuted(ActionExecutedContext context)
+        private bool _useBaseTypeOverrided;
+        private bool _useBaseType;
+        public bool UseBaseType
         {
-            dynamic query = ((ObjectResult)context.Result).Value;
-            // TODO: Set attribute property values in profile
-            //context.HttpContext
-            if (query == null) throw new Exception("Unable to retrieve value of IQueryable from context result.");
-            context.Result = new OkObjectResult(_autoQueryableContext.GetAutoQuery(query));
+            get { return _useBaseType;}
+            set
+            {
+                _useBaseTypeOverrided = true;
+                _useBaseType = value;
+            }
+        }
+
+        private bool _toListBeforeSelectOverrided;
+        private bool _toListBeforeSelect;
+        public bool ToListBeforeSelect
+        {
+            get { return _toListBeforeSelect;}
+            set
+            {
+                _toListBeforeSelectOverrided = true;
+                _toListBeforeSelect = value; 
+            } 
+        }
+
+        public bool IsReusable { get; }
+
+        public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
+        {
+            var autoQueryableFilter = serviceProvider.GetService<AutoQueryableFilter>();
+            if (SelectableProperties != null)
+            {
+                autoQueryableFilter.SelectableProperties = SelectableProperties;
+            }
+            if (UnselectableProperties != null)
+            {
+                autoQueryableFilter.UnselectableProperties = UnselectableProperties;
+            }
+            if (SortableProperties != null)
+            {
+                autoQueryableFilter.SortableProperties = SortableProperties;
+            }
+            if (UnSortableProperties != null)
+            {
+                autoQueryableFilter.UnSortableProperties = UnSortableProperties;
+            }
+            if (GroupableProperties != null)
+            {
+                autoQueryableFilter.GroupableProperties = GroupableProperties;
+            }
+            if (UnGroupableProperties != null)
+            {
+                autoQueryableFilter.UnGroupableProperties = UnGroupableProperties;
+            }
+            if (AllowedClauses != ClauseType.None)
+            {
+                autoQueryableFilter.AllowedClauses = AllowedClauses;
+            }
+            if (DisAllowedClauses != ClauseType.None)
+            {
+                autoQueryableFilter.DisAllowedClauses = DisAllowedClauses;
+            }
+            if (AllowedConditions != ConditionType.None)
+            {
+                autoQueryableFilter.AllowedConditions = AllowedConditions;
+            }
+            if (DisAllowedConditions != ConditionType.None)
+            {
+                autoQueryableFilter.DisAllowedConditions = DisAllowedConditions;
+            }
+            if (AllowedWrapperPartType != WrapperPartType.None)
+            {
+                autoQueryableFilter.AllowedWrapperPartType = AllowedWrapperPartType;
+            }
+            if (DisAllowedWrapperPartType != WrapperPartType.None)
+            {
+                autoQueryableFilter.DisAllowedWrapperPartType = DisAllowedWrapperPartType;
+            }
+            if (MaxToTake != 0)
+            {
+                autoQueryableFilter.MaxToTake = MaxToTake;
+            }
+            if (DefaultToTake != 0)
+            {
+                autoQueryableFilter.DefaultToTake = DefaultToTake;
+            }
+            if (MaxToSkip != 0)
+            {
+                autoQueryableFilter.MaxToSkip = MaxToSkip;
+            }
+            if (MaxDepth != 0)
+            {
+                autoQueryableFilter.MaxDepth = MaxDepth;
+            }
+            if (DefaultOrderBy != null)
+            {
+                autoQueryableFilter.DefaultOrderBy = DefaultOrderBy;
+            }
+            if (_useBaseTypeOverrided)
+            {
+                autoQueryableFilter.UseBaseType = UseBaseType;
+            }
+            if (_toListBeforeSelectOverrided)
+            {
+                autoQueryableFilter.ToListBeforeSelect = ToListBeforeSelect;
+            }
+
+            return autoQueryableFilter;
         }
     }
 }

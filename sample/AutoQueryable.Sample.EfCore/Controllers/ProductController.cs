@@ -29,8 +29,9 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <example>http://localhost:5000/api/products?select=name&top=50&skip=10</example>
         /// <param name="context"></param>
         /// <returns></returns>
+        
         [TypeFilter(typeof(AutoQueryableAttribute))]
-        [HttpGet]
+        [HttpGet(Order = 0)]
         public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
             _profile.MaxToTake = 10;
