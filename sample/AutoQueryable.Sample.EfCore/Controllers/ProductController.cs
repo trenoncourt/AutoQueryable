@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AutoQueryable.AspNetCore.Filter.FilterAttributes;
+using AutoQueryable.AspNetCore.Swagger;
 using AutoQueryable.Core.Enums;
 using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions;
@@ -55,6 +56,20 @@ namespace AutoQueryable.Sample.EfCore.Controllers
                     Name = p.ProductCategory.Name
                 }
             });
+        }
+        
+        [HttpGet("swagger_without_aq_attr")]
+        [AutoQueryableSwagger]
+        public IQueryable GetSwaggerWithoutAqAttr([FromServices] AutoQueryableDbContext context)
+        {
+            return context.Product.Select(p => new ProductDto
+            {
+                Name = p.Name,
+                Category = new ProductCategoryDto
+                {
+                    Name = p.ProductCategory.Name
+                }
+            }).AutoQueryable(_autoQueryableContext);
         }
 
         /// <summary>
