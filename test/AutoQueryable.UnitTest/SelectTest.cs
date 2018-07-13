@@ -27,7 +27,7 @@ namespace AutoQueryable.UnitTest
 
         public SelectTest()
         {
-            _profile = new AutoQueryableProfile();
+            _profile = new AutoQueryableProfile {DefaultToTake = 10};
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
