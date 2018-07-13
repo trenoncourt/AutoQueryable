@@ -27,9 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoQueryable.Sample.Nancy"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoQueryable.AspNetCore.Swagger", "src\AutoQueryable.AspNetCore.Swagger\AutoQueryable.AspNetCore.Swagger.csproj", "{9A8A4B5B-EE88-47D8-88C2-E06FA3401728}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Sample.AspNetFramework", "AutoQueryable.Sample.AspNetFramework\AutoQueryable.Sample.AspNetFramework.csproj", "{E3C924B9-19C4-4224-8173-D2CDA76C65DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Sample.AspNetFramework", "sample\AutoQueryable.Sample.AspNetFramework\AutoQueryable.Sample.AspNetFramework.csproj", "{E3C924B9-19C4-4224-8173-D2CDA76C65DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoQueryable.Extensions.Autofac", "AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj", "{EC0F38CF-C816-4EF3-9229-41842727A26A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoQueryable.Extensions.Autofac", "src\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj", "{EC0F38CF-C816-4EF3-9229-41842727A26A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoQueryable.Extensions.DependencyInjection", "src\AutoQueryable.Extensions.DependencyInjection\AutoQueryable.Extensions.DependencyInjection.csproj", "{08964179-011A-4A33-9E20-AEC70280ABF9}"
 EndProject
