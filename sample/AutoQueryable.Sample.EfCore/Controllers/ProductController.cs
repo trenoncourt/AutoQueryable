@@ -30,11 +30,10 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <param name="context"></param>
         /// <returns></returns>
         
-        [TypeFilter(typeof(AutoQueryableAttribute))]
+        [AutoQueryable]
         [HttpGet(Order = 0)]
         public IQueryable Get([FromServices] AutoQueryableDbContext context)
         {
-            _profile.MaxToTake = 10;
             return context.Product;
         }
 
