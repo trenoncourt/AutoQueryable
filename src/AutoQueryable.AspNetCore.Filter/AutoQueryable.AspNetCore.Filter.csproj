@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</AssemblyTitle>
@@ -16,25 +15,23 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.4" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>
-
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>C:\Users\NilsG.bijtjes\.nuget\packages\autofac\4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>C:\Users\NilsG.bijtjes\.nuget\packages\microsoft.entityframeworkcore\1.1.2\lib\netstandard1.3\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
@@ -42,5 +39,4 @@
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.interactive.async\3.1.1\lib\netstandard1.3\System.Interactive.Async.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 </Project>

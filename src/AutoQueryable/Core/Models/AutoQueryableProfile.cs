@@ -35,7 +35,7 @@ namespace AutoQueryable.Core.Models
 
         public int? MaxToTake { get; set; }
 
-        public int DefaultToTake { get; set; } = 10;
+        public int DefaultToTake { get; set; } = int.MaxValue;
 
         public int? MaxToSkip { get; set; }
         

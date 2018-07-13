@@ -22,7 +22,7 @@ namespace AutoQueryable.UnitTest
 
         public BaseTypeTest()
         {
-            _profile = new AutoQueryableProfile();
+            _profile = new AutoQueryableProfile{DefaultToTake = 10};
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
