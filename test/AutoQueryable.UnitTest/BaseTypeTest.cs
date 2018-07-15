@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Clauses.ClauseHandlers;
@@ -44,23 +45,22 @@ namespace AutoQueryable.UnitTest
             }
         }
         
-        //[Fact]
-        //public void CreateAqWithUseBaseTypeAndUnSelectable_Query_CheckIfResultsDoesNotContainsUnselectabe()
-        //{
-        //    using (var context = new Mock.AutoQueryableContext())
-        //    {
-        //        DataInitializer.InitializeSeed(context);
-        //        var query = context.Product.AutoQueryable("namecontains=product", new AutoQueryableProfile
-        //        {
-        //            UseBaseType = true,
-        //            DefaultToTake = int.MaxValue,
-        //            UnselectableProperties = typeof(Product).GetProperties().Where(p => p.Name != "Name").Select(p => p.Name).ToArray()
-        //        });
-        //        var products = (query as IEnumerable<Product>)?.ToList();
-        //        products.Should().NotBeNull();
-        //        products.Should().NotContain(p => p.Color != null || p.ProductId != 0);
-        //        products.Count().Should().Be(DataInitializer.ProductSampleCount);
-        //    }
-        //}
+        [Fact]
+        public void CreateAqWithUseBaseTypeAndUnSelectable_Query_CheckIfResultsDoesNotContainsUnselectabe()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("namecontains:i=product");
+                DataInitializer.InitializeSeed(context);
+                _profile.UseBaseType = true;
+                _profile.UnselectableProperties = typeof(Product).GetProperties().Where(p => p.Name != "Name")
+                    .Select(p => p.Name).ToArray();
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var products = (query as IEnumerable<Product>)?.ToList();
+                products.Should().NotBeNull();
+                products.Should().NotContain(p => p.Color != null || p.ProductId != 0);
+                products.Count().Should().Be(DataInitializer.DefaultToTakeCount);
+            }
+        }
     }
 }

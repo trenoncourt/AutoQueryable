@@ -28,9 +28,12 @@ namespace AutoQueryable.Helpers
             if(clauseValueManager.First)
             {
                 return query.FirstOrDefault();
-            }else{
-                query = _handlePaging(clauseValueManager, query, profile);
             }
+            if(clauseValueManager.Last)
+            {
+                return query.LastOrDefault();
+            }
+            query = _handlePaging(clauseValueManager, query, profile);
             //if (profile?.MaxToTake != null)
             //{
             //    queryProjection = profile.UseBaseType ? ((IQueryable<T>)queryProjection).Take(profile.MaxToTake.Value) : queryProjection.Take(profile.MaxToTake.Value);
