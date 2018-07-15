@@ -17,7 +17,7 @@ namespace AutoQueryable.Extensions
     {
         //public static IQueryable<object> AutoQueryable(this IQueryable<object> query, IAutoQueryableContext context) => context.GetAutoQuery(query);
 
-        public static IQueryable<dynamic> AutoQueryable<TEntity>(this IQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class => context.GetAutoQuery(query);
+        public static dynamic AutoQueryable<TEntity>(this IQueryable<TEntity> query, IAutoQueryableContext context) where TEntity : class => context.GetAutoQuery(query);
 
         public static IQueryable<T> Call<T>(this IQueryable<T> source, string method, string propertyName)
         {

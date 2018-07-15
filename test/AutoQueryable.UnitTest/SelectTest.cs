@@ -46,7 +46,7 @@ namespace AutoQueryable.UnitTest
 
                 DataInitializer.InitializeSeed(context);
 
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
@@ -356,7 +356,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=ProductId,name,color&take=50");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 query.Count().Should().Be(50);
             }
@@ -512,7 +512,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=SellStartDate");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var currentDate = DateTime.MinValue;
                 foreach (var product in query)
                 {
@@ -531,7 +531,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=-SellStartDate");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var currentDate = DateTime.MaxValue;
                 foreach (var product in query)
                 {
@@ -550,7 +550,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("first=true&top=0");
 
                 DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as object;
                 var properties = product.GetType().GetProperties();
                 properties.Should().Contain(p => p.Name == "ProductId");
                 ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should().Be(1);
@@ -582,9 +582,9 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("first=true&orderby=-productid");
 
                 DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as object;
 
-                var properties = product.FirstOrDefault().GetType().GetProperties();
+                var properties = product.GetType().GetProperties();
                 ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should()
                     .Be(DataInitializer.ProductSampleCount);
             }
@@ -800,7 +800,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=name,productextension.name&top=0");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 query?.Count().Should().Be(DataInitializer.ProductSampleCount);
             }
         }

@@ -24,7 +24,7 @@
     <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
+    <ProjectReference Include="..\..\src\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.Nancy.Filter\AutoQueryable.Nancy.Filter.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>

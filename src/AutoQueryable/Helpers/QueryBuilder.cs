@@ -16,7 +16,7 @@ namespace AutoQueryable.Helpers
     {
         public static IQueryable<dynamic> TotalCountQuery { get; private set; }
 
-        public static IQueryable<dynamic> Build<T>(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager, IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
+        public static dynamic Build<T>(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager, IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
         {
             if (criterias != null && criterias.Any())
             {
@@ -27,7 +27,7 @@ namespace AutoQueryable.Helpers
             TotalCountQuery = query;
             if(clauseValueManager.First)
             {
-                query = query.Take(1);
+                return query.FirstOrDefault();
             }else{
                 query = _handlePaging(clauseValueManager, query, profile);
             }

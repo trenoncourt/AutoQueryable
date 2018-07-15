@@ -39,7 +39,7 @@ namespace AutoQueryable.UnitTest
             using (var context = new AutoQueryableDbContext())
             {
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
         }

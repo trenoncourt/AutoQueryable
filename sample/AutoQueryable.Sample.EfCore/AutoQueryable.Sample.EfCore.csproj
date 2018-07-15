@@ -24,7 +24,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
+    <ProjectReference Include="..\..\src\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.AspNetCore.Filter\AutoQueryable.AspNetCore.Filter.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.AspNetCore.Swagger\AutoQueryable.AspNetCore.Swagger.csproj" />
     <ProjectReference Include="..\..\src\AutoQueryable.Extensions.DependencyInjection\AutoQueryable.Extensions.DependencyInjection.csproj" />
