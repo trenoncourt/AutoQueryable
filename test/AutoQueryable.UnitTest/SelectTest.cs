@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Autofac;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Clauses.ClauseHandlers;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Extensions;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Helpers;
 using AutoQueryable.UnitTest.Mock;
 using AutoQueryable.UnitTest.Mock.Dtos;
 using AutoQueryable.UnitTest.Mock.Entities;
-using Moq;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace AutoQueryable.UnitTest
@@ -46,7 +41,7 @@ namespace AutoQueryable.UnitTest
 
                 DataInitializer.InitializeSeed(context);
 
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 query.Count().Should().Be(DataInitializer.DefaultToTakeCount);
             }
@@ -356,7 +351,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=ProductId,name,color&take=50");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
 
                 query.Count().Should().Be(50);
             }
@@ -512,7 +507,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=SellStartDate");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var currentDate = DateTime.MinValue;
                 foreach (var product in query)
                 {
@@ -531,7 +526,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=SellStartDate&orderby=-SellStartDate");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext).ToList();
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 var currentDate = DateTime.MaxValue;
                 foreach (var product in query)
                 {
@@ -547,30 +542,30 @@ namespace AutoQueryable.UnitTest
         {
             using (var context = new AutoQueryableDbContext())
             {
-                _queryStringAccessor.SetQueryString("first=true&top=0");
+                _queryStringAccessor.SetQueryString("first=true");
 
                 DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as object;
                 var properties = product.GetType().GetProperties();
                 properties.Should().Contain(p => p.Name == "ProductId");
                 ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should().Be(1);
             }
         }
 
-        // TODO : Ef core 2 does not return single value anymore for last or default. See in next release.
-        //[Fact]
-        //public void SelectLast()
-        //{
-        //    using (AutoQueryableDbContext context = new AutoQueryableDbContext())
-        //    {
-        //        DataInitializer.InitializeSeed(context);
-        //        dynamic productLast = context.Product.AutoQueryable("last=true");
-        //        var product = productLast.FirstOrDefault() as Product;
-        //        PropertyInfo[] properties = product.GetType().GetProperties();
-
-        //        //Assert.IsTrue(properties.First(p => p.Name == "ProductId").GetValue(product) == DataInitializer.ProductSampleCount);
-        //    }
-        //}
+        [Fact]
+        public void SelectLast()
+        {
+            using (AutoQueryableDbContext context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("last=true");
+                
+                DataInitializer.InitializeSeed(context);
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as object;
+                var properties = product.GetType().GetProperties();
+                properties.Should().Contain(p => p.Name == "ProductId");
+                ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should().Be(1000);
+            }
+        }
 
 
 
@@ -582,9 +577,9 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("first=true&orderby=-productid");
 
                 DataInitializer.InitializeSeed(context);
-                var product = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var product = context.Product.AutoQueryable(_autoQueryableContext) as object;
 
-                var properties = product.FirstOrDefault().GetType().GetProperties();
+                var properties = product.GetType().GetProperties();
                 ((int)properties.First(p => p.Name == "ProductId").GetValue(product)).Should()
                     .Be(DataInitializer.ProductSampleCount);
             }
@@ -800,7 +795,7 @@ namespace AutoQueryable.UnitTest
                 _queryStringAccessor.SetQueryString("select=name,productextension.name&top=0");
 
                 DataInitializer.InitializeSeed(context);
-                var query = context.Product.AutoQueryable(_autoQueryableContext);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
                 query?.Count().Should().Be(DataInitializer.ProductSampleCount);
             }
         }

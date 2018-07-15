@@ -17,7 +17,7 @@ namespace AutoQueryable.Core.Models
             _profile = profile;
         }
 
-        public IQueryable<dynamic> GetAutoQuery<T>(IQueryable<T> query) where T : class
+        public dynamic GetAutoQuery<T>(IQueryable<T> query) where T : class
         {
             var result = _autoQueryHandler.GetAutoQuery(query, _profile);
             TotalCountQuery = _autoQueryHandler.TotalCountQuery;

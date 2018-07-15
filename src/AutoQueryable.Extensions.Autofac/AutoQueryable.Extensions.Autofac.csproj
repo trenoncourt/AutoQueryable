@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.1" />
+  </ItemGroup>
+</Project>

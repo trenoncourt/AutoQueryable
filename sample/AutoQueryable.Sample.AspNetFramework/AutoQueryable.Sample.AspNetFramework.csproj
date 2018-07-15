@@ -309,7 +309,7 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj">
+    <ProjectReference Include="..\src\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj">
       <Project>{ec0f38cf-c816-4ef3-9229-41842727a26a}</Project>
       <Name>AutoQueryable.Extensions.Autofac</Name>
     </ProjectReference>

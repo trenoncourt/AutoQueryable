@@ -31,7 +31,7 @@ namespace AutoQueryable.Core.Models
             _clauseValueManager = clauseValueManager;
         }
 
-        public IQueryable<dynamic> GetAutoQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
+        public dynamic GetAutoQuery<T>(IQueryable<T> query, IAutoQueryableProfile profile) where T : class
         {
             QueryString = _queryStringAccessor.QueryString;
             ClauseValueManager = _clauseValueManager;

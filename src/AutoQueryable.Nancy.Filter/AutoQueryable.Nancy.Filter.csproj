@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
+    <ProjectReference Include="..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>
 
