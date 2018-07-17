@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using AutoQueryable.Core.Aliases;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
@@ -53,7 +55,7 @@ namespace AutoQueryable.Helpers
                 }
             }
 
-            return queryProjection;
+            return queryProjection.HandleWrapping(clauseValueManager);
         }
 
         private static IQueryable<T> _handlePaging<T>(IClauseValueManager clauseValueManager, IQueryable<T> query, IAutoQueryableProfile profile) where T : class
@@ -92,6 +94,27 @@ namespace AutoQueryable.Helpers
             }
 
             return query;
+        }
+        
+        public static dynamic HandleWrapping<TEntity>(this IQueryable<TEntity> query, IClauseValueManager clauseValueManager) where TEntity : class
+        {
+            if(!clauseValueManager.WrapWith.Any() || clauseValueManager.First)
+            {
+                return query;
+            }
+            var result = query;
+            
+            var wrapper = new ExpandoObject() as IDictionary<string, Object>;
+            wrapper.Add("result", result);
+            foreach (string wrapperPart in clauseValueManager.WrapWith)
+            {
+                if (wrapperPart == WrapperAlias.Count)
+                {
+                    wrapper.Add(WrapperAlias.Count, result.Count());
+                }
+            }
+
+            return wrapper;
         }
 
         private static Expression MakeLambda(Expression parameter, Expression predicate)
