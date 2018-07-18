@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Autofac;
 using AutoQueryable.AspNetCore.Filter;
 using AutoQueryable.AspNetCore.Filter.FilterAttributes;
 using AutoQueryable.AspNetCore.Swagger;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Extensions.Autofac;
 using AutoQueryable.Extensions.DependencyInjection;
 using AutoQueryable.Sample.EfCore.Contexts;
 using AutoQueryable.Sample.EfCore.Entities;
@@ -13,12 +11,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Serilog.Core;
 using Swashbuckle.AspNetCore.Swagger;
-using ILogger = Serilog.ILogger;
 
 namespace AutoQueryable.Sample.EfCore
 {

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Nancy.</Description>
+    <Description>AutoQueryable.Nancy.Filter add filterAttribute for AutoQueryable to Nancy.</Description>
     <Authors>Thibaut Renoncourt</Authors>
     <VersionPrefix>1.7.0</VersionPrefix>
     <Version>1.7.0</Version>
@@ -20,13 +20,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
     <PackageReference Include="Nancy.Bootstrappers.Autofac" Version="2.0.0-clinteastwood" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoQueryable.Extensions.Autofac\AutoQueryable.Extensions.Autofac.csproj" />
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
   </ItemGroup>
 

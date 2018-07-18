@@ -6,12 +6,18 @@ using AutoQueryable.Sample.Nancy.Entities;
 using Microsoft.AspNetCore.Builder;
 using Nancy.Owin;
 using AutoQueryable.Core.Models;
-using AutoQueryable.Extensions.Autofac;
+using AutoQueryable.Extensions.TinyIocContainer;
 using AutoQueryable.Nancy.Filter;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nancy;
 using Nancy.Bootstrappers.Autofac;
+using Nancy.Configuration;
+using Nancy.TinyIoc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace AutoQueryable.Sample.Nancy
 {
@@ -30,12 +36,36 @@ namespace AutoQueryable.Sample.Nancy
             // Register the Autofac middleware FIRST. This also adds
             // Autofac-injected middleware registered with the container.
             
-            app.UseOwin().UseNancy();
+            app.UseOwin().UseNancy(options =>
+            {
+                options.Bootstrapper = new Bootstrapper(app.ApplicationServices);
+            });
 
             using (var context = new AutoQueryableDbContext()) Seed(context);
         }
+        
+        public class Bootstrapper : DefaultNancyBootstrapper
+        {
+            readonly IServiceProvider _serviceProvider;
 
+            public Bootstrapper(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
 
+            public override void Configure(INancyEnvironment environment)
+            {
+                environment.Tracing(true, true);
+            }
+
+            protected override void ConfigureApplicationContainer(TinyIoCContainer container)
+            {
+                base.ConfigureApplicationContainer(container);
+                container.Register(_serviceProvider.GetService<ILoggerFactory>());
+                container.RegisterAutoQueryable();
+            }
+        }
+        
         private void Seed(AutoQueryableDbContext context)
         {
             var redCategory = new ProductCategory
@@ -86,34 +116,5 @@ namespace AutoQueryable.Sample.Nancy
             }
             context.SaveChanges();
         }
-    }
-    public class AutoQueryableAutofacBootstrapper : AutofacNancyBootstrapper
-    {
-        public AutoQueryableAutofacBootstrapper()
-        {
-
-        }
-        protected override void ConfigureRequestContainer(
-            ILifetimeScope container,
-            NancyContext context
-        ) {
-            container.Update(builder =>
-            {
-                builder.RegisterAutoQueryable();
-                builder.RegisterType<NancyQueryStringAccessor>().AsSelf().As<IQueryStringAccessor>();
-                builder.RegisterType<AutoQueryableDbContext>().AsSelf();
-                //builder.Populate(_services);
-            });
-        }
-        //protected override void ConfigureApplicationContainer(ILifetimeScope container)
-        //{
-        //    base.ConfigureApplicationContainer(container);
-        //    container.Update(builder =>
-        //    {
-
-        //        //builder.Populate(_services);
-        //    });
-            
-        //}
     }
 }
