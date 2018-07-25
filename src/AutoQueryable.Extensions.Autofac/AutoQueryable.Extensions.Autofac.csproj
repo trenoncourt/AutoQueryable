@@ -1,6 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
+    <Version>2.0.1-beta</Version>
+    <Authors>Thibaut Renoncourt</Authors>
+    <Company>-</Company>
+    <Product>AutoQueryable</Product>
+    <Description>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/trenoncourt/AutoQueryable/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
+    <PackageTags>AutoQueryable;AutoQuery;OData</PackageTags>
+    <RepositoryUrl>https://github.com/trenoncourt/AutoQueryable</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoQueryable.AspNet\AutoQueryable.AspNet.csproj" />

@@ -13,13 +13,14 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>2.0.0</Version>
+    <Version>2.0.1-beta</Version>
     <AssemblyVersion>2.0.0.1</AssemblyVersion>
     <FileVersion>2.0.0.1</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>7.1</LangVersion>
+    <RepositoryUrl>https://github.com/trenoncourt/AutoQueryable</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.6.0" />

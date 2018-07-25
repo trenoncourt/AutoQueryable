@@ -3,7 +3,7 @@
     <Description>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable.AspNetCore.Filter add filterAttribute for AutoQueryable to Asp.Net Core.</AssemblyTitle>
     <VersionPrefix>1.7.0</VersionPrefix>
-    <Version>1.7.0</Version>
+    <Version>2.0.1-beta</Version>
     <Authors>Thibaut Renoncourt</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AutoQueryable.AspNetCore.Filter</AssemblyName>
