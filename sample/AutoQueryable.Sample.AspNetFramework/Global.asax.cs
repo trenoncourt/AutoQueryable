@@ -31,7 +31,7 @@ namespace AutoQueryable.Sample.AspNetFramework
             builder.RegisterWebApiModelBinderProvider();
 
             // Register AutoQueryable services
-            builder.RegisterAutoQueryable();
+            builder.RegisterAutoQueryable(profile => profile.DefaultToTake = 10);
 
 
             // Set the dependency resolver to be Autofac.

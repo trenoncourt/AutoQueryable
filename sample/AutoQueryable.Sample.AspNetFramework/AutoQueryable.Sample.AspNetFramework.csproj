@@ -222,6 +222,10 @@
       <Project>{ec0f38cf-c816-4ef3-9229-41842727a26a}</Project>
       <Name>AutoQueryable.Extensions.Autofac</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\AutoQueryable\AutoQueryable.csproj">
+      <Project>{cea0db5b-727d-4ab9-b229-7a970a124dd0}</Project>
+      <Name>AutoQueryable</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

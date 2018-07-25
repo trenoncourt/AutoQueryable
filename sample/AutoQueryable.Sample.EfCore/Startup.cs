@@ -36,18 +36,8 @@ namespace AutoQueryable.Sample.EfCore
                     c.AddAutoQueryable();
                 })
                 .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase("InMemory"))
-                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddScoped<IQueryStringAccessor, AspNetCoreQueryStringAccessor>()
-                .AddScoped<AutoQueryableFilter>()
                 .AddAutoQueryable(settings => { settings.DefaultToTake = 10; });
         }
-
-//        public void ConfigureContainer(ContainerBuilder builder)
-//        {
-//            builder.RegisterType(typeof(HttpContextAccessor)).As<IHttpContextAccessor>().SingleInstance();
-//            builder.RegisterAutoQueryable();
-//            builder.RegisterType<AspNetCoreQueryStringAccessor>().AsImplementedInterfaces().InstancePerLifetimeScope();
-//        }
         
         public void Configure(IApplicationBuilder app)
         {

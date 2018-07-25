@@ -1,8 +1,11 @@
 ﻿using System;
+using AutoQueryable.AspNetCore.Filter;
+using AutoQueryable.AspNetCore.Filter.FilterAttributes;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Clauses.ClauseHandlers;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -24,16 +27,18 @@ namespace AutoQueryable.Extensions.DependencyInjection
         {
             var profile = new AutoQueryableProfile();
             handler?.Invoke(profile);
-            services.AddScoped<IAutoQueryableContext, AutoQueryableContext>();
-            services.AddScoped<IAutoQueryableProfile, AutoQueryableProfile>(_ => profile);
-            services.AddScoped<IAutoQueryHandler, AutoQueryHandler>();
-            services.AddScoped<IClauseValueManager, ClauseValueManager>();
-            services.AddScoped<ICriteriaFilterManager, CriteriaFilterManager>();
-            services.AddScoped<IClauseMapManager, ClauseMapManager>();
-            services.AddScoped<ISelectClauseHandler, DefaultSelectClauseHandler>();
-            services.AddScoped<IOrderByClauseHandler, DefaultOrderByClauseHandler>();
-            services.AddScoped<IWrapWithClauseHandler, DefaultWrapWithClauseHandler>();
-            return services;
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            return services.AddScoped<IAutoQueryableContext, AutoQueryableContext>()
+                .AddScoped<IAutoQueryableProfile, AutoQueryableProfile>(_ => profile)
+                .AddScoped<IAutoQueryHandler, AutoQueryHandler>()
+                .AddScoped<IClauseValueManager, ClauseValueManager>()
+                .AddScoped<ICriteriaFilterManager, CriteriaFilterManager>()
+                .AddScoped<IClauseMapManager, ClauseMapManager>()
+                .AddScoped<ISelectClauseHandler, DefaultSelectClauseHandler>()
+                .AddScoped<IOrderByClauseHandler, DefaultOrderByClauseHandler>()
+                .AddScoped<IWrapWithClauseHandler, DefaultWrapWithClauseHandler>()
+                .AddScoped<IQueryStringAccessor, AspNetCoreQueryStringAccessor>()
+                .AddScoped<AutoQueryableFilter>();
         }
     }
 }
