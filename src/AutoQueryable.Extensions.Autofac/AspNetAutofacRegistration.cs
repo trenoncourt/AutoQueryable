@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using AutoQueryable.AspNet;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.Clauses.ClauseHandlers;
@@ -9,10 +10,12 @@ namespace AutoQueryable.Extensions.Autofac
 {
     public static class AspNetAutofacRegistration
     {
-        public static void RegisterAutoQueryable(this ContainerBuilder builder)
+        public static void RegisterAutoQueryable(this ContainerBuilder builder, Action<AutoQueryableProfile> handler = null)
         {
+            var profile = new AutoQueryableProfile();
+            handler?.Invoke(profile);
             builder.RegisterType<AutoQueryableContext>().AsImplementedInterfaces().InstancePerLifetimeScope();
-            builder.RegisterType<AutoQueryableProfile>().AsImplementedInterfaces().InstancePerLifetimeScope();
+            builder.Register(c => profile).AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<AutoQueryHandler>().AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<ClauseValueManager>().AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<CriteriaFilterManager>().AsImplementedInterfaces().InstancePerLifetimeScope();

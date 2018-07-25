@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>AutoQueryable.AspNetCore.Swagger add Swagger parameters for AutoQueryable to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable.AspNetCore.Swagger add Swagger parameters for AutoQueryable to Asp.Net Core.</AssemblyTitle>
-    <Version>1.0.0</Version>
+    <Version>2.0.2-beta</Version>
     <Authors>Thibaut Renoncourt</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AutoQueryable.AspNetCore.Swagger</AssemblyName>
