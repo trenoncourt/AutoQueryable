@@ -45,8 +45,11 @@ You will get result like:
 | Install-Package AutoQueryable   | [![NuGet Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) | Install without filters |
 | AutoQueryable.AspNetCore.Filter | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter) | Install for **AspNet Core** |
 | AutoQueryable.AspNetCore.Swagger      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Swagger.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Swagger) | Install for **AspNet Core** |
+| AutoQueryable.Extensions.DependencyInjection      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Extensions.DependencyInjection.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Extensions.DependencyInjection) | Install for **AspNet Core** |
 | AutoQueryable.AspNet.Filter     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter) | Install for **Web api 2** |
-| AutoQueryable.Nancy.Filter      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
+| AutoQueryable.AspNet     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet) | Install for **Web api 2** |
+| AutoQueryable.Extensions.Autofac     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Extensions.Autofac.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Extensions.Autofac) | Install for **Web api 2** |
+| AutoQueryable.Nancy.Filter (old version)      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
 
 **Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
 
