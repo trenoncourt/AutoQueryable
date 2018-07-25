@@ -21,9 +21,9 @@ namespace AutoQueryable.UnitTest
 
         public FilterTest()
         {
-            _profile = new AutoQueryableProfile();
-
-            _profile.DefaultToTake = 0;
+                _profile = new AutoQueryableProfile();
+    
+                _profile.DefaultToTake = 0;
 
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();

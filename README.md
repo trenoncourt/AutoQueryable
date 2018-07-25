@@ -2,47 +2,6 @@
 
 > AutoQueryable add auto querying functionality like OData on top of IQueryable with best url practices. It help you to make requests like [http://baseurl/api/products?nameContains=frame&color=red,black](http://baseurl/api/products?nameContains=frame&color=red,black) with no effort.
 
-## Installing / Getting started
-
-| Package        | NuGet                                                                                     | |
-|----------------|-------------------------------------------------------------------------------------------|-|
-| Install-Package AutoQueryable   | [![NuGet Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) | Install without filters |
-| AutoQueryable.AspNetCore.Filter | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter) | Install for **AspNet Core** |
-| AutoQueryable.AspNetCore.Swagger      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Swagger.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Swagger) | Install for **AspNet Core** |
-| AutoQueryable.AspNet.Filter     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter) | Install for **Web api 2** |
-| AutoQueryable.Nancy.Filter      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
-
-**Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
-
-## Basic usage
-
-```c#
-[Route("api/[controller]")]
-public class ProductsController : Controller
-{
-    [HttpGet]
-    [AutoQueryable]
-    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
-    {
-        return dbContext.Product;
-    }
-}
-```
-
-### For ASP.NET Core (using internal Dependency Injection)
-
-```c#
-[Route("api/[controller]")]
-public class ProductsController : Controller
-{
-    [HttpGet]
-    [TypeFilter(typeof(AutoQueryableAttribute))]
-    public IQueryable<Product> Get([FromServices] myDbContext dbContext)
-    {
-        return dbContext.Product;
-    }
-}
-```
 
 With this url: [**/products?select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product**](/products?top=1&select=productId,name,color,productCategory.name,salesOrderDetail,salesOrderDetail.product)
 
@@ -63,27 +22,13 @@ You will get result like:
                     "productId": 1,
                     "name": "Product 0",
                     "productNumber": "24bb9446-d540-4513-a3c6-be4323984112",
-                    "color": "red",
-                    "standardCost": 1,
-                    "listPrice": 0,
-                    "size": "L",
-                    "weight": 0,
-                    "productCategoryId": 1,
-                    "productModelId": 1,
-                    "sellStartDate": "2017-07-14T00:00:00+02:00",
-                    "rowguid": "f100e986-adeb-46b0-91de-9a1f8f3a4d11",
+                    ...
                     "modifiedDate": "0001-01-01T00:00:00",
                     "salesOrderDetail": []
                 },
                 "salesOrderId": 0,
                 "salesOrderDetailId": 1,
-                "orderQty": 5,
-                "productId": 1,
-                "unitPrice": 0,
-                "unitPriceDiscount": 0,
-                "lineTotal": 0,
-                "rowguid": "00000000-0000-0000-0000-000000000000",
-                "modifiedDate": "0001-01-01T00:00:00"
+                ...
             },
             ...
         ]
@@ -92,6 +37,84 @@ You will get result like:
 ]
 
 ```
+
+## Installing / Getting started
+
+| Package        | NuGet                                                                                     | |
+|----------------|-------------------------------------------------------------------------------------------|-|
+| Install-Package AutoQueryable   | [![NuGet Downloads](https://img.shields.io/nuget/dt/AutoQueryable.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable) | Install without filters |
+| AutoQueryable.AspNetCore.Filter | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Filter) | Install for **AspNet Core** |
+| AutoQueryable.AspNetCore.Swagger      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNetCore.Swagger.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNetCore.Swagger) | Install for **AspNet Core** |
+| AutoQueryable.AspNet.Filter     | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.AspNet.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.AspNet.Filter) | Install for **Web api 2** |
+| AutoQueryable.Nancy.Filter      | [![Nuget Downloads](https://img.shields.io/nuget/dt/AutoQueryable.Nancy.Filter.svg?style=flat-square)](https://www.nuget.org/packages/AutoQueryable.Nancy.Filter) | Install for **Nancy** |
+
+**Other web framework?** You could made your own attribute, see **Use AutoQueryable without attribute** section.
+
+## Getting started
+
+### 1. DI configuration
+
+#### For ASP.NET Core
+
+Install the DI package: `AutoQueryable.Extensions.DependencyInjection` and register AutoQueryable dependencies with your favorite DI framework
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddAutoQueryable();
+}
+```
+
+#### For ASP.NET Framework
+
+Install the DI package: `AutoQueryable.Extensions.Autofac` and register AutoQueryable dependencies
+
+```c#
+protected void Application_Start()
+{
+    var builder = new ContainerBuilder();
+    ...
+    builder.RegisterAutoQueryable();
+    GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(builder.Build())
+}
+```
+
+### 2. Default settings configuration
+
+you can configure the default AutoQueryable settings. For example get only 10 results :
+
+#### For ASP.NET Core
+
+```c#
+services.AddAutoQueryable(settings => settings.DefaultToTake = 10)
+```
+
+#### For ASP.NET Framework
+
+```c#
+builder.RegisterAutoQueryable(settings => settings.DefaultToTake = 10);
+```
+
+### 3. Use AutoQueryable
+
+Ensure your API actions are decorated with AutoQueryable attribute and let the magic begin.
+
+```c#
+[HttpGet, AutoQueryable]
+public IQueryable<Product> Get([FromServices] MyDbContext dbContext)
+{
+    return dbContext.Product;
+}
+```
+
+AQ settings can be overriden in attribute too
+```c#
+[AutoQueryable(DefaultToTake = 50, UnselectableProperties = new [] {"Id", "Password"})]
+...
+```
+
+*Note that you can use AQ without attribute, see `Use AutoQueryable without attribute` section*
 
 ## Api URL usage
 
@@ -102,41 +125,6 @@ You will get result like:
 - Wrap with: [/products?wrapwith=**count,total-count,next-link**](/products?wrapwith=count,total-count,next-link)
 - Filtering: [/products?**nameContains=frame&color=red,black**](/products?nameContains=frame&color=red,black) 
 - Paging: [/products?**page=2&pagesize=10**](/products?page=2&pagesize=10) 
-
-## Existing filters
-
-By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
-
-In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
-
-- Equals '=': [/products?**color=red,black**](/products?color!=green,blue)
-- Not Equals '!=': [/products?**color!=green,blue**](/products?color=red,black)
-- Less Than, Greater Than '<', '>': [/products?**productCount\<5**](/products?productCount\<5)
-- Less Than or Equals, Greater Than or equals '<=' [/products?**productCount\<=5**](/products?productCount\<=5)
-- Contains 'contains': [/products?**colorContains=bla,ed**](/products?colorContains=bla,ed)
-- StartsWith, EndsWith 'startswith', 'endswith': [/products?**colorStartsWith=bla,re**](/products?colorStartsWith=bla,re)
-
-String filters have a negate (NOT) variant:
-
-- NotContains 'notcontains': [/products?**colorContains!=bla,ed**](/products?colorContains!=bla,ed)
-- NotStartsWith, NotEndsWith 'notstartswith', 'notendswith': [/products?**colorStartsWith!=bla,ed**](/products?colorContains!=bla,ed)
-
-String filters have the following modifiers:
-
-- **:i** (case insensitivity), ex. 'contains:i', 'startsWith:i!=': [/products?**colorContains:i=bla,ed**](/products?colorContains:i=bla,ed)
-
-Filter aliases are not case sensitive:
-
-- Contains 'contains': [/products?**colorcontains=bla,ed**](/products?colorcontains=bla,ed)
-
-*Note that filters works with primitive types, string, datetime & guid*
-
-### Filter modifiers
-
-AQ provide property modifiers to modify property before filter, modifiers are denoted with **:**
-
-- DateInYear <date-property>:year=<year>: [/products?**selldate:year=1989**](/products?selldate:year=1989)
-- NotDateInYear <date-property>:year!=<year>: [/products?**selldate:year!=2000**](/products?selldate:year!=2000)
 
 ## Selection
 
@@ -201,6 +189,42 @@ public class UsersController : Controller
 
 *Note that Dto projection is the best way to limit selectable properties*
 
+## Existing filters
+
+By default filters are separated by AND (eg: color=red&color=black is translated by color == red AND color == black)
+
+In a filter, comma separator is used for OR (eg: color=red,black is translated by color == red OR black)
+
+- Equals '=': [/products?**color=red,black**](/products?color!=green,blue)
+- Not Equals '!=': [/products?**color!=green,blue**](/products?color=red,black)
+- Less Than, Greater Than '<', '>': [/products?**productCount\<5**](/products?productCount\<5)
+- Less Than or Equals, Greater Than or equals '<=' [/products?**productCount\<=5**](/products?productCount\<=5)
+- Contains 'contains': [/products?**colorContains=bla,ed**](/products?colorContains=bla,ed)
+- StartsWith, EndsWith 'startswith', 'endswith': [/products?**colorStartsWith=bla,re**](/products?colorStartsWith=bla,re)
+
+String filters have a negate (NOT) variant:
+
+- NotContains 'notcontains': [/products?**colorContains!=bla,ed**](/products?colorContains!=bla,ed)
+- NotStartsWith, NotEndsWith 'notstartswith', 'notendswith': [/products?**colorStartsWith!=bla,ed**](/products?colorContains!=bla,ed)
+
+Filter aliases are not case sensitive:
+
+- Contains 'contains': [/products?**colorcontains=bla,ed**](/products?colorcontains=bla,ed)
+
+*Note that filters works with primitive types, string, datetime & guid*
+
+### Filter modifiers
+
+AQ provide property modifiers to modify property before select or filter, modifiers are denoted with **:**
+
+#### Date modifiers
+- DateInYear <date-property>:year=<year>: [/products?**selldate:year=1989**](/products?selldate:year=1989)
+- NotDateInYear <date-property>:year!=<year>: [/products?**selldate:year!=2000**](/products?selldate:year!=2000)
+    
+#### String modifiers
+
+- **:i** (case insensitivity), ex. 'contains:i', 'startsWith:i!=': [/products?**colorContains:i=bla,ed**](/products?colorContains:i=bla,ed)
+
 ## Use base type instead of dynamic types
 
 AQ uses dynamic types per default to ensure that the final flow will be as small as possible. In some cases you may not want to use dynamic types, there is a property for this:
@@ -246,7 +270,9 @@ public class UsersController
 }
 ```
 
-## Add Swagger parameters 
+## Swagger 
+
+### Add Swagger parameters
 
 If you want to add AQ parameters to your swagger docs, just add AutoQueryable to the swagger conf.
 
@@ -260,6 +286,14 @@ services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
     c.AddAutoQueryable(); // add this line
 });
+```
+
+### Add parameters without AQ attribute
+
+If you're using AQ without attribute `.AutoQueryable(queryString)` and want swagger parameters, you can add `AutoQueryableSwagger` attribute
+
+```c#
+[AutoQueryableSwagger]
 ```
 
 ## AutoMapper

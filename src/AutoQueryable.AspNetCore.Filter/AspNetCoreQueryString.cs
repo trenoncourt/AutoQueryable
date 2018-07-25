@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using AutoQueryable.Core.Models;
+using AutoQueryable.Core.Models.QueryStringAccessors;
 using Microsoft.AspNetCore.Http;
 
 namespace AutoQueryable.AspNetCore.Filter

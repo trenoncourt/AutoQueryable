@@ -10,7 +10,7 @@ namespace AutoQueryable.Core.Clauses.ClauseHandlers
     {
         public IEnumerable<string> Handle(string wrapWithQueryStringPart, Type type = default, IAutoQueryableProfile profile = null)
         {
-            return wrapWithQueryStringPart.Split(',').Select(s => s.ToLowerInvariant());
+            return wrapWithQueryStringPart.Split(new []{';'}, StringSplitOptions.RemoveEmptyEntries).Select(s => s.ToLowerInvariant());
         }
     }
 }

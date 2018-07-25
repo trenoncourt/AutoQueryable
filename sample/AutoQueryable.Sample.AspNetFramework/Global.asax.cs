@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
-using System.Web.Mvc;
-using System.Web.Optimization;
-using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.WebApi;
-using AutoQueryable.Core.Models;
 using AutoQueryable.Extensions.Autofac;
+using AutoQueryable.Sample.AspNetFramework.Models;
+using Bogus;
 
 namespace AutoQueryable.Sample.AspNetFramework
 {
@@ -18,12 +14,8 @@ namespace AutoQueryable.Sample.AspNetFramework
     {
         protected void Application_Start()
         {
-            AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
-
+            
             var builder = new ContainerBuilder();
 
             // Get your HttpConfiguration.
@@ -41,20 +33,42 @@ namespace AutoQueryable.Sample.AspNetFramework
             // Register AutoQueryable services
             builder.RegisterAutoQueryable();
 
-            builder.RegisterType<AspNetQueryStringAccessor>().As<IQueryStringAccessor>().InstancePerLifetimeScope();
 
             // Set the dependency resolver to be Autofac.
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
 
+            var db = new AutoQueryableSampleAspNetFrameworkContext();
+            db.Database.CreateIfNotExists();
+            Seed(db);
         }
-    }
 
-    public class AspNetQueryStringAccessor : BaseQueryStringAccessor
-    {
-        public AspNetQueryStringAccessor()
+
+        private void Seed(AutoQueryableSampleAspNetFrameworkContext context)
         {
-            QueryString = HttpContext.Current.Request.ServerVariables["query_string"];
+            if (context.Users.Any())
+            {
+                return;
+            }
+            var adressFaker = new Faker<Address>()
+                .RuleFor(u => u.City, (f, address) => f.Address.City())
+                .RuleFor(u => u.HouseNumber, (f, address) => f.Address.BuildingNumber())
+                .RuleFor(u => u.PostalCode, (f, address) => f.Address.ZipCode())
+                .RuleFor(u => u.Street, (f, address) => f.Address.StreetName())
+                ;
+            
+            var userFaker = new Faker<User>()
+                .RuleFor(u => u.Birthdate, (f, user) => f.Date.Past(30))
+                .RuleFor(u => u.FirstName, (f, user) => f.Name.FirstName())
+                .RuleFor(u => u.LastName, (f, user) => f.Name.LastName())
+                .RuleFor(u => u.Username, (f, user) => f.Internet.UserName())
+                .RuleFor(u => u.Address, () => adressFaker.Generate())
+                ;
+            for (var i = 0; i < 10000; i++)
+            {
+                context.Users.Add(userFaker.Generate());
+            }
+            context.SaveChanges();
         }
     }
 }

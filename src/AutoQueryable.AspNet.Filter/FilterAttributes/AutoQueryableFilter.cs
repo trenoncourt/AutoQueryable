@@ -9,6 +9,7 @@ using AutoQueryable.Core.Models.Abstractions;
 
 namespace AutoQueryable.AspNet.Filter.FilterAttributes
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public class AutoQueryableAttribute : ActionFilterAttribute, IFilterProfile
     {
         public string[] SelectableProperties { get; set; }

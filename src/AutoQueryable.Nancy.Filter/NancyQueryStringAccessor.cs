@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AutoQueryable.Core.Models;
-using Nancy;
+﻿using AutoQueryable.Core.Models.QueryStringAccessors;
 
 namespace AutoQueryable.Nancy.Filter
 {
