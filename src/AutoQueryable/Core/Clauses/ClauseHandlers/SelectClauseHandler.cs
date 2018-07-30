@@ -73,7 +73,7 @@ namespace AutoQueryable.Core.Clauses
                     else
                     {
                         // pass non selectable & unselectable properties
-                        if (IsNotSelectableProperty(key) || IsUnselectableProperty(key))
+                        if (IsNotSelectableProperty(key) || IsUnselectableProperty(key) || IsAnIndexerProperty(property))
                             continue;
 
                         var column = new SelectColumn(columnName, key, property.PropertyType);
@@ -144,6 +144,11 @@ namespace AutoQueryable.Core.Clauses
         {
             return _profile?.SelectableProperties != null &&
                    !_profile.SelectableProperties.Contains(key, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private bool IsAnIndexerProperty(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetIndexParameters().Length > 0;
         }
 
         public bool CanIncludeAll(string key, int depth)
@@ -218,7 +223,7 @@ namespace AutoQueryable.Core.Clauses
                 var property = _baseType.GetTypeOrGenericType().GetProperties().FirstOrDefault(x =>
                     string.Equals(x.Name.ToLowerInvariant(), columnName.ToLowerInvariant(), StringComparison.Ordinal));
 
-                if (property == null || IsGreaterThanMaxDepth(property, 0))
+                if (property == null || IsGreaterThanMaxDepth(property, 0) || IsAnIndexerProperty(property))
                     continue;
 
                 var column = new SelectColumn(columnName, columnName, property.PropertyType);

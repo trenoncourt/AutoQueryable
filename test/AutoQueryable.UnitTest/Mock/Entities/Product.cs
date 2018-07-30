@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AutoQueryable.UnitTest.Mock.Entities
 {
@@ -27,6 +28,8 @@ namespace AutoQueryable.UnitTest.Mock.Entities
         public string ThumbnailPhotoFileName { get; set; }
         public Guid Rowguid { get; set; }
         public DateTime ModifiedDate { get; set; }
+        [NotMapped]
+        public string this[string key] { get => Name; set => Name = value; }
 
         public virtual ICollection<SalesOrderDetail> SalesOrderDetail { get; set; }
         public virtual ProductExtension ProductExtension { get; set; }
