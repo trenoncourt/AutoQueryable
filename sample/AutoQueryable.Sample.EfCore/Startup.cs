@@ -36,9 +36,7 @@ namespace AutoQueryable.Sample.EfCore
                     c.AddAutoQueryable();
                 })
                 .AddDbContext<AutoQueryableDbContext>(options => options.UseInMemoryDatabase("InMemory"))
-                .AddAutoQueryable(settings => { settings.DefaultToTake = 10;
-                    settings.DefaultToSelect = "name";
-                });
+                .AddAutoQueryable(settings => { settings.DefaultToTake = 10; });
         }
         
         public void Configure(IApplicationBuilder app)

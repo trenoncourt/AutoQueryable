@@ -32,8 +32,16 @@ namespace AutoQueryable.Sample.EfCore.Controllers
         /// <returns></returns>
         
         [AutoQueryable]
-        [HttpGet(Order = 0)]
+        [HttpGet]
         public IQueryable Get([FromServices] AutoQueryableDbContext context)
+        {
+            return context.Product;
+        }
+        
+        
+        [AutoQueryable(DefaultToSelect = "name")]
+        [HttpGet("with_default")]
+        public IQueryable GetWithDefault([FromServices] AutoQueryableDbContext context)
         {
             return context.Product;
         }
