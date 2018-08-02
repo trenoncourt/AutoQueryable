@@ -21,11 +21,14 @@ namespace AutoQueryable.Core.Clauses
         {
             _profile = profile ?? throw new NullReferenceException("The profile has not been set on SelectClauseHandler");
             _baseType = type;
-
             if (string.IsNullOrEmpty(selectQueryStringPart))
             {
-                
-                return type.GetSelectableColumns(profile);
+                if (string.IsNullOrEmpty(profile.DefaultToSelect))
+                {
+                    return type.GetSelectableColumns(profile);
+                }
+
+                selectQueryStringPart = profile.DefaultToSelect;
             }
             _rawSelection = GetRawSelection(selectQueryStringPart);
             ParseBasePropertiesSelection();

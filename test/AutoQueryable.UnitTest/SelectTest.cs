@@ -22,16 +22,17 @@ namespace AutoQueryable.UnitTest
 
         public SelectTest()
         {
-            _profile = new AutoQueryableProfile {DefaultToTake = 10};
+            var settings = new AutoQueryableSettings {DefaultToTake = 10};
+            _profile = new AutoQueryableProfile(settings);
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
             var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
             var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, _profile);
             var criteriaFilterManager = new CriteriaFilterManager();
-            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
-            _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager, _profile);
+            _autoQueryableContext = new AutoQueryableContext(defaultAutoQueryHandler);
         }
         [Fact]
         public void SelectAllProducts()
@@ -925,6 +926,57 @@ namespace AutoQueryable.UnitTest
                 //pagedResult.RowCount.Should().Be(_profile.DefaultToTake);
                 //pagedResult.TotalCount.Should().Be(await context.Product.CountAsync());
                 //pagedResult.Result.Count.Should().Be(_profile.DefaultToTake);
+                
+            }
+        }
+        
+        [Fact]
+        public async Task DefaultToSelectAllTest()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("");
+                _profile.DefaultToSelect = "*";
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var properties = query.First().GetType().GetProperties();
+
+                properties.Length.Should().Be(21);
+                
+            }
+        }
+        
+        [Fact]
+        public async Task DefaultToSelectBaseTest()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("nameContains=Product 1");
+                _profile.DefaultToSelect = "_";
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var properties = query.First().GetType().GetProperties();
+
+                properties.Length.Should().Be(17);
+                
+            }
+        }
+        
+        [Fact]
+        public async Task DefaultToSelectTest()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("nameContains=Product 1");
+                _profile.DefaultToSelect = "productId,name";
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext) as IQueryable<object>;
+                var properties = query.First().GetType().GetProperties();
+
+                properties.Length.Should().Be(2);
                 
             }
         }

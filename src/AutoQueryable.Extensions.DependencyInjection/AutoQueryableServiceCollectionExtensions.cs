@@ -23,13 +23,14 @@ namespace AutoQueryable.Extensions.DependencyInjection
         /// <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" /> to add services to.</param>
         /// <param name="handler">An <see cref="T:System.Action`1" /> to configure the provided <see cref="T:AutoQueryable.Core.Models.AutoQueryableProfile" />.</param>
         /// <returns>An <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" /> that can be used to further other services.</returns>
-        public static IServiceCollection AddAutoQueryable(this IServiceCollection services, Action<AutoQueryableProfile> handler = null)
+        public static IServiceCollection AddAutoQueryable(this IServiceCollection services, Action<AutoQueryableSettings> handler = null)
         {
-            var profile = new AutoQueryableProfile();
-            handler?.Invoke(profile);
+            var settings = new AutoQueryableSettings();
+            handler?.Invoke(settings);
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             return services.AddScoped<IAutoQueryableContext, AutoQueryableContext>()
-                .AddScoped<IAutoQueryableProfile, AutoQueryableProfile>(_ => profile)
+                .AddSingleton(_ => settings)
+                .AddScoped<IAutoQueryableProfile, AutoQueryableProfile>()
                 .AddScoped<IAutoQueryHandler, AutoQueryHandler>()
                 .AddScoped<IClauseValueManager, ClauseValueManager>()
                 .AddScoped<ICriteriaFilterManager, CriteriaFilterManager>()

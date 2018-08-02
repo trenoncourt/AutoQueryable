@@ -17,21 +17,22 @@ namespace AutoQueryable.UnitTest
 {
     public class BaseTypeTest
     {
-        private SimpleQueryStringAccessor _queryStringAccessor;
+        private readonly SimpleQueryStringAccessor _queryStringAccessor;
         private IAutoQueryableProfile _profile;
-        private IAutoQueryableContext _autoQueryableContext;
+        private readonly IAutoQueryableContext _autoQueryableContext;
 
         public BaseTypeTest()
         {
-            _profile = new AutoQueryableProfile{DefaultToTake = 10};
+            var settings = new AutoQueryableSettings {DefaultToTake = 10};
+            _profile = new AutoQueryableProfile(settings);
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
             var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
             var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, _profile);
             var criteriaFilterManager = new CriteriaFilterManager();
-            _autoQueryableContext = new AutoQueryableContext(_profile, new AutoQueryHandler( _queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager));
+            _autoQueryableContext = new AutoQueryableContext(new AutoQueryHandler( _queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager, _profile));
         }
 
         [Fact]

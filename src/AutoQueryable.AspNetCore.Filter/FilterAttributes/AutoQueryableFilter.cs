@@ -16,53 +16,6 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         {
             _autoQueryableContext = autoQueryableContext;
             _autoQueryableProfile = autoQueryableProfile;
-
-            SelectableProperties = autoQueryableProfile.SelectableProperties;
-            UnselectableProperties = autoQueryableProfile.UnselectableProperties;
-            SortableProperties = autoQueryableProfile.SortableProperties;
-            UnSortableProperties = autoQueryableProfile.UnSortableProperties;
-            GroupableProperties = autoQueryableProfile.GroupableProperties;
-            UnGroupableProperties = autoQueryableProfile.UnGroupableProperties;
-            if (autoQueryableProfile.AllowedClauses.HasValue)
-            {
-                AllowedClauses = autoQueryableProfile.AllowedClauses.Value;
-            }
-            if (autoQueryableProfile.DisAllowedClauses.HasValue)
-            {
-                DisAllowedClauses = autoQueryableProfile.DisAllowedClauses.Value;
-            }
-            if (autoQueryableProfile.AllowedConditions.HasValue)
-            {
-                AllowedConditions = autoQueryableProfile.AllowedConditions.Value;
-            }
-            if (autoQueryableProfile.DisAllowedConditions.HasValue)
-            {
-                DisAllowedConditions = autoQueryableProfile.DisAllowedConditions.Value;
-            }
-            if (autoQueryableProfile.AllowedWrapperPartType.HasValue)
-            {
-                AllowedWrapperPartType = autoQueryableProfile.AllowedWrapperPartType.Value;
-            }
-            if (autoQueryableProfile.DisAllowedWrapperPartType.HasValue)
-            {
-                DisAllowedWrapperPartType = autoQueryableProfile.DisAllowedWrapperPartType.Value;
-            }
-            if (autoQueryableProfile.MaxToTake.HasValue)
-            {
-                MaxToTake = autoQueryableProfile.MaxToTake.Value;
-            }
-            DefaultToTake = autoQueryableProfile.DefaultToTake;
-            if (autoQueryableProfile.MaxToSkip.HasValue)
-            {
-                MaxToSkip = autoQueryableProfile.MaxToSkip.Value;
-            }
-            if (autoQueryableProfile.MaxDepth.HasValue)
-            {
-                MaxDepth = autoQueryableProfile.MaxDepth.Value;
-            }
-            DefaultOrderBy = autoQueryableProfile.DefaultOrderBy;
-            UseBaseType = autoQueryableProfile.UseBaseType;
-            ToListBeforeSelect = autoQueryableProfile.ToListBeforeSelect;
         }
         
         public string[] SelectableProperties { get; set; }
@@ -93,6 +46,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         
         public int DefaultToTake { get; set; }
 
+        public string DefaultToSelect { get; set; }
+
         public int MaxToSkip { get; set; }
 
         public int MaxDepth { get; set; }
@@ -101,8 +56,29 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
        
         public ProviderType ProviderType { get; set; }
 
-        public bool UseBaseType { get; set; }
-        public bool ToListBeforeSelect { get; set; }
+        private bool _useBaseTypeOverrided;
+        private bool _useBaseType;
+        public bool UseBaseType
+        {
+            get { return _useBaseType;}
+            set
+            {
+                _useBaseTypeOverrided = true;
+                _useBaseType = value;
+            }
+        }
+
+        private bool _toListBeforeSelectOverrided;
+        private bool _toListBeforeSelect;
+        public bool ToListBeforeSelect
+        {
+            get { return _toListBeforeSelect;}
+            set
+            {
+                _toListBeforeSelectOverrided = true;
+                _toListBeforeSelect = value; 
+            } 
+        }
         
         public void OnActionExecuting(ActionExecutingContext context)
         {
@@ -110,6 +86,71 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            
+            _autoQueryableProfile.SelectableProperties = SelectableProperties;
+            _autoQueryableProfile.UnselectableProperties = UnselectableProperties;
+            _autoQueryableProfile.SortableProperties = SortableProperties;
+            _autoQueryableProfile.UnSortableProperties = UnSortableProperties;
+            _autoQueryableProfile.GroupableProperties = GroupableProperties;
+            _autoQueryableProfile.UnGroupableProperties = UnGroupableProperties;
+            if (_autoQueryableProfile.AllowedClauses.HasValue)
+            {
+                _autoQueryableProfile.AllowedClauses = AllowedClauses;
+            }
+            if (_autoQueryableProfile.DisAllowedClauses.HasValue)
+            {
+                _autoQueryableProfile.DisAllowedClauses = DisAllowedClauses;
+            }
+            if (_autoQueryableProfile.AllowedConditions.HasValue)
+            {
+                _autoQueryableProfile.AllowedConditions = AllowedConditions;
+            }
+            if (_autoQueryableProfile.DisAllowedConditions.HasValue)
+            {
+                _autoQueryableProfile.DisAllowedConditions = DisAllowedConditions;
+            }
+            if (_autoQueryableProfile.AllowedWrapperPartType.HasValue)
+            {
+                _autoQueryableProfile.AllowedWrapperPartType = AllowedWrapperPartType;
+            }
+            if (_autoQueryableProfile.DisAllowedWrapperPartType.HasValue)
+            {
+                _autoQueryableProfile.DisAllowedWrapperPartType = DisAllowedWrapperPartType;
+            }
+            if (_autoQueryableProfile.MaxToTake.HasValue)
+            {
+                _autoQueryableProfile.MaxToTake = MaxToTake;
+            }
+
+            if (DefaultToTake != 0)
+            {
+                _autoQueryableProfile.DefaultToTake = DefaultToTake;
+            }
+
+            if (DefaultToSelect != null)
+            {
+                _autoQueryableProfile.DefaultToSelect = DefaultToSelect;
+            }
+
+            if (_autoQueryableProfile.MaxToSkip.HasValue)
+            {
+                _autoQueryableProfile.MaxToSkip = MaxToSkip;
+            }
+            if (_autoQueryableProfile.MaxDepth.HasValue)
+            {
+                _autoQueryableProfile.MaxDepth = MaxDepth;
+            }
+            DefaultOrderBy = _autoQueryableProfile.DefaultOrderBy;
+            
+            if (_useBaseTypeOverrided)
+            {
+                _autoQueryableProfile.UseBaseType = UseBaseType;
+            }
+            if (_toListBeforeSelectOverrided)
+            {
+                _autoQueryableProfile.ToListBeforeSelect = ToListBeforeSelect;
+            }
+            
             dynamic query = ((ObjectResult)context.Result).Value;
             if (query == null) throw new Exception("Unable to retrieve value of IQueryable from context result.");
             context.Result = new OkObjectResult(_autoQueryableContext.GetAutoQuery(query));

@@ -42,6 +42,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         
         public int DefaultToTake { get; set; }
 
+        public string DefaultToSelect { get; set; }
+
         public int MaxToSkip { get; set; }
 
         public int MaxDepth { get; set; }
@@ -154,6 +156,10 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
             if (_toListBeforeSelectOverrided)
             {
                 autoQueryableFilter.ToListBeforeSelect = ToListBeforeSelect;
+            }
+            if (DefaultToSelect != null)
+            {
+                autoQueryableFilter.DefaultToSelect = DefaultToSelect;
             }
 
             return autoQueryableFilter;

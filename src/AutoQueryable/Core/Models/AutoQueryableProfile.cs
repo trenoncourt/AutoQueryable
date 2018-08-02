@@ -1,12 +1,35 @@
 ﻿using System.Collections.Generic;
 using AutoQueryable.Core.Enums;
-using AutoQueryable.Core.Models.Abstractions;
 using Serilog;
 
 namespace AutoQueryable.Core.Models
 {
     public class AutoQueryableProfile : IAutoQueryableProfile
     {
+        public AutoQueryableProfile(AutoQueryableSettings settings)
+        {
+            SelectableProperties = settings.SelectableProperties;
+            UnselectableProperties = settings.UnselectableProperties;
+            SortableProperties = settings.SortableProperties;
+            UnSortableProperties = settings.UnSortableProperties;
+            GroupableProperties = settings.GroupableProperties;
+            UnGroupableProperties = settings.UnGroupableProperties;
+            AllowedClauses = settings.AllowedClauses;
+            DisAllowedClauses = settings.DisAllowedClauses;
+            AllowedConditions = settings.AllowedConditions;
+            DisAllowedConditions = settings.DisAllowedConditions;
+            AllowedWrapperPartType = settings.AllowedWrapperPartType;
+            DisAllowedWrapperPartType = settings.DisAllowedWrapperPartType;
+            MaxToTake = settings.MaxToTake;
+            MaxToSkip = settings.MaxToSkip;
+            MaxDepth = settings.MaxDepth;
+            DefaultToTake = settings.DefaultToTake;
+            DefaultToSelect = settings.DefaultToSelect;
+            DefaultOrderBy = settings.DefaultOrderBy;
+            UseBaseType = settings.UseBaseType;
+            ToListBeforeSelect = settings.ToListBeforeSelect;
+        }
+        
         public ILogger Logger { get; }
 
         public string[] SelectableProperties { get; set; }
@@ -35,40 +58,19 @@ namespace AutoQueryable.Core.Models
 
         public int? MaxToTake { get; set; }
 
-        public int DefaultToTake { get; set; } = int.MaxValue;
-
         public int? MaxToSkip { get; set; }
         
         public int? MaxDepth { get; set; }
-        
-        public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
-       
 
+        public int DefaultToTake { get; set; }
+
+        public string DefaultToSelect { get; set; }
+        
+        public Dictionary<string, bool> DefaultOrderBy { get; set; }
+       
         public bool UseBaseType { get; set; }
         public bool ToListBeforeSelect { get; set; }
 
-        public static AutoQueryableProfile From(IFilterProfile filterProfile) => new AutoQueryableProfile
-        {
-            SelectableProperties = filterProfile.SelectableProperties,
-            UnselectableProperties = filterProfile.UnselectableProperties,
-            SortableProperties = filterProfile.SortableProperties,
-            UnSortableProperties = filterProfile.UnSortableProperties,
-            GroupableProperties = filterProfile.GroupableProperties,
-            UnGroupableProperties = filterProfile.UnGroupableProperties,
-            AllowedClauses = filterProfile.AllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.AllowedClauses,
-            DisAllowedClauses = filterProfile.DisAllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.DisAllowedClauses,
-            AllowedConditions = filterProfile.AllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.AllowedConditions,
-            DisAllowedConditions = filterProfile.DisAllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.DisAllowedConditions,
-            AllowedWrapperPartType = filterProfile.AllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.AllowedWrapperPartType,
-            DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.DisAllowedWrapperPartType,
-            MaxToTake = filterProfile.MaxToTake == 0 ? null : (int?)filterProfile.MaxToTake,
-            DefaultToTake = filterProfile.DefaultToTake,
-            MaxToSkip = filterProfile.MaxToSkip == 0 ? null : (int?)filterProfile.MaxToSkip,
-            MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
-            DefaultOrderBy = filterProfile.DefaultOrderBy,
-            UseBaseType = filterProfile.UseBaseType,
-            ToListBeforeSelect = filterProfile.ToListBeforeSelect
-        };
         public bool IsClauseAllowed(ClauseType clauseType)
         {
             var isClauseAllowed = true;
