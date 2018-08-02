@@ -30,10 +30,10 @@ namespace AutoQueryable.UnitTest
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
             var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
             var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, _profile);
             var criteriaFilterManager = new CriteriaFilterManager();
-            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager);
-            _autoQueryableContext = new AutoQueryableContext(_profile, defaultAutoQueryHandler);
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager, _profile);
+            _autoQueryableContext = new AutoQueryableContext(defaultAutoQueryHandler);
         }
         [Fact]
         public void IdEquals5()

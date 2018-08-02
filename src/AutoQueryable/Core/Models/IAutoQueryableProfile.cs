@@ -11,6 +11,7 @@ namespace AutoQueryable.Core.Models
         WrapperPartType? AllowedWrapperPartType { get; set; }
         Dictionary<string, bool> DefaultOrderBy { get; set; }
         int DefaultToTake { get; set; }
+        string DefaultToSelect { get; set; }
         ClauseType? DisAllowedClauses { get; set; }
         ConditionType? DisAllowedConditions { get; set; }
         WrapperPartType? DisAllowedWrapperPartType { get; set; }

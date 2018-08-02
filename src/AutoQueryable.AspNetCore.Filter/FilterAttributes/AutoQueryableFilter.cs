@@ -52,6 +52,7 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
                 MaxToTake = autoQueryableProfile.MaxToTake.Value;
             }
             DefaultToTake = autoQueryableProfile.DefaultToTake;
+            DefaultToSelect = autoQueryableProfile.DefaultToSelect;
             if (autoQueryableProfile.MaxToSkip.HasValue)
             {
                 MaxToSkip = autoQueryableProfile.MaxToSkip.Value;
@@ -92,6 +93,8 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
         public int MaxToTake { get; set; }
         
         public int DefaultToTake { get; set; }
+
+        public string DefaultToSelect { get; set; }
 
         public int MaxToSkip { get; set; }
 

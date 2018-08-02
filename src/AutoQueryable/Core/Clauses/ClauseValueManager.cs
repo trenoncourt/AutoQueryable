@@ -10,14 +10,16 @@ namespace AutoQueryable.Core.Clauses
         private readonly ISelectClauseHandler _selectClauseHandler;
         private readonly IOrderByClauseHandler _orderByClauseHandler;
         private readonly IWrapWithClauseHandler _wrapWithClauseHandler;
+        private readonly IAutoQueryableProfile _profile;
 
-        public ClauseValueManager(ISelectClauseHandler selectClauseHandler, IOrderByClauseHandler orderByClauseHandler, IWrapWithClauseHandler wrapWithClauseHandler)
+        public ClauseValueManager(ISelectClauseHandler selectClauseHandler, IOrderByClauseHandler orderByClauseHandler, IWrapWithClauseHandler wrapWithClauseHandler, IAutoQueryableProfile profile)
         {
             _selectClauseHandler = selectClauseHandler;
             _orderByClauseHandler = orderByClauseHandler;
             _wrapWithClauseHandler = wrapWithClauseHandler;
+            _profile = profile;
         }
-        public ICollection<SelectColumn> Select { get; set; } = new List<SelectColumn>();
+        public ICollection<SelectColumn> Select { get; set; }
         public int? Take { get; set; }
         public int? Top { get; set; }
 
@@ -34,12 +36,11 @@ namespace AutoQueryable.Core.Clauses
         public int? PageSize { get; set; }
         public IEnumerable<string> WrapWith { get; set; }
 
-        public void SetDefaults(Type type, IAutoQueryableProfile profile)
+        public void SetDefaults(Type type)
         {
-            OrderBy = profile.DefaultOrderBy;
-            Select = _selectClauseHandler.Handle("", type, profile);
-            OrderBy = _orderByClauseHandler.Handle("", type, profile);
-            WrapWith = _wrapWithClauseHandler.Handle("", type, profile);
+            Select = Select ?? _selectClauseHandler.Handle("", type, _profile);
+            OrderBy = OrderBy ?? _orderByClauseHandler.Handle("", type, _profile);
+            WrapWith = WrapWith ?? _wrapWithClauseHandler.Handle("", type, _profile);
         }
     }
 }

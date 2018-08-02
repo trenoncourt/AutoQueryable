@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AutoQueryable.Core.Enums;
-using AutoQueryable.Core.Models.Abstractions;
 using Serilog;
 
 namespace AutoQueryable.Core.Models
@@ -22,6 +21,8 @@ namespace AutoQueryable.Core.Models
         public string[] UnGroupableProperties { get; set; }
 
         public ClauseType? AllowedClauses { get; set; }
+
+        public string DefaultToSelect { get; set; }
         
         public ClauseType? DisAllowedClauses { get; set; }
 
@@ -47,28 +48,6 @@ namespace AutoQueryable.Core.Models
         public bool UseBaseType { get; set; }
         public bool ToListBeforeSelect { get; set; }
 
-        public static AutoQueryableProfile From(IFilterProfile filterProfile) => new AutoQueryableProfile
-        {
-            SelectableProperties = filterProfile.SelectableProperties,
-            UnselectableProperties = filterProfile.UnselectableProperties,
-            SortableProperties = filterProfile.SortableProperties,
-            UnSortableProperties = filterProfile.UnSortableProperties,
-            GroupableProperties = filterProfile.GroupableProperties,
-            UnGroupableProperties = filterProfile.UnGroupableProperties,
-            AllowedClauses = filterProfile.AllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.AllowedClauses,
-            DisAllowedClauses = filterProfile.DisAllowedClauses == ClauseType.None ? null : (ClauseType?)filterProfile.DisAllowedClauses,
-            AllowedConditions = filterProfile.AllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.AllowedConditions,
-            DisAllowedConditions = filterProfile.DisAllowedConditions == ConditionType.None ? null : (ConditionType?)filterProfile.DisAllowedConditions,
-            AllowedWrapperPartType = filterProfile.AllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.AllowedWrapperPartType,
-            DisAllowedWrapperPartType = filterProfile.DisAllowedWrapperPartType == WrapperPartType.None ? null : (WrapperPartType?)filterProfile.DisAllowedWrapperPartType,
-            MaxToTake = filterProfile.MaxToTake == 0 ? null : (int?)filterProfile.MaxToTake,
-            DefaultToTake = filterProfile.DefaultToTake,
-            MaxToSkip = filterProfile.MaxToSkip == 0 ? null : (int?)filterProfile.MaxToSkip,
-            MaxDepth = filterProfile.MaxDepth == 0 ? null : (int?)filterProfile.MaxDepth,
-            DefaultOrderBy = filterProfile.DefaultOrderBy,
-            UseBaseType = filterProfile.UseBaseType,
-            ToListBeforeSelect = filterProfile.ToListBeforeSelect
-        };
         public bool IsClauseAllowed(ClauseType clauseType)
         {
             var isClauseAllowed = true;
