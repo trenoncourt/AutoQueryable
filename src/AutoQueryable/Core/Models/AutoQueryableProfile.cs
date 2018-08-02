@@ -6,6 +6,30 @@ namespace AutoQueryable.Core.Models
 {
     public class AutoQueryableProfile : IAutoQueryableProfile
     {
+        public AutoQueryableProfile(AutoQueryableSettings settings)
+        {
+            SelectableProperties = settings.SelectableProperties;
+            UnselectableProperties = settings.UnselectableProperties;
+            SortableProperties = settings.SortableProperties;
+            UnSortableProperties = settings.UnSortableProperties;
+            GroupableProperties = settings.GroupableProperties;
+            UnGroupableProperties = settings.UnGroupableProperties;
+            AllowedClauses = settings.AllowedClauses;
+            DisAllowedClauses = settings.DisAllowedClauses;
+            AllowedConditions = settings.AllowedConditions;
+            DisAllowedConditions = settings.DisAllowedConditions;
+            AllowedWrapperPartType = settings.AllowedWrapperPartType;
+            DisAllowedWrapperPartType = settings.DisAllowedWrapperPartType;
+            MaxToTake = settings.MaxToTake;
+            MaxToSkip = settings.MaxToSkip;
+            MaxDepth = settings.MaxDepth;
+            DefaultToTake = settings.DefaultToTake;
+            DefaultToSelect = settings.DefaultToSelect;
+            DefaultOrderBy = settings.DefaultOrderBy;
+            UseBaseType = settings.UseBaseType;
+            ToListBeforeSelect = settings.ToListBeforeSelect;
+        }
+        
         public ILogger Logger { get; }
 
         public string[] SelectableProperties { get; set; }
@@ -21,8 +45,6 @@ namespace AutoQueryable.Core.Models
         public string[] UnGroupableProperties { get; set; }
 
         public ClauseType? AllowedClauses { get; set; }
-
-        public string DefaultToSelect { get; set; }
         
         public ClauseType? DisAllowedClauses { get; set; }
 
@@ -36,15 +58,16 @@ namespace AutoQueryable.Core.Models
 
         public int? MaxToTake { get; set; }
 
-        public int DefaultToTake { get; set; } = int.MaxValue;
-
         public int? MaxToSkip { get; set; }
         
         public int? MaxDepth { get; set; }
-        
-        public Dictionary<string, bool> DefaultOrderBy { get; set; } = new Dictionary<string, bool>();
-       
 
+        public int DefaultToTake { get; set; }
+
+        public string DefaultToSelect { get; set; }
+        
+        public Dictionary<string, bool> DefaultOrderBy { get; set; }
+       
         public bool UseBaseType { get; set; }
         public bool ToListBeforeSelect { get; set; }
 

@@ -10,12 +10,13 @@ namespace AutoQueryable.Extensions.Autofac
 {
     public static class AspNetAutofacRegistration
     {
-        public static void RegisterAutoQueryable(this ContainerBuilder builder, Action<AutoQueryableProfile> handler = null)
+        public static void RegisterAutoQueryable(this ContainerBuilder builder, Action<AutoQueryableSettings> handler = null)
         {
-            var profile = new AutoQueryableProfile();
-            handler?.Invoke(profile);
+            var settings = new AutoQueryableSettings();
+            handler?.Invoke(settings);
             builder.RegisterType<AutoQueryableContext>().AsImplementedInterfaces().InstancePerLifetimeScope();
-            builder.Register(c => profile).AsImplementedInterfaces().InstancePerLifetimeScope();
+            builder.Register(c => settings).As<AutoQueryableSettings>().SingleInstance();
+            builder.RegisterType<AutoQueryableProfile>().AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<AutoQueryHandler>().AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<ClauseValueManager>().AsImplementedInterfaces().InstancePerLifetimeScope();
             builder.RegisterType<CriteriaFilterManager>().AsImplementedInterfaces().InstancePerLifetimeScope();

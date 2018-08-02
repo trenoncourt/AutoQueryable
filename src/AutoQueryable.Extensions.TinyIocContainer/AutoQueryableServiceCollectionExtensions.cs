@@ -9,12 +9,13 @@ namespace AutoQueryable.Extensions.TinyIocContainer
 {
     public static class AutoQueryableServiceCollectionExtensions
     {
-        public static void RegisterAutoQueryable(this TinyIoCContainer container, Action<AutoQueryableProfile> handler = null)
+        public static void RegisterAutoQueryable(this TinyIoCContainer container, Action<AutoQueryableSettings> handler = null)
         {
-            var profile = new AutoQueryableProfile();
-            handler?.Invoke(profile);
+            var settings = new AutoQueryableSettings();
+            handler?.Invoke(settings);
             container.Register<IAutoQueryableContext, AutoQueryableContext>();
-            container.Register<IAutoQueryableProfile, AutoQueryableProfile>(profile);
+            container.Register(settings);
+            container.Register<IAutoQueryableProfile, AutoQueryableProfile>();
             container.Register<IAutoQueryHandler, AutoQueryHandler>();
             container.Register<IClauseValueManager, ClauseValueManager>();
             container.Register<ICriteriaFilterManager, CriteriaFilterManager>();

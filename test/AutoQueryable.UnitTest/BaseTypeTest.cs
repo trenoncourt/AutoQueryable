@@ -17,13 +17,14 @@ namespace AutoQueryable.UnitTest
 {
     public class BaseTypeTest
     {
-        private SimpleQueryStringAccessor _queryStringAccessor;
+        private readonly SimpleQueryStringAccessor _queryStringAccessor;
         private IAutoQueryableProfile _profile;
-        private IAutoQueryableContext _autoQueryableContext;
+        private readonly IAutoQueryableContext _autoQueryableContext;
 
         public BaseTypeTest()
         {
-            _profile = new AutoQueryableProfile{DefaultToTake = 10};
+            var settings = new AutoQueryableSettings {DefaultToTake = 10};
+            _profile = new AutoQueryableProfile(settings);
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
