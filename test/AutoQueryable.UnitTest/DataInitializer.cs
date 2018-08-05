@@ -58,7 +58,7 @@ namespace AutoQueryable.UnitTest
                         Color = i % 2 == 0 ? "red" : "black",
                         ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
                         ProductModel = model1,
-                        ListPrice = i,
+                        ListPrice = (decimal) (i / 5.0),
                         Name = i % 2 == 0 ? null : $"Product {i}",
                         ProductNumber = Guid.NewGuid().ToString(),
                         Rowguid = Guid.Parse(GuidString),

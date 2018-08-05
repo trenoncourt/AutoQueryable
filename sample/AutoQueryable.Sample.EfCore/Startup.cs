@@ -90,7 +90,7 @@ namespace AutoQueryable.Sample.EfCore
                     Color = i % 2 == 0 ? "red" : "black",
                     ProductCategory = i % 2 == 0 ? redCategory : blackCategory,
                     ProductModel = model1,
-                    ListPrice = i,
+                    ListPrice = (decimal) (i / 5.0),
                     Name = $"Product {i}",
                     ProductNumber = Guid.NewGuid().ToString(),
                     Rowguid = Guid.NewGuid(),

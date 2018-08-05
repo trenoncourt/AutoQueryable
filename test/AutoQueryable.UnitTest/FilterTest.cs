@@ -477,5 +477,19 @@ namespace AutoQueryable.UnitTest
                 query.Count().Should().Be(0);
             }
         }
+        
+        [Fact]
+        public void FilterWithDecimalPoints_Query_ResultsCountShouldBeOne()
+        {
+            using (var context = new AutoQueryableDbContext())
+            {
+                _queryStringAccessor.SetQueryString("ListPrice=1.6");
+
+                DataInitializer.InitializeSeed(context);
+                var query = context.Product.AutoQueryable(_autoQueryableContext)  as IQueryable<object>;
+
+                query.Count().Should().Be(1);
+            }
+        }
     }
 }
