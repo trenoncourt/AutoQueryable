@@ -17,6 +17,10 @@ namespace AutoQueryable.Core.Clauses
         int? Take { get; set; }
         int? Top { get; set; }
         IEnumerable<string> WrapWith { get; set; }
+        /// <summary>
+        /// Return all items without pagination
+        /// </summary>
+        bool ReturnAllValues { get; set; }
         void SetDefaults(Type type);
     }
 }

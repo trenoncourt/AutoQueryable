@@ -80,20 +80,45 @@ namespace AutoQueryable.Core.Models
             // Set the defaults to start with, then fill/overwrite with the query string values
             ClauseValueManager.SetDefaults(typeof(T));
 
+            if(ClauseValueManager.Top != null && ClauseValueManager.Top == 0)
+            {
+                // Setting ReturnAllValues to true because Top is 0
+                ClauseValueManager.ReturnAllValues = true;
+            }
             if (ClauseValueManager.PageSize != null)
             {
-                ClauseValueManager.Top = ClauseValueManager.PageSize;
+                if(ClauseValueManager.PageSize == 0)
+                {
+                    // Setting ReturnAllValues to true because PageSize is 0
+                    ClauseValueManager.ReturnAllValues = true;
+                }
+                else
+                {
+                    ClauseValueManager.Top = ClauseValueManager.PageSize;
+                }
             }
 
             if (ClauseValueManager.Page != null)
             {
-                //this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
-                // Calculate skip from page if page query param was set
-                ClauseValueManager.Top = ClauseValueManager.Top ?? profile.DefaultToTake;
-                ClauseValueManager.Skip = (ClauseValueManager.Page - 1) * ClauseValueManager.Top;
+                if(ClauseValueManager.Page == 0)
+                {
+                    // Setting ReturnAllValues to true because Page is 0
+                    ClauseValueManager.ReturnAllValues = true;
+                }
+                else
+                {
+                    // Calculate skip from page if page query param was set
+                    ClauseValueManager.Top = ClauseValueManager.Top ?? profile.DefaultToTake;
+                    // Overwriting 'skip' clause value because 'page' is set
+                    ClauseValueManager.Skip = (ClauseValueManager.Page - 1) * ClauseValueManager.Top;
+                }
             }
 
-
+            if(ClauseValueManager.WrapWith.Any() && ClauseValueManager.WrapWith.Contains("none"))
+            {
+                // Setting ReturnAllValues to true because WrapWith contains 'none'
+                ClauseValueManager.ReturnAllValues = true;
+            }
 
             if (ClauseValueManager.OrderBy == null && profile.DefaultOrderBy != null)
             {

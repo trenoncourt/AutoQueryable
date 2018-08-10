@@ -68,17 +68,19 @@ namespace AutoQueryable.Helpers
                 }
                 query = query.Skip(clauseValueManager.Skip.Value);
             }
-            // Top or DefaultToTake = 0 => return ALL values
+            // ReturnAllValues or DefaultToTake = 0 => return ALL values
+            if(clauseValueManager.ReturnAllValues || profile == null || profile.DefaultToTake == 0)
+            {
+                return query;
+            }
+            
             if (clauseValueManager.Top.HasValue)
             {
-                if (clauseValueManager.Top != 0 && (profile == null || profile.DefaultToTake != 0))
+                if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
                 {
-                    if (profile?.MaxToTake != null && clauseValueManager.Top > profile.MaxToTake)
-                    {
-                        clauseValueManager.Top = profile.MaxToTake.Value;
-                    }
-                    query = query.Take(clauseValueManager.Top.Value);
+                    clauseValueManager.Top = profile.MaxToTake.Value;
                 }
+                query = query.Take(clauseValueManager.Top.Value);
             }
             else if (profile?.MaxToTake != null)
             {

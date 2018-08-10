@@ -35,6 +35,11 @@ namespace AutoQueryable.Core.Clauses
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public IEnumerable<string> WrapWith { get; set; }
+        /// <inheritdoc />
+        /// <summary>
+        /// Return all values without pagination
+        /// </summary>
+        public bool ReturnAllValues { get; set; }
 
         public void SetDefaults(Type type)
         {
