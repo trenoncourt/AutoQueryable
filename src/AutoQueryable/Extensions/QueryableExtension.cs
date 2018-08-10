@@ -53,7 +53,7 @@ namespace AutoQueryable.Extensions
             {
                 TotalCount = context.TotalCountQuery?.Count() ?? result.Count,
                 RowCount = result.Count,
-                Result = result
+                Values = result
             };
         }
         //private static dynamic _getWrappedResult(QueryResult queryResult, IAutoQueryableContext context)
