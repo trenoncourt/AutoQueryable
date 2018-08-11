@@ -112,6 +112,10 @@ namespace AutoQueryable.Helpers
                 {
                     wrapper.Add(WrapperAlias.Count, result.Count());
                 }
+                else if (wrapperPart == WrapperAlias.TotalCount)
+                {
+                    wrapper.Add(WrapperAlias.TotalCount, TotalCountQuery.Count());
+                }
             }
 
             return wrapper;
