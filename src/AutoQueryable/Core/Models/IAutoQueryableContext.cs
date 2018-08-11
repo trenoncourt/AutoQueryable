@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AutoQueryable.Core.Clauses;
 
 namespace AutoQueryable.Core.Models

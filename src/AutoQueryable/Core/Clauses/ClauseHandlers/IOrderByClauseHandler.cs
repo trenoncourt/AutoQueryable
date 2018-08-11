@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using AutoQueryable.Core.Models;
 
-namespace AutoQueryable.Core.Clauses
+namespace AutoQueryable.Core.Clauses.ClauseHandlers
 {
     public interface IOrderByClauseHandler : IClauseHandler<Dictionary<string, bool>>
     {

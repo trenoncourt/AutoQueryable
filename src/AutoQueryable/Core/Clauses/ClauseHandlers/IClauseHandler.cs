@@ -1,7 +1,7 @@
 ﻿using System;
 using AutoQueryable.Core.Models;
 
-namespace AutoQueryable.Core.Clauses
+namespace AutoQueryable.Core.Clauses.ClauseHandlers
 {
     public interface IClauseHandler<T> where T : class 
     {

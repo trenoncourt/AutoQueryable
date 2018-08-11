@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AutoQueryable.Core.Models;
 
 namespace AutoQueryable.Core.Clauses.ClauseHandlers
