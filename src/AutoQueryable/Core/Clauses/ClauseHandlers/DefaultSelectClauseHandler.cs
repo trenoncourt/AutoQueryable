@@ -5,7 +5,7 @@ using System.Reflection;
 using AutoQueryable.Core.Extensions;
 using AutoQueryable.Core.Models;
 
-namespace AutoQueryable.Core.Clauses
+namespace AutoQueryable.Core.Clauses.ClauseHandlers
 {
     public class DefaultSelectClauseHandler : ISelectClauseHandler
     {
@@ -236,7 +236,8 @@ namespace AutoQueryable.Core.Clauses
             }
         }
     }
-
+    
+    
     public interface IAutoQueryableBaseType 
     {
         Type BaseType { get; set; }

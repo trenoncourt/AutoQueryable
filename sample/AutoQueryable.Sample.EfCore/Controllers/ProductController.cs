@@ -38,6 +38,13 @@ namespace AutoQueryable.Sample.EfCore.Controllers
             return context.Product;
         }
         
+        [AutoQueryable(DisAllowedClauses = ClauseType.Select)]
+        [HttpGet("with_disallow")]
+        public IQueryable GetWithDisallow([FromServices] AutoQueryableDbContext context)
+        {
+            return context.Product;
+        }
+        
         
         [AutoQueryable(DefaultToSelect = "name")]
         [HttpGet("with_default")]

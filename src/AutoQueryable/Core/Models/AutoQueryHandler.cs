@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using AutoQueryable.Core.Clauses;
 using AutoQueryable.Core.CriteriaFilters;
 using AutoQueryable.Core.Enums;
-using AutoQueryable.Core.Extensions;
 using AutoQueryable.Helpers;
 
 namespace AutoQueryable.Core.Models
@@ -48,7 +47,7 @@ namespace AutoQueryable.Core.Models
                 return GetDefaultSelectableQuery(query);
             }
 
-            _getClauses<T>(_profile);
+            GetClauses<T>();
             var criterias = _profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias<T>().ToList() : null;
             
             var queryResult = QueryBuilder.Build(ClauseValueManager, _criteriaFilterManager, query, criterias, _profile);
@@ -57,16 +56,17 @@ namespace AutoQueryable.Core.Models
  
             return queryResult;
         }
-        private void _getClauses<T>(IAutoQueryableProfile profile) where T : class
+        
+        private void GetClauses<T>() where T : class
         {
-            //var clauses = new List<Clause>();
+            _clauseMapManager.Init();
             foreach (var q in _queryStringAccessor.QueryStringParts.Where(q => !q.IsHandled))
             {
                 var clauseQueryFilter = _clauseMapManager.FindClauseQueryFilter(q.Value);
                 if(clauseQueryFilter != null)
                 {
                     var operandValue = _getOperandValue(q.Value, clauseQueryFilter.Alias);
-                    var value = clauseQueryFilter.ParseValue(operandValue, typeof(T), profile);
+                    var value = clauseQueryFilter.ParseValue(operandValue, typeof(T), _profile);
                     var propertyInfo = ClauseValueManager.GetType().GetProperty(clauseQueryFilter.ClauseType.ToString());
                     if(propertyInfo.PropertyType == typeof(bool))
                     {
@@ -74,7 +74,6 @@ namespace AutoQueryable.Core.Models
                     }
 
                     propertyInfo.SetValue(ClauseValueManager, value);
-                    //clauses.Add(new Clause(clauseQueryFilter.ClauseType, value, clauseQueryFilter.ValueType));
                 }
             }
             // Set the defaults to start with, then fill/overwrite with the query string values
@@ -89,20 +88,20 @@ namespace AutoQueryable.Core.Models
             {
                 //this.Logger.Information("Overwriting 'skip' clause value because 'page' is set");
                 // Calculate skip from page if page query param was set
-                ClauseValueManager.Top = ClauseValueManager.Top ?? profile.DefaultToTake;
+                ClauseValueManager.Top = ClauseValueManager.Top ?? _profile.DefaultToTake;
                 ClauseValueManager.Skip = (ClauseValueManager.Page - 1) * ClauseValueManager.Top;
             }
 
 
 
-            if (ClauseValueManager.OrderBy == null && profile.DefaultOrderBy != null)
+            if (ClauseValueManager.OrderBy == null && _profile.DefaultOrderBy != null)
             {
-                ClauseValueManager.OrderBy = profile.DefaultOrderBy;
+                ClauseValueManager.OrderBy = _profile.DefaultOrderBy;
             }
 
             if (ClauseValueManager.Select.Count == 0)
             {
-                _clauseMapManager.GetClauseQueryFilter(ClauseType.Select).ParseValue("", typeof(T), profile);
+                _clauseMapManager.GetClauseQueryFilter(ClauseType.Select).ParseValue("", typeof(T), _profile);
             }
         }
         private string _getOperandValue(string q, string clauseAlias) => Regex.Split(q, clauseAlias, RegexOptions.IgnoreCase)[1];

@@ -93,31 +93,31 @@ namespace AutoQueryable.AspNetCore.Filter.FilterAttributes
             _autoQueryableProfile.UnSortableProperties = UnSortableProperties;
             _autoQueryableProfile.GroupableProperties = GroupableProperties;
             _autoQueryableProfile.UnGroupableProperties = UnGroupableProperties;
-            if (_autoQueryableProfile.AllowedClauses.HasValue)
+            if (AllowedClauses != ClauseType.None)
             {
                 _autoQueryableProfile.AllowedClauses = AllowedClauses;
             }
-            if (_autoQueryableProfile.DisAllowedClauses.HasValue)
+            if (DisAllowedClauses != ClauseType.None)
             {
                 _autoQueryableProfile.DisAllowedClauses = DisAllowedClauses;
             }
-            if (_autoQueryableProfile.AllowedConditions.HasValue)
+            if (AllowedConditions != ConditionType.None)
             {
                 _autoQueryableProfile.AllowedConditions = AllowedConditions;
             }
-            if (_autoQueryableProfile.DisAllowedConditions.HasValue)
+            if (DisAllowedConditions != ConditionType.None)
             {
                 _autoQueryableProfile.DisAllowedConditions = DisAllowedConditions;
             }
-            if (_autoQueryableProfile.AllowedWrapperPartType.HasValue)
+            if (AllowedWrapperPartType != WrapperPartType.None)
             {
                 _autoQueryableProfile.AllowedWrapperPartType = AllowedWrapperPartType;
             }
-            if (_autoQueryableProfile.DisAllowedWrapperPartType.HasValue)
+            if (DisAllowedWrapperPartType != WrapperPartType.None)
             {
                 _autoQueryableProfile.DisAllowedWrapperPartType = DisAllowedWrapperPartType;
             }
-            if (_autoQueryableProfile.MaxToTake.HasValue)
+            if (MaxToTake != 0)
             {
                 _autoQueryableProfile.MaxToTake = MaxToTake;
             }

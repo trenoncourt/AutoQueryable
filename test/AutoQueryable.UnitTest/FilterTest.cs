@@ -16,21 +16,20 @@ namespace AutoQueryable.UnitTest
     public class FilterTest
     {
         private readonly SimpleQueryStringAccessor _queryStringAccessor;
-        private readonly IAutoQueryableProfile _profile;
         private readonly IAutoQueryableContext _autoQueryableContext;
 
         public FilterTest()
         {
             var settings = new AutoQueryableSettings();
-            _profile = new AutoQueryableProfile(settings);
+            IAutoQueryableProfile profile = new AutoQueryableProfile(settings);
             _queryStringAccessor = new SimpleQueryStringAccessor();
             var selectClauseHandler = new DefaultSelectClauseHandler();
             var orderByClauseHandler = new DefaultOrderByClauseHandler();
             var wrapWithClauseHandler = new DefaultWrapWithClauseHandler();
-            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler);
-            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, _profile);
+            var clauseMapManager = new ClauseMapManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, profile);
+            var clauseValueManager = new ClauseValueManager(selectClauseHandler, orderByClauseHandler, wrapWithClauseHandler, profile);
             var criteriaFilterManager = new CriteriaFilterManager();
-            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager, _profile);
+            var defaultAutoQueryHandler = new AutoQueryHandler(_queryStringAccessor,criteriaFilterManager ,clauseMapManager ,clauseValueManager, profile);
             _autoQueryableContext = new AutoQueryableContext(defaultAutoQueryHandler);
         }
         [Fact]
