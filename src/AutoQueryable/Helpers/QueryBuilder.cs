@@ -209,7 +209,7 @@ namespace AutoQueryable.Helpers
             {
                 var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
 
-                whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                whereExpression = whereExpression == null ? expression : c.Or ? Expression.OrElse(whereExpression, expression) : Expression.AndAlso(whereExpression, expression);
             }
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));

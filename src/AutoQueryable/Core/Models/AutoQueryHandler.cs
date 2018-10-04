@@ -111,18 +111,34 @@ namespace AutoQueryable.Core.Models
             foreach (var qPart in _queryStringAccessor.QueryStringParts.Where(q => !q.IsHandled))
             {
                 var q = WebUtility.UrlDecode(qPart.Value);
-                var criteria = GetCriteria<T>(q);
-
-                if (criteria != null)
+                
+                int subIndex = q.IndexOf('=');
+                if (subIndex == -1)
                 {
-                    yield return criteria;
+                    subIndex = q.IndexOf('>');
+                }
+                if (subIndex == -1)
+                {
+                    subIndex = q.IndexOf('<');
+                }
+                List<string> orEnties = q.Substring(0, subIndex).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s + q.Substring(subIndex, q.Length - subIndex)).ToList();
+                for (int i = 0; i < orEnties.Count; i++)
+                {
+                    var criteria = GetCriteria<T>(orEnties[i].Trim());
+                    if (i > 0)
+                    {
+                        criteria.Or = true;
+                    }
+                    if (criteria != null)
+                    {
+                        yield return criteria;
+                    }   
                 }
             }
         }
 
         private Criteria GetCriteria<T>(string q) where T : class
         {
-
             var filter = _criteriaFilterManager.FindFilter(q);
             if (filter == null)
             {
