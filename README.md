@@ -129,6 +129,13 @@ AQ settings can be overriden in attribute too
 - Filtering: [/products?**nameContains=frame&color=red,black**](/products?nameContains=frame&color=red,black) 
 - Paging: [/products?**page=2&pagesize=10**](/products?page=2&pagesize=10) 
 
+## And / Or management
+
+- In a single filter, properties are managed with **OR**, eg `prop1=a,b,c`
+- If you want single filter with **AND** you need to add the same filter, eg `prop1=a&prop1=b&prop1=c`
+- If multiple filters are provided, there are managed with **AND**, eg `prop1=a&prop2=a&prop3Contains=b`
+- If you want multiple filters with **OR**, you must provide all filters before the *=*, eg `prop1StartsWith,prop2:i,prop3Contains:i=a,b,c`
+
 ## Selection
 
 - Select all properties of level zero without relations: [/products?**select=_**](/products?**select=_)
