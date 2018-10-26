@@ -121,19 +121,35 @@ namespace AutoQueryable.Core.Models
                 {
                     subIndex = q.IndexOf('<');
                 }
-                List<string> orEnties = q.Substring(0, subIndex).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s + q.Substring(subIndex, q.Length - subIndex)).ToList();
-                for (int i = 0; i < orEnties.Count; i++)
+                List<string> orEntries = q.Substring(0, subIndex).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s + q.Substring(subIndex, q.Length - subIndex)).ToList();
+                if (orEntries.Count <= 1)
                 {
-                    var criteria = GetCriteria<T>(orEnties[i].Trim());
+                    var criteria = GetCriteria<T>(orEntries[0].Trim());
+                    if (criteria != null)
+                    {
+                        yield return criteria;
+                    }
+                    continue;
+                }
+                
+                List<Criteria> criterias = new List<Criteria>();
+                for (int i = 0; i < orEntries.Count; i++)
+                {
+                    var criteria = GetCriteria<T>(orEntries[i].Trim());
                     if (i > 0)
                     {
                         criteria.Or = true;
                     }
                     if (criteria != null)
                     {
-                        yield return criteria;
-                    }   
+                        criterias.Add(criteria);
+                    }
                 }
+                if (criterias.Count == 0) continue;
+                yield return new Criteria
+                {
+                    Criterias = criterias
+                };
             }
         }
 

@@ -207,9 +207,37 @@ namespace AutoQueryable.Helpers
             Expression whereExpression = null;
             foreach (var c in criterias)
             {
-                var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
+                if (c.Criterias != null && c.Criterias.Count > 0)
+                {
+                    if (c.Criterias.Count == 1)
+                    {
+                        var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c.Criterias.First(), c.Criterias.First().ColumnPath.ToArray());
+                        whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                    }
 
-                whereExpression = whereExpression == null ? expression : c.Or ? Expression.OrElse(whereExpression, expression) : Expression.AndAlso(whereExpression, expression);
+                    List<Expression> expressions = new List<Expression>();
+                    foreach (var criteria in c.Criterias)
+                    {
+                        expressions.Add(BuildWhereExpression(criteriaFilterManager, parentEntity, criteria, criteria.ColumnPath.ToArray()));
+                    }
+                    Expression currentExpression = null;
+                    foreach (var expression in expressions)
+                    {
+                        if (currentExpression == null)
+                        {
+                            currentExpression = expression;
+                            continue;
+                        }
+                        currentExpression = Expression.OrElse(expression, currentExpression);
+                    }
+
+                    whereExpression = whereExpression == null ? currentExpression : Expression.AndAlso(whereExpression, currentExpression); // TODO
+                }
+                else
+                {
+                    var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
+                    whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                }
             }
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
