@@ -49,10 +49,11 @@ namespace AutoQueryable.Core.Models
 
             GetClauses<T>();
             var criterias = _profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias<T>().ToList() : null;
-            
-            var queryResult = QueryBuilder.Build(ClauseValueManager, _criteriaFilterManager, query, criterias, _profile);
 
-            TotalCountQuery = QueryBuilder.TotalCountQuery;
+            query = QueryBuilder.AddCriterias(query, criterias, _criteriaFilterManager);
+            TotalCountQuery = query;
+            var queryResult = QueryBuilder.Build(ClauseValueManager, query, _profile);
+
  
             return queryResult;
         }
