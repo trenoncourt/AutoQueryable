@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</Description>
     <AssemblyTitle>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</AssemblyTitle>
-    <Version>2.0.10-beta</Version>
+    <Version>2.0.11-beta</Version>
     <Authors>Thibaut Renoncourt, Nils Goovaerts</Authors>
     <TargetFramework>netstandard1.3</TargetFramework>
     <AssemblyName>AutoQueryable</AssemblyName>
