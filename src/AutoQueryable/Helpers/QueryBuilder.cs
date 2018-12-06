@@ -269,15 +269,29 @@ namespace AutoQueryable.Helpers
             {
                 PropertyName = v.Name
             });
+            var i = 0;
             foreach (var column in columns)
             {
                 var desc = orderClause.FirstOrDefault(o => string.Equals(o.Key, column.PropertyName, StringComparison.OrdinalIgnoreCase)).Value;
+                string method;
                 if(desc){
-                    source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
-                }else
-                {
-                    source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                    method = QueryableMethods.OrderByDescending;
+                    if (i > 0)
+                    {
+                        method = QueryableMethods.ThenByDescending;
+                    }
                 }
+                else
+                {
+                    method = QueryableMethods.OrderBy;
+                    if (i > 0)
+                    {
+                        method = QueryableMethods.ThenBy;
+                    }
+                }
+
+                source = source.Call(method, column.PropertyName);
+                i++;
             }
             return source;
         }
