@@ -49,10 +49,11 @@ namespace AutoQueryable.Core.Models
 
             GetClauses<T>();
             var criterias = _profile.IsClauseAllowed(ClauseType.Filter) ? GetCriterias<T>().ToList() : null;
-            
-            var queryResult = QueryBuilder.Build(ClauseValueManager, _criteriaFilterManager, query, criterias, _profile);
 
-            TotalCountQuery = QueryBuilder.TotalCountQuery;
+            query = QueryBuilder.AddCriterias(query, criterias, _criteriaFilterManager);
+            TotalCountQuery = query;
+            var queryResult = QueryBuilder.Build(ClauseValueManager, query, _profile);
+
  
             return queryResult;
         }
@@ -111,18 +112,50 @@ namespace AutoQueryable.Core.Models
             foreach (var qPart in _queryStringAccessor.QueryStringParts.Where(q => !q.IsHandled))
             {
                 var q = WebUtility.UrlDecode(qPart.Value);
-                var criteria = GetCriteria<T>(q);
-
-                if (criteria != null)
+                
+                int subIndex = q.IndexOf('=');
+                if (subIndex == -1)
                 {
-                    yield return criteria;
+                    subIndex = q.IndexOf('>');
                 }
+                if (subIndex == -1)
+                {
+                    subIndex = q.IndexOf('<');
+                }
+                List<string> orEntries = q.Substring(0, subIndex).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s + q.Substring(subIndex, q.Length - subIndex)).ToList();
+                if (orEntries.Count <= 1)
+                {
+                    var criteria = GetCriteria<T>(orEntries[0].Trim());
+                    if (criteria != null)
+                    {
+                        yield return criteria;
+                    }
+                    continue;
+                }
+                
+                List<Criteria> criterias = new List<Criteria>();
+                for (int i = 0; i < orEntries.Count; i++)
+                {
+                    var criteria = GetCriteria<T>(orEntries[i].Trim());
+                    if (i > 0)
+                    {
+                        criteria.Or = true;
+                    }
+                    if (criteria != null)
+                    {
+                        criterias.Add(criteria);
+                    }
+                }
+                if (criterias.Count == 0) continue;
+                yield return new Criteria
+                {
+                    Criterias = criterias
+                };
             }
         }
 
         private Criteria GetCriteria<T>(string q) where T : class
         {
-
             var filter = _criteriaFilterManager.FindFilter(q);
             if (filter == null)
             {

@@ -16,17 +16,21 @@ namespace AutoQueryable.Helpers
 {
     public static class QueryBuilder
     {
-        public static IQueryable<dynamic> TotalCountQuery { get; private set; }
-
-        public static dynamic Build<T>(IClauseValueManager clauseValueManager, ICriteriaFilterManager criteriaFilterManager, IQueryable<T> query, ICollection<Criteria> criterias, IAutoQueryableProfile profile) where T : class
+        public static IQueryable<T> AddCriterias<T>(IQueryable<T> query, ICollection<Criteria> criterias, ICriteriaFilterManager criteriaFilterManager) where T : class
         {
             if (criterias != null && criterias.Any())
             {
-                query = _addCriterias(criteriaFilterManager, query, criterias);
+                return _addCriterias(criteriaFilterManager, query, criterias);
             }
+
+            return query;
+        }
+
+        public static dynamic Build<T>(IClauseValueManager clauseValueManager, IQueryable<T> query, IAutoQueryableProfile profile) where T : class
+        {
+            var totalCountQuery = query;
             query = _addOrderBy(query, clauseValueManager.OrderBy, profile);
 
-            TotalCountQuery = query;
             if(clauseValueManager.First)
             {
                 return query.FirstOrDefault();
@@ -55,7 +59,7 @@ namespace AutoQueryable.Helpers
                 }
             }
 
-            return queryProjection.HandleWrapping(clauseValueManager);
+            return queryProjection.HandleWrapping(clauseValueManager, totalCountQuery);
         }
 
         private static IQueryable<T> _handlePaging<T>(IClauseValueManager clauseValueManager, IQueryable<T> query, IAutoQueryableProfile profile) where T : class
@@ -96,7 +100,7 @@ namespace AutoQueryable.Helpers
             return query;
         }
         
-        public static dynamic HandleWrapping<TEntity>(this IQueryable<TEntity> query, IClauseValueManager clauseValueManager) where TEntity : class
+        public static dynamic HandleWrapping<TEntity>(this IQueryable<TEntity> query, IClauseValueManager clauseValueManager, IQueryable<TEntity> totalCountQuery) where TEntity : class
         {
             if(!clauseValueManager.WrapWith.Any() || clauseValueManager.First)
             {
@@ -114,7 +118,7 @@ namespace AutoQueryable.Helpers
                 }
                 else if (wrapperPart == WrapperAlias.TotalCount)
                 {
-                    wrapper.Add(WrapperAlias.TotalCount, TotalCountQuery.Count());
+                    wrapper.Add(WrapperAlias.TotalCount, totalCountQuery.Count());
                 }
             }
 
@@ -207,9 +211,37 @@ namespace AutoQueryable.Helpers
             Expression whereExpression = null;
             foreach (var c in criterias)
             {
-                var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
+                if (c.Criterias != null && c.Criterias.Count > 0)
+                {
+                    if (c.Criterias.Count == 1)
+                    {
+                        var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c.Criterias.First(), c.Criterias.First().ColumnPath.ToArray());
+                        whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                    }
 
-                whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                    List<Expression> expressions = new List<Expression>();
+                    foreach (var criteria in c.Criterias)
+                    {
+                        expressions.Add(BuildWhereExpression(criteriaFilterManager, parentEntity, criteria, criteria.ColumnPath.ToArray()));
+                    }
+                    Expression currentExpression = null;
+                    foreach (var expression in expressions)
+                    {
+                        if (currentExpression == null)
+                        {
+                            currentExpression = expression;
+                            continue;
+                        }
+                        currentExpression = Expression.OrElse(expression, currentExpression);
+                    }
+
+                    whereExpression = whereExpression == null ? currentExpression : Expression.AndAlso(whereExpression, currentExpression); // TODO
+                }
+                else
+                {
+                    var expression = BuildWhereExpression(criteriaFilterManager, parentEntity, c, c.ColumnPath.ToArray());
+                    whereExpression = whereExpression == null ? expression : Expression.AndAlso(whereExpression, expression);
+                }
             }
 
             return source.Where(Expression.Lambda<Func<T, bool>>(whereExpression, parentEntity));
@@ -237,15 +269,29 @@ namespace AutoQueryable.Helpers
             {
                 PropertyName = v.Name
             });
+            var i = 0;
             foreach (var column in columns)
             {
                 var desc = orderClause.FirstOrDefault(o => string.Equals(o.Key, column.PropertyName, StringComparison.OrdinalIgnoreCase)).Value;
+                string method;
                 if(desc){
-                    source = source.Call(QueryableMethods.OrderByDescending, column.PropertyName);
-                }else
-                {
-                    source = source.Call(QueryableMethods.OrderBy, column.PropertyName);
+                    method = QueryableMethods.OrderByDescending;
+                    if (i > 0)
+                    {
+                        method = QueryableMethods.ThenByDescending;
+                    }
                 }
+                else
+                {
+                    method = QueryableMethods.OrderBy;
+                    if (i > 0)
+                    {
+                        method = QueryableMethods.ThenBy;
+                    }
+                }
+
+                source = source.Call(method, column.PropertyName);
+                i++;
             }
             return source;
         }
