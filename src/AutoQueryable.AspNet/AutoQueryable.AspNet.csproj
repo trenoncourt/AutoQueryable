@@ -9,7 +9,15 @@
     <Description>AutoQueryable add auto querying functionality like OData with best url practices to Asp.Net Core.</Description>
     <RepositoryUrl>https://github.com/trenoncourt/AutoQueryable</RepositoryUrl>
     <PackageTags>AutoQueryable;AutoQuery;OData</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
