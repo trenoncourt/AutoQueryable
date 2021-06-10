@@ -10,7 +10,15 @@
     <PackageProjectUrl>https://github.com/trenoncourt/AutoQueryable</PackageProjectUrl>
     <PackageTags>AutoQueryable;AutoQuery;OData</PackageTags>
     <RepositoryUrl>https://github.com/trenoncourt/AutoQueryable</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\AutoQueryable.AspNet\AutoQueryable.AspNet.csproj" />
     <ProjectReference Include="..\AutoQueryable\AutoQueryable.csproj" />
